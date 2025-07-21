@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%; /* White #FFFFFF - This will be for the floating content area */
+    --foreground: 220 10% 13%; /* #222222 for headings */
+
+    --card: 0 0% 100%; /* White #FFFFFF */
+    --card-foreground: 220 10% 13%; /* #222222 */
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 10% 13%;
+
+    --primary: 0 100% 70%; /* Vibrant Red-Orange #FF6B6B */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 175 60% 54%; /* Turquoise #4ECDC4 */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 220 10% 95%; /* Light gray for muted elements */
+    --muted-foreground: 220 10% 45%; /* #6B7280 */
+
+    --accent: 48 100% 70%; /* Sunny Yellow #FFE66D */
+    --accent-foreground: 220 10% 13%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 10% 90%; /* Light border for contrast */
+    --input: 220 10% 90%;
+    --ring: 0 100% 70%; /* Vibrant Red-Orange */
+
+    --radius: 0.75rem; /* Already updated in previous turn */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-section-bg text-foreground font-sans; /* Set body background to a lighter gray for the "floating" effect */
+    font-family: var(--font-plus-jakarta), sans-serif; /* Apply the new font */
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply text-heading-text;
+  }
+  p {
+    @apply text-body-text;
+  }
+}
