@@ -1,10 +1,14 @@
-import type React from "react"
-import "@/app/globals.css"
-import { plusJakartaSans } from "@/lib/fonts"
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
+import { AuthProvider } from "@/lib/auth-context"
 
-export const metadata = {
-  title: "ClipIt",
-    generator: 'v0.dev'
+const inter = Inter({ subsets: ["latin"] })
+
+export const metadata: Metadata = {
+  title: "ClipIt - Content Creator Platform",
+  description: "Connect creators with brands and earn rewards for your content",
 }
 
 export default function RootLayout({
@@ -13,8 +17,19 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={plusJakartaSans.variable}>
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </AuthProvider>
+      </body>
     </html>
   )
 }

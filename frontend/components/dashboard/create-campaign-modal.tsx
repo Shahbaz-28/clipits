@@ -38,6 +38,8 @@ import {
 import { format } from "date-fns"
 import { cn } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
+import { api } from "@/lib/api"
+import { toast } from "sonner"
 
 interface CreateCampaignModalProps {
   isOpen: boolean
@@ -51,18 +53,79 @@ export function CreateCampaignModal({ isOpen, onClose }: CreateCampaignModalProp
   const [rewardRate, setRewardRate] = useState<number>(0)
   const [minPayout, setMinPayout] = useState<number>(0)
   const [maxPayout, setMaxPayout] = useState<number>(0)
-  const [flatBonus, setFlatBonus] = useState<number>(0)
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    type: '',
+    requirements: ''
+  })
 
   const handlePlatformToggle = (platform: string) => {
     setSelectedPlatforms((prev) => (prev.includes(platform) ? prev.filter((p) => p !== platform) : [...prev, platform]))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission logic here
-    console.log("Campaign created!")
-    onClose()
+    setIsSubmitting(true)
+
+    try {
+      // Calculate days left if both dates are provided
+      let daysLeft = null
+      if (startDate && endDate) {
+        const diffTime = Math.abs(endDate.getTime() - startDate.getTime())
+        daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      }
+
+      const requestData = {
+        title: formData.title,
+        description: formData.description,
+        rate_per_1k: rewardRate,
+        total_budget: budget,
+        min_payout: minPayout || null,
+        max_payout: maxPayout || null,
+        category: null, // Removed category
+        type: formData.type,
+        platforms: selectedPlatforms,
+        requirements: formData.requirements ? [formData.requirements] : [],
+        assets: [],
+        days_left: daysLeft
+      }
+
+      const response = await api.creatorRequests.create(requestData)
+      
+      if (response.success) {
+        toast.success('Campaign request submitted successfully! Waiting for admin approval.')
+        onClose()
+        // Reset form
+        setFormData({
+          title: '',
+          description: '',
+          type: '',
+          requirements: ''
+        })
+        setBudget(0)
+        setRewardRate(0)
+        setMinPayout(0)
+        setMaxPayout(0)
+        setSelectedPlatforms([])
+        setStartDate(undefined)
+        setEndDate(undefined)
+      }
+    } catch (error) {
+      console.error('Error submitting campaign request:', error)
+      toast.error('Failed to submit campaign request. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -74,7 +137,7 @@ export function CreateCampaignModal({ isOpen, onClose }: CreateCampaignModalProp
             Create New Campaign
           </DialogTitle>
           <DialogDescription className="text-muted-label text-base">
-            Set up your campaign to start engaging with creators
+            Submit your campaign request for admin approval
           </DialogDescription>
         </DialogHeader>
         <form
@@ -92,7 +155,25 @@ export function CreateCampaignModal({ isOpen, onClose }: CreateCampaignModalProp
               <Input
                 id="title"
                 placeholder="Enter an engaging campaign title"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
                 className="w-full bg-section-bg border-border text-body-text placeholder:text-muted-label rounded-md"
+                required
+              />
+            </div>
+            {/* Campaign Description */}
+            <div>
+              <Label htmlFor="description" className="text-body-text flex items-center gap-2 mb-2">
+                <Tag className="w-4 h-4 text-muted-label" />
+                Campaign Description
+              </Label>
+              <textarea
+                id="description"
+                placeholder="Describe your campaign requirements and goals"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                className="w-full bg-section-bg border-border text-body-text placeholder:text-muted-label rounded-md p-3 min-h-[100px] resize-none"
+                required
               />
             </div>
             {/* Campaign Type */}
@@ -101,32 +182,13 @@ export function CreateCampaignModal({ isOpen, onClose }: CreateCampaignModalProp
                 <Tag className="w-4 h-4 text-muted-label" />
                 Campaign Type
               </Label>
-              <Select>
+              <Select onValueChange={(value) => handleInputChange('type', value)}>
                 <SelectTrigger className="w-full bg-section-bg border-border text-body-text rounded-md">
                   <SelectValue placeholder="Select campaign type" />
                 </SelectTrigger>
                 <SelectContent className="bg-main-bg border-border text-body-text rounded-md">
                   <SelectItem value="ugc">UGC</SelectItem>
                   <SelectItem value="clipping">Clipping</SelectItem>
-                  <SelectItem value="review">Review</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            {/* Category */}
-            <div>
-              <Label htmlFor="category" className="text-body-text flex items-center gap-2 mb-2">
-                <Grid3X3 className="w-4 h-4 text-muted-label" />
-                Category
-              </Label>
-              <Select>
-                <SelectTrigger className="w-full bg-section-bg border-border text-body-text rounded-md">
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent className="bg-main-bg border-border text-body-text rounded-md">
-                  <SelectItem value="fashion">Fashion</SelectItem>
-                  <SelectItem value="gaming">Gaming</SelectItem>
-                  <SelectItem value="tech">Tech</SelectItem>
-                  <SelectItem value="food">Food</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -187,6 +249,7 @@ export function CreateCampaignModal({ isOpen, onClose }: CreateCampaignModalProp
                 value={budget === 0 ? "" : budget}
                 onChange={(e) => setBudget(Number(e.target.value))}
                 className="w-full bg-section-bg border-border text-body-text placeholder:text-muted-label rounded-md"
+                required
               />
             </div>
             {/* Reward Rate per 1,000 views */}
@@ -203,6 +266,7 @@ export function CreateCampaignModal({ isOpen, onClose }: CreateCampaignModalProp
                 value={rewardRate === 0 ? "" : rewardRate}
                 onChange={(e) => setRewardRate(Number(e.target.value))}
                 className="w-full bg-section-bg border-border text-body-text placeholder:text-muted-label rounded-md"
+                required
               />
             </div>
             {/* Min Payout & Max Payout */}
@@ -223,21 +287,20 @@ export function CreateCampaignModal({ isOpen, onClose }: CreateCampaignModalProp
               </div>
               <div>
                 <Label htmlFor="maxPayout" className="text-body-text flex items-center gap-2 mb-2">
-                  <TrendingUp className="w-4 h-4 text-muted-label" />
+                  <Star className="w-4 h-4 text-muted-label" />
                   Max Payout (₹)
                 </Label>
                 <Input
                   id="maxPayout"
                   type="number"
-                  placeholder="500"
+                  placeholder="2000"
                   value={maxPayout === 0 ? "" : maxPayout}
                   onChange={(e) => setMaxPayout(Number(e.target.value))}
                   className="w-full bg-section-bg border-border text-body-text placeholder:text-muted-label rounded-md"
                 />
               </div>
             </div>
-   
-            {/* Start Date & End Date */}
+            {/* Campaign Duration */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="startDate" className="text-body-text flex items-center gap-2 mb-2">
@@ -286,43 +349,19 @@ export function CreateCampaignModal({ isOpen, onClose }: CreateCampaignModalProp
                 </Popover>
               </div>
             </div>
-            {/* Auto-approve checkbox */}
-            <div className="flex items-center space-x-2 pt-2">
-              <Checkbox
-                id="autoApprove"
-                className="border-border data-[state=checked]:bg-turquoise-accent data-[state=checked]:text-white rounded-sm"
-              />
-              <Label htmlFor="autoApprove" className="text-body-text">
-                Auto-approve submissions after 48 hours
+            {/* Campaign Requirements */}
+            <div>
+              <Label htmlFor="requirements" className="text-body-text flex items-center gap-2 mb-2">
+                <Target className="w-4 h-4 text-muted-label" />
+                Campaign Requirements
               </Label>
-            </div>
-          </div>
-
-          {/* Payment Summary - Full width below two columns */}
-          <div className="col-span-full mt-6">
-            <h3 className="text-lg font-bold text-heading-text mb-4 flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-muted-label" />
-              Payment Summary
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="bg-main-bg border-border shadow-md rounded-lg">
-                <CardContent className="p-4">
-                  <p className="text-sm text-muted-label mb-1">Total Budget</p>
-                  <p className="text-xl font-bold text-heading-text">₹{budget.toLocaleString()}</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-main-bg border-border shadow-md rounded-lg">
-                <CardContent className="p-4">
-                  <p className="text-sm text-muted-label mb-1">Reward Rate</p>
-                  <p className="text-xl font-bold text-heading-text">₹{rewardRate.toFixed(1)}/1K</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-main-bg border-border shadow-md rounded-lg">
-                <CardContent className="p-4">
-                  <p className="text-sm text-muted-label mb-1">Est. Reach</p>
-                  <p className="text-xl font-bold text-heading-text">50K+</p>
-                </CardContent>
-              </Card>
+              <textarea
+                id="requirements"
+                placeholder="List specific requirements for content creators"
+                value={formData.requirements}
+                onChange={(e) => handleInputChange('requirements', e.target.value)}
+                className="w-full bg-section-bg border-border text-body-text placeholder:text-muted-label rounded-md p-3 min-h-[100px] resize-none"
+              />
             </div>
           </div>
         </form>
@@ -331,15 +370,27 @@ export function CreateCampaignModal({ isOpen, onClose }: CreateCampaignModalProp
             variant="outline"
             onClick={onClose}
             className="w-full sm:w-auto border-border text-body-text hover:bg-section-bg bg-transparent rounded-md"
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
           <Button
             type="submit"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
             className="w-full sm:w-auto bg-gradient-to-r from-vibrant-red-orange to-[#FF4B4B] text-white hover:from-[#FF4B4B] hover:to-vibrant-red-orange shadow-lg shadow-vibrant-red-orange/30 transition-all duration-200 rounded-md"
           >
-            <CreditCard className="w-4 h-4 mr-2" />
-            Pay with Razorpay
+            {isSubmitting ? (
+              <>
+                <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Campaign
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
