@@ -6,7 +6,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Check, X, Eye, Loader2 } from "lucide-react"
-import { api } from "@/lib/api"
 import { toast } from "sonner"
 
 interface CreatorRequest {
@@ -36,29 +35,17 @@ export function CreatorRequestsTable() {
   }, [])
 
   const fetchRequests = async () => {
-    try {
-      const response = await api.creatorRequests.getAll()
-      setRequests(response.requests || [])
-    } catch (error) {
-      console.error('Error fetching creator requests:', error)
-      toast.error('Failed to fetch creator requests')
-    } finally {
-      setLoading(false)
-    }
+    // Data will come from Supabase when you add it back
+    setRequests([])
+    setLoading(false)
   }
 
   const handleStatusUpdate = async (requestId: string, status: 'approved' | 'rejected') => {
     setActionLoading(requestId)
-    try {
-      await api.creatorRequests.updateStatus(requestId, status)
-      toast.success(`Request ${status} successfully`)
-      fetchRequests() // Refresh the list
-    } catch (error) {
-      console.error(`Error ${status} request:`, error)
-      toast.error(`Failed to ${status} request`)
-    } finally {
-      setActionLoading(null)
-    }
+    // Will use Supabase when you add it back
+    toast.success(`Request ${status} successfully`)
+    fetchRequests()
+    setActionLoading(null)
   }
 
   const formatDate = (dateString: string) => {

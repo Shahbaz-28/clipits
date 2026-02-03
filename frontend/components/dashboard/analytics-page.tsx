@@ -3,8 +3,8 @@
 import { AnalyticsOverviewCards } from "./analytics/analytics-overview-cards"
 import { AnalyticsCampaignTable } from "./analytics/analytics-campaign-table"
 import { AnalyticsClipperSubmissionsTable } from "./analytics/analytics-clipper-submissions-table"
-import { BarChart, LayoutGrid, ListChecks, Users } from "lucide-react" // Added LineChart icon
-import { Card, CardHeader, CardTitle } from "@/components/ui/card" // Import CardContent
+import { BarChart, LayoutGrid, ListChecks, Users } from "lucide-react" 
+import { Card, CardHeader, CardTitle } from "@/components/ui/card" 
 
 export function AnalyticsPage() {
   return (

@@ -1,64 +1,119 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState } from 'react'
-import { User, Session } from '@supabase/supabase-js'
-import { supabase } from './supabase'
+import { createContext, useContext, useEffect, useState } from "react"
+import type { User, Session } from "@supabase/supabase-js"
+import { supabase } from "./supabase"
+
+export type UserRole = "clipper" | "creator" | "admin"
+
+export interface UserProfile {
+  role: UserRole
+  onboarding_done: boolean
+}
 
 interface AuthContextType {
   user: User | null
   session: Session | null
+  profile: UserProfile | null
+  profileLoading: boolean
   loading: boolean
   signOut: () => Promise<void>
+  refreshProfile: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
+  profile: null,
+  profileLoading: true,
   loading: true,
   signOut: async () => {},
+  refreshProfile: async () => {},
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [profileLoading, setProfileLoading] = useState(true)
+
+  const fetchProfile = async (userId: string) => {
+    setProfileLoading(true)
+    const { data, error } = await supabase
+      .from("users")
+      .select("role, onboarding_done")
+      .eq("id", userId)
+      .single()
+    if (!error && data) {
+      setProfile({
+        role: (data.role as UserRole) || "clipper",
+        onboarding_done: data.onboarding_done ?? false,
+      })
+    } else {
+      setProfile(null)
+    }
+    setProfileLoading(false)
+  }
+
+  const refreshProfile = async () => {
+    if (user?.id) await fetchProfile(user.id)
+  }
 
   useEffect(() => {
-    // Get initial session
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setSession(session)
-      setUser(session?.user ?? null)
+      const {
+        data: { session: initialSession },
+      } = await supabase.auth.getSession()
+      setSession(initialSession)
+      setUser(initialSession?.user ?? null)
       setLoading(false)
+      if (initialSession?.user?.id) {
+        await fetchProfile(initialSession.user.id)
+      } else {
+        setProfile(null)
+        setProfileLoading(false)
+      }
     }
 
     getInitialSession()
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session)
-        setUser(session?.user ?? null)
-        setLoading(false)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
+      if (session?.user?.id) {
+        await fetchProfile(session.user.id)
+      } else {
+        setProfile(null)
+        setProfileLoading(false)
       }
-    )
+    })
 
     return () => subscription.unsubscribe()
   }, [])
 
   const signOut = async () => {
     await supabase.auth.signOut()
-  }
-
-  const value = {
-    user,
-    session,
-    loading,
-    signOut,
+    setUser(null)
+    setSession(null)
+    setProfile(null)
   }
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        session,
+        profile,
+        profileLoading,
+        loading,
+        signOut,
+        refreshProfile,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )
@@ -67,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error("useAuth must be used within an AuthProvider")
   }
   return context
 }

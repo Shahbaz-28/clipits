@@ -49,13 +49,30 @@ interface CampaignDetailsModalProps {
     assets: { name: string; link: string }[]
     disclaimer: string
   }
-  onJoin: (campaignData: any) => void // New prop to handle navigation to joined page
+  onJoin?: (campaignData: any) => void
+  isJoining?: boolean
+  alreadyJoined?: boolean
+  /** When true, show Edit instead of Join (only when canEdit is true) and call onEdit when Edit is clicked */
+  isCreatorView?: boolean
+  /** When true (and isCreatorView), show Edit button. Pass false for active/ended campaigns. */
+  canEdit?: boolean
+  onEdit?: () => void
 }
 
-export function CampaignDetailsModal({ isOpen, onClose, campaign, onJoin }: CampaignDetailsModalProps) {
+export function CampaignDetailsModal({ isOpen, onClose, campaign, onJoin, isJoining, alreadyJoined, isCreatorView, canEdit = false, onEdit }: CampaignDetailsModalProps) {
   const handleJoinCampaign = () => {
-    onJoin(campaign) // Call the onJoin prop to trigger navigation
-    onClose() // Close the modal
+    if (!onJoin) return
+    if (alreadyJoined) {
+      onJoin(campaign)
+      onClose()
+      return
+    }
+    onJoin(campaign)
+  }
+
+  const handleEdit = () => {
+    onEdit?.()
+    onClose()
   }
 
   return (
@@ -201,12 +218,22 @@ export function CampaignDetailsModal({ isOpen, onClose, campaign, onJoin }: Camp
           >
             Close
           </Button>
-          <Button
-            onClick={handleJoinCampaign}
-            className="w-full sm:w-auto bg-gradient-to-r from-vibrant-red-orange to-[#FF4B4B] text-white hover:from-[#FF4B4B] hover:to-vibrant-red-orange shadow-lg shadow-vibrant-red-orange/30 transition-all duration-200 rounded-md"
-          >
-            Join Campaign
-          </Button>
+          {isCreatorView && canEdit ? (
+            <Button
+              onClick={handleEdit}
+              className="w-full sm:w-auto bg-gradient-to-r from-vibrant-red-orange to-[#FF4B4B] text-white hover:from-[#FF4B4B] hover:to-vibrant-red-orange shadow-lg shadow-vibrant-red-orange/30 transition-all duration-200 rounded-md"
+            >
+              Edit
+            </Button>
+          ) : !isCreatorView ? (
+            <Button
+              onClick={handleJoinCampaign}
+              disabled={isJoining}
+              className="w-full sm:w-auto bg-gradient-to-r from-vibrant-red-orange to-[#FF4B4B] text-white hover:from-[#FF4B4B] hover:to-vibrant-red-orange shadow-lg shadow-vibrant-red-orange/30 transition-all duration-200 rounded-md"
+            >
+              {isJoining ? "Joining..." : alreadyJoined ? "View campaign" : "Join Campaign"}
+            </Button>
+          ) : null}
         </DialogFooter>
       </DialogContent>
     </Dialog>

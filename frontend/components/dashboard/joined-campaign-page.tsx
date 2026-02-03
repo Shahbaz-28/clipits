@@ -24,8 +24,10 @@ import {
 } from "lucide-react"
 import { SubmitContentModal } from "./submit-content-modal"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ArrowLeft } from "lucide-react"
 
 interface JoinedCampaignPageProps {
+  onBackToList?: () => void
   campaign: {
     id: string
     title: string
@@ -51,11 +53,22 @@ interface JoinedCampaignPageProps {
   }
 }
 
-export function JoinedCampaignPage({ campaign }: JoinedCampaignPageProps) {
+export function JoinedCampaignPage({ campaign, onBackToList }: JoinedCampaignPageProps) {
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false)
 
   return (
     <div className="flex flex-col flex-1 p-2 gap-6">
+      {onBackToList && (
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBackToList}
+          className="w-fit text-muted-label hover:text-heading-text hover:bg-section-bg -ml-2"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Joined campaigns
+        </Button>
+      )}
       {/* Campaign Overview Section */}
       <Card className="bg-main-bg border-border shadow-lg p-6 lg:p-6 rounded-xl">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
@@ -214,7 +227,12 @@ export function JoinedCampaignPage({ campaign }: JoinedCampaignPageProps) {
         )}
       </Card>
 
-      <SubmitContentModal isOpen={isSubmitModalOpen} onClose={() => setIsSubmitModalOpen(false)} />
+      <SubmitContentModal
+        isOpen={isSubmitModalOpen}
+        onClose={() => setIsSubmitModalOpen(false)}
+        campaignId={campaign.id}
+        onSuccess={() => {}}
+      />
     </div>
   )
 }

@@ -1,134 +1,135 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Instagram, Youtube, TwitterIcon as TikTok, Eye } from "lucide-react"
-import { CampaignDetailsModal } from "./campaign-details-modal" // Import the new modal
+import { Instagram, Eye } from "lucide-react"
+import { CampaignDetailsModal } from "./campaign-details-modal"
+import { supabase } from "@/lib/supabase"
+import { useAuth } from "@/lib/auth-context"
+import type { CampaignRow, CampaignCard } from "@/lib/campaigns"
+import { mapCampaignRowToCard } from "@/lib/campaigns"
+import { toast } from "sonner"
 
 interface CampaignGridProps {
-  onNavigate: (path: string, campaignData?: any) => void // Add onNavigate prop
+  onNavigate: (path: string, campaignData?: CampaignCard) => void
+  refreshKey?: number
 }
 
-const campaigns = [
-  {
-    id: "summer-fashion-haul",
-    title: "Summer Fashion Haul",
-    description: "Create engaging content showcasing the latest summer fashion trends.",
-    earnings: "$1,250",
-    total: "$5,000",
-    percentage: "25%",
-    rate: "$2.00 / 1K",
-    type: "UGC",
-    platforms: [Instagram],
-    views: "2.3M",
-    color: "bg-vibrant-red-orange",
-    progressPaidOut: 278.54,
-    totalBudgetDetail: 10000,
-    progressPercentage: 3,
-    daysLeft: 20,
-    minPayout: 50,
-    maxPayout: 2000,
-    category: "E-commerce",
-    requirements: [
-      "Must be high-quality edits",
-      "No reusing our previously edited content",
-      "Must be clipped content not already edited videos",
-      "Content must be lifestyle, ecom, motivational, or podcast-related",
-      "Must have comments on",
-      "Tag Ac Hampton profile (on that platform) + follow",
-      "English only",
-      "Direct to Ac's Youtube",
-    ],
-    assets: [
-      { name: "drive.google.com", link: "https://drive.google.com/drive/folders/16s7655_WGoiC9AaF3_M8ixmzc9bi7s" },
-    ],
-    disclaimer:
-      "Creators may reject submissions that don't meet requirements. By submitting, you grant full usage rights and agree to our terms and conditions.",
-  },
-  {
-    id: "gaming-highlights-reel",
-    title: "Gaming Highlights Reel",
-    description: "Showcase your best gaming moments and epic plays.",
-    earnings: "$800",
-    total: "$2,000",
-    percentage: "40%",
-    rate: "$1.50 / 1K",
-    type: "Clipping",
-    platforms: [Instagram],
-    views: "1.8M",
-    color: "bg-vibrant-red-orange",
-    progressPaidOut: 0,
-    totalBudgetDetail: 2000,
-    progressPercentage: 0,
-    daysLeft: 15,
-    minPayout: 30,
-    maxPayout: 1000,
-    category: "Gaming",
-    requirements: [
-      "Must be 1080p resolution",
-      "Include game audio",
-      "No copyrighted music",
-      "Minimum 30 seconds duration",
-    ],
-    assets: [],
-    disclaimer: "All submissions are subject to review.",
-  },
-  {
-    id: "tech-review-challenge",
-    title: "Tech Review Challenge",
-    description: "Review the latest tech gadgets and share your honest opinions.",
-    earnings: "$2,100",
-    total: "$8,000",
-    percentage: "26%",
-    rate: "$3.00 / 1K",
-    type: "UGC",
-    platforms: [Instagram],
-    views: "4.1M",
-    color: "bg-vibrant-red-orange",
-    progressPaidOut: 0,
-    totalBudgetDetail: 8000,
-    progressPercentage: 0,
-    daysLeft: 25,
-    minPayout: 100,
-    maxPayout: 3000,
-    category: "Technology",
-    requirements: ["Clear audio and video", "Demonstrate product features", "Include call to action"],
-    assets: [],
-    disclaimer: "Reviews must be unbiased.",
-  },
-  {
-    id: "food-recipe-series",
-    title: "Food Recipe Series",
-    description: "Create delicious and easy-to-follow recipe videos.",
-    earnings: "$950",
-    total: "$3,500",
-    percentage: "27%",
-    rate: "$1.80 / 1K",
-    type: "UGC",
-    platforms: [Instagram],
-    views: "1.2M",
-    color: "bg-vibrant-red-orange",
-    progressPaidOut: 0,
-    totalBudgetDetail: 3500,
-    progressPercentage: 0,
-    daysLeft: 10,
-    minPayout: 40,
-    maxPayout: 1500,
-    category: "Food & Cooking",
-    requirements: ["High-quality food shots", "Step-by-step instructions", "Engaging presentation"],
-    assets: [],
-    disclaimer: "Recipes must be original or properly attributed.",
-  },
-]
-
-export function CampaignGrid({ onNavigate }: CampaignGridProps) {
-  const [selectedCampaign, setSelectedCampaign] = useState<(typeof campaigns)[0] | null>(null)
+export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) {
+  const { user } = useAuth()
+  const [campaigns, setCampaigns] = useState<CampaignCard[]>([])
+  const [joinedIds, setJoinedIds] = useState<Set<string>>(new Set())
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [selectedCampaign, setSelectedCampaign] = useState<CampaignCard | null>(null)
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
+  const [joiningId, setJoiningId] = useState<string | null>(null)
 
-  const handleCardClick = (campaign: (typeof campaigns)[0]) => {
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      setError(null)
+      try {
+        const { data: rows, error: campaignsError } = await supabase
+          .from("campaigns")
+          .select("*")
+          .eq("status", "active")
+          .order("created_at", { ascending: false })
+
+        if (campaignsError) {
+          setError(campaignsError.message)
+          setCampaigns([])
+          setLoading(false)
+          return
+        }
+
+        const mapped = (rows || []).map((row: CampaignRow) =>
+          mapCampaignRowToCard(row, { instagram: Instagram })
+        )
+        setCampaigns(mapped)
+
+        if (user?.id) {
+          const { data: joins } = await supabase
+            .from("user_campaigns")
+            .select("campaign_id")
+            .eq("user_id", user.id)
+          setJoinedIds(new Set((joins || []).map((j) => j.campaign_id)))
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [user?.id, refreshKey])
+
+  const handleCardClick = (campaign: CampaignCard) => {
     setSelectedCampaign(campaign)
     setIsDetailsModalOpen(true)
+  }
+
+  const handleJoin = async (campaign: CampaignCard) => {
+    if (!user?.id) return
+    setJoiningId(campaign.id)
+    setError(null)
+    const TIMEOUT_MS = 15000
+    const insertPromise = supabase.from("user_campaigns").insert({
+      user_id: user.id,
+      campaign_id: campaign.id,
+    })
+    const timeoutPromise = new Promise<{ error: { message: string } }>((_, reject) =>
+      setTimeout(() => reject(new Error("Request timed out. Check your network and try again.")), TIMEOUT_MS)
+    )
+    try {
+      const result = await Promise.race([insertPromise, timeoutPromise])
+      const insertError = result?.error
+      if (insertError) {
+        const code = "code" in insertError ? insertError.code : null
+        if (code === "23505") {
+          setJoinedIds((prev) => new Set(prev).add(campaign.id))
+          setIsDetailsModalOpen(false)
+          onNavigate("joined-campaign", campaign)
+        } else {
+          setError(insertError.message)
+          toast.error(insertError.message)
+        }
+        return
+      }
+      setJoinedIds((prev) => new Set(prev).add(campaign.id))
+      setSelectedCampaign(null)
+      setIsDetailsModalOpen(false)
+      onNavigate("joined-campaign", campaign)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to join campaign."
+      setError(message)
+      toast.error(message)
+    } finally {
+      setJoiningId(null)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-vibrant-red-orange border-t-transparent" />
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg bg-red-50 border border-red-200 p-4 text-red-700 text-sm">
+        {error}
+      </div>
+    )
+  }
+
+  if (campaigns.length === 0) {
+    return (
+      <div className="text-center py-12 text-muted-label">
+        No active campaigns yet. Check back later.
+      </div>
+    )
   }
 
   return (
@@ -183,7 +184,7 @@ export function CampaignGrid({ onNavigate }: CampaignGridProps) {
                   <p className="text-muted-label mb-1">Platforms</p>
                   <div className="flex space-x-1">
                     {campaign.platforms.map((Platform, idx) => (
-                      <Platform key={idx} className="w-4 h-4 text-muted-label" />
+                      <Platform key={`platform-${idx}`} className="w-4 h-4 text-muted-label" />
                     ))}
                   </div>
                 </div>
@@ -205,7 +206,9 @@ export function CampaignGrid({ onNavigate }: CampaignGridProps) {
           isOpen={isDetailsModalOpen}
           onClose={() => setIsDetailsModalOpen(false)}
           campaign={selectedCampaign}
-          onJoin={() => onNavigate("joined-campaign", selectedCampaign)} // Pass onJoin handler
+          onJoin={() => handleJoin(selectedCampaign)}
+          isJoining={joiningId === selectedCampaign.id}
+          alreadyJoined={joinedIds.has(selectedCampaign.id)}
         />
       )}
     </>

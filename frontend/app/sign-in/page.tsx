@@ -1,7 +1,7 @@
-
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,15 +9,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Zap, Mail, Lock, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
-import { useRouter } from "next/navigation"
 
 export default function SignInPage() {
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const router = useRouter()
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,17 +24,22 @@ export default function SignInPage() {
     setError("")
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
-      if (error) {
-        setError(error.message)
-      } else {
-        router.push("/dashboard")
+      if (signInError) {
+        setError(signInError.message)
+        setLoading(false)
+        return
       }
-    } catch (error) {
+
+      if (data.session) {
+        router.push("/dashboard")
+        router.refresh()
+      }
+    } catch {
       setError("An unexpected error occurred")
     } finally {
       setLoading(false)
@@ -43,15 +47,16 @@ export default function SignInPage() {
   }
 
   const handleGoogleSignIn = async () => {
+    setError("")
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
-        }
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
       })
-      if (error) setError(error.message)
-    } catch (error) {
+      if (oauthError) setError(oauthError.message)
+    } catch {
       setError("An unexpected error occurred")
     }
   }
@@ -87,7 +92,7 @@ export default function SignInPage() {
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password" className="text-body-text">Password</Label>
               <div className="relative">
@@ -106,7 +111,7 @@ export default function SignInPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-3 text-muted-label hover:text-body-text"
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
@@ -142,7 +147,7 @@ export default function SignInPage() {
             onClick={handleGoogleSignIn}
             disabled={loading}
           >
-            <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+            <svg className="mr-2 w-4 h-4" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                 fill="#4285F4"
@@ -164,7 +169,7 @@ export default function SignInPage() {
           </Button>
 
           <div className="mt-6 text-center text-sm text-muted-label">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/sign-up" className="text-vibrant-red-orange hover:underline">
               Sign up
             </Link>
