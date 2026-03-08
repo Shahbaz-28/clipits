@@ -116,9 +116,14 @@ export function GeneralSettings() {
   if (!initialLoadDone) {
     return (
       <div className="space-y-6">
-        <div className="h-10 rounded-md bg-section-bg animate-pulse" />
-        <div className="h-24 rounded-md bg-section-bg animate-pulse" />
-        <div className="h-10 rounded-md bg-section-bg animate-pulse" />
+        <div className="grid gap-6 sm:grid-cols-2">
+          <div className="h-12 rounded-xl bg-gray-100 animate-pulse" />
+          <div className="h-12 rounded-xl bg-gray-100 animate-pulse" />
+        </div>
+        <div className="h-24 rounded-xl bg-gray-100 animate-pulse" />
+        <div className="h-12 rounded-xl bg-gray-100 animate-pulse" />
+        <div className="h-12 rounded-xl bg-gray-100 animate-pulse" />
+        <div className="h-12 rounded-xl bg-gray-100 animate-pulse" />
       </div>
     )
   }
@@ -145,18 +150,18 @@ export function GeneralSettings() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField
             control={form.control}
             name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-body-text">First name</FormLabel>
+                <FormLabel className="text-sm font-medium text-heading-text">First name</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    className="bg-main-bg border-border text-body-text placeholder:text-muted-label"
+                    className="h-10 bg-gray-50 border border-gray-200 text-heading-text placeholder:text-muted-label rounded-lg focus:border-vibrant-red-orange focus:ring-vibrant-red-orange"
                     placeholder="First name"
                   />
                 </FormControl>
@@ -169,11 +174,11 @@ export function GeneralSettings() {
             name="lastName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-body-text">Last name</FormLabel>
+                <FormLabel className="text-sm font-medium text-heading-text">Last name</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    className="bg-main-bg border-border text-body-text placeholder:text-muted-label"
+                    className="h-10 bg-gray-50 border border-gray-200 text-heading-text placeholder:text-muted-label rounded-lg focus:border-vibrant-red-orange focus:ring-vibrant-red-orange"
                     placeholder="Last name"
                   />
                 </FormControl>
@@ -188,80 +193,82 @@ export function GeneralSettings() {
           name="bio"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-body-text">Bio</FormLabel>
+              <FormLabel className="text-sm font-medium text-heading-text">Bio</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
                   value={field.value ?? ""}
                   placeholder="Tell us a bit about yourself"
-                  className="bg-main-bg border-border text-body-text placeholder:text-muted-label min-h-[100px]"
+                  className="bg-gray-50 border border-gray-200 text-heading-text placeholder:text-muted-label min-h-[80px] rounded-lg focus:border-vibrant-red-orange focus:ring-vibrant-red-orange"
                 />
               </FormControl>
               <FormMessage />
-              <p className="text-xs text-muted-label">
+              <p className="text-xs text-muted-label text-right">
                 {((field.value ?? "").length || 0)}/500
               </p>
             </FormItem>
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="username"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-body-text">Username</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  value={field.value ?? ""}
-                  className="bg-main-bg border-border text-body-text placeholder:text-muted-label"
-                  placeholder="username"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-heading-text">Username</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    className="h-10 bg-gray-50 border border-gray-200 text-heading-text placeholder:text-muted-label rounded-lg focus:border-vibrant-red-orange focus:ring-vibrant-red-orange"
+                    placeholder="username"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-sm font-medium text-heading-text">Phone number</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    value={field.value ?? ""}
+                    className="h-10 bg-gray-50 border border-gray-200 text-heading-text placeholder:text-muted-label rounded-lg focus:border-vibrant-red-orange focus:ring-vibrant-red-orange"
+                    placeholder="e.g. +91 98765 43210"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div>
-          <FormLabel className="text-body-text">Email</FormLabel>
+          <FormLabel className="text-sm font-medium text-heading-text">Email</FormLabel>
           <Input
             value={user?.email ?? ""}
             readOnly
-            className="mt-2 bg-section-bg border-border text-muted-label cursor-not-allowed"
+            className="h-10 mt-1.5 bg-gray-100 border border-gray-200 text-muted-label cursor-not-allowed rounded-lg"
           />
           <p className="text-xs text-muted-label mt-1">
             Email is managed by your account sign-in.
           </p>
         </div>
 
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-body-text">Phone number</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  value={field.value ?? ""}
-                  className="bg-main-bg border-border text-body-text placeholder:text-muted-label"
-                  placeholder="e.g. +91 98765 43210 or 9876543210"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         <div className="pt-4">
           <Button
             type="submit"
             disabled={form.formState.isSubmitting}
-            className="w-full bg-vibrant-red-orange hover:bg-vibrant-red-orange/90 text-white"
+            className="h-10 px-6 bg-vibrant-red-orange hover:bg-vibrant-red-orange/90 text-white font-semibold rounded-lg shadow-lg shadow-vibrant-red-orange/25"
           >
-            {form.formState.isSubmitting ? "Saving..." : "Save"}
+            {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
           </Button>
         </div>
       </form>

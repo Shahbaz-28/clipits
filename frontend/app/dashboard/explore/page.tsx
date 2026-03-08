@@ -20,12 +20,17 @@ export default function ExplorePage() {
   }
 
   return (
-    <>
-      <h1 className="text-2xl font-bold text-heading-text mb-4">Explore Campaigns</h1>
-      <p className="text-muted-label mt-1 mb-6">
-        {isCreator ? "Browse campaigns on the platform" : "Discover new opportunities to earn rewards"}
-      </p>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="border-b border-gray-100 pb-6">
+        <h1 className="text-3xl font-bold text-heading-text mb-2">Explore Campaigns</h1>
+        <p className="text-muted-label text-base">
+          {isCreator ? "Browse campaigns on the platform" : "Discover new opportunities to earn rewards"}
+        </p>
+      </div>
+
+      {/* Campaigns Grid */}
       <CampaignGrid onNavigate={handleNavigate} refreshKey={refreshKey} />
-    </>
+    </div>
   )
 }

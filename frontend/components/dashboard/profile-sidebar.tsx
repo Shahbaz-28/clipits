@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Settings, CreditCard, Wallet, LogOut, Link as LinkIcon, UserIcon } from "lucide-react"
+import { Settings, CreditCard, Wallet, LogOut, Link as LinkIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
 
@@ -22,17 +22,6 @@ interface ProfileSidebarProps {
 export function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
   const { user, profile, signOut } = useAuth()
   const router = useRouter()
-  const displayName =
-    profile?.first_name || profile?.last_name
-      ? [profile.first_name, profile.last_name].filter(Boolean).join(" ").trim()
-      : user?.user_metadata?.first_name && user?.user_metadata?.last_name
-        ? `${user.user_metadata.first_name} ${user.user_metadata.last_name}`
-        : user?.email ?? "Profile"
-  const displayHandle = profile?.username
-    ? `@${profile.username.replace(/^@/, "")}`
-    : user?.email
-      ? `@${user.email.split("@")[0]}`
-      : "@user"
 
   const handleLogout = async () => {
     await signOut()
@@ -46,37 +35,35 @@ export function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
   ]
 
   return (
-    <div className="w-full lg:w-64 bg-main-bg rounded-lg border border-border shadow-sm p-6 lg:p-8 flex flex-col items-center lg:items-start">
+    <div className="w-full lg:w-72 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col">
       {/* Profile Info */}
-      <div className="flex flex-col items-center lg:items-start mb-8 w-full">
-        <Avatar className="w-24 h-24 mb-4">
+      <div className="flex flex-col items-center text-center mb-6 pb-6 border-b border-gray-100">
+        <Avatar className="w-20 h-20 mb-3 ring-2 ring-gray-100">
           <AvatarImage
             src={user?.user_metadata?.avatar_url}
-            alt={user?.user_metadata?.first_name || user?.email || "Profile"}
+            alt={profile?.first_name || user?.user_metadata?.first_name || user?.email || "Profile"}
           />
-          <AvatarFallback className="text-4xl font-bold text-heading-text bg-section-bg">
+          <AvatarFallback className="text-2xl font-bold text-heading-text bg-gray-100">
             {user
               ? getInitials(
-                  user.user_metadata?.first_name,
-                  user.user_metadata?.last_name,
+                  profile?.first_name || user.user_metadata?.first_name,
+                  profile?.last_name || user.user_metadata?.last_name,
                   user.email
                 )
               : "?"}
           </AvatarFallback>
         </Avatar>
-        <h2 className="text-xl font-bold text-heading-text mb-1">
-          {user?.user_metadata?.first_name && user?.user_metadata?.last_name
-            ? `${user.user_metadata.first_name} ${user.user_metadata.last_name}`
-            : user?.email ?? "Profile"}
+        <h2 className="text-lg font-bold text-heading-text">
+          {profile?.first_name
+            ? profile.first_name
+            : user?.user_metadata?.first_name
+              ? user.user_metadata.first_name
+              : user?.email?.split("@")[0] ?? "Profile"}
         </h2>
-        <p className="text-muted-label text-sm mb-4 flex items-center gap-1">
-          <UserIcon className="w-3 h-3" />
-          {user?.email ? `@${user.email.split("@")[0]}` : "@user"}
-        </p>
       </div>
 
       {/* Navigation Tabs */}
-      <nav className="w-full space-y-2">
+      <nav className="flex-1 space-y-1">
         {navItems.map((item) => {
           const href = item.id === "general" ? "/dashboard/profile" : `/dashboard/profile/${item.id}`
           const isActive = activeTab === item.id
@@ -85,27 +72,31 @@ export function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start space-x-3 h-12 text-body-text hover:bg-vibrant-red-orange/10 hover:text-vibrant-red-orange",
-                  isActive && "bg-vibrant-red-orange/10 text-vibrant-red-orange font-semibold",
+                  "w-full justify-start gap-3 h-11 text-sm font-medium rounded-xl transition-all",
+                  isActive
+                    ? "bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90"
+                    : "text-heading-text hover:bg-gray-50"
                 )}
               >
-                <item.icon className="w-5 h-5" />
+                <item.icon className="w-4 h-4" />
                 <span className="flex-1 text-left">{item.label}</span>
               </Button>
             </Link>
           )
         })}
-        <div className="pt-4 border-t border-border mt-4">
-          <Button
-            variant="ghost"
-            onClick={handleLogout}
-            className="w-full justify-start space-x-3 h-12 text-vibrant-red-orange hover:bg-vibrant-red-orange/10"
-          >
-            <LogOut className="w-5 h-5" />
-            <span className="flex-1 text-left">Logout</span>
-          </Button>
-        </div>
       </nav>
+
+      {/* Logout */}
+      <div className="pt-4 border-t border-gray-100 mt-4">
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+          className="w-full justify-start gap-3 h-11 text-sm font-medium rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600"
+        >
+          <LogOut className="w-4 h-4" />
+          <span className="flex-1 text-left">Logout</span>
+        </Button>
+      </div>
     </div>
   )
 }

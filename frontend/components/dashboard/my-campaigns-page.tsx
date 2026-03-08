@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Grid3X3, Loader2, CheckCircle, XCircle, Clock, Pencil, Eye, Instagram } from "lucide-react"
+import { Plus, Grid3X3, Loader2, CheckCircle, XCircle, Clock, Eye, Instagram } from "lucide-react"
 import { CreateCampaignModal, type EditingCampaign } from "./create-campaign-modal"
 import { CampaignDetailsModal } from "./campaign-details-modal"
 import { mapCampaignRowToCard } from "@/lib/campaigns"
@@ -123,15 +123,15 @@ export function MyCampaignsPage({
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { className: string; icon: typeof Clock; label: string }> = {
-      draft: { className: "bg-yellow-100 text-yellow-700", icon: Clock, label: "Draft" },
-      pending_budget: { className: "bg-amber-100 text-amber-700", icon: Clock, label: "Pending budget" },
-      active: { className: "bg-turquoise-accent/10 text-turquoise-accent", icon: CheckCircle, label: "Active" },
-      ended: { className: "bg-gray-100 text-gray-600", icon: XCircle, label: "Ended" },
+      draft: { className: "bg-amber-50 text-amber-600 border border-amber-200", icon: Clock, label: "Draft" },
+      pending_budget: { className: "bg-orange-50 text-orange-600 border border-orange-200", icon: Clock, label: "Pending" },
+      active: { className: "bg-emerald-50 text-emerald-600 border border-emerald-200", icon: CheckCircle, label: "Active" },
+      ended: { className: "bg-gray-50 text-gray-500 border border-gray-200", icon: XCircle, label: "Ended" },
     }
-    const v = variants[status] || { className: "bg-gray-100 text-gray-600", icon: Clock, label: status }
+    const v = variants[status] || { className: "bg-gray-50 text-gray-500 border border-gray-200", icon: Clock, label: status }
     const Icon = v.icon
     return (
-      <Badge className={`${v.className} rounded-md flex items-center gap-1`}>
+      <Badge className={`${v.className} rounded-lg flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1`}>
         <Icon className="w-3 h-3" />
         {v.label}
       </Badge>
@@ -139,67 +139,57 @@ export function MyCampaignsPage({
   }
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col space-y-8">
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-heading-text flex items-center gap-2">
-            <Grid3X3 className="w-6 h-6 text-muted-label" />
-            My Campaigns
-          </h1>
-          <p className="text-muted-label mt-1 text-sm sm:text-base">Manage your created campaigns. Publish drafts so they appear in Explore for clippers.</p>
+      <div className="border-b border-gray-100 pb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-heading-text mb-2">My Campaigns</h1>
+            <p className="text-muted-label text-base">Manage your created campaigns. Publish drafts so they appear in Explore for clippers.</p>
+          </div>
+          <Button
+            className="w-full sm:w-auto bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 shadow-lg shadow-vibrant-red-orange/25 rounded-xl font-semibold px-6"
+            onClick={() => { setEditingCampaign(null); setIsModalOpen(true); }}
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Create Campaign
+          </Button>
         </div>
-        <Button
-          className="w-full sm:w-auto bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 shadow-md shadow-vibrant-red-orange/20 rounded-md"
-          onClick={() => { setEditingCampaign(null); setIsModalOpen(true); }}
-        >
-          <Plus className="w-4 h-4 mr-2" />
-          Create Campaign
-        </Button>
       </div>
 
       {/* Campaign list — same card layout as Explore; skeleton while loading */}
       {loading ? (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-heading-text">Your campaigns</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
               <Card
                 key={i}
-                className="bg-main-bg border border-border shadow-md rounded-xl overflow-hidden"
+                className="bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden"
               >
                 <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1 space-y-2">
-                      <div className="h-5 w-3/4 bg-section-bg rounded animate-pulse" />
-                      <div className="h-5 w-16 bg-section-bg rounded animate-pulse" />
-                    </div>
-                    <div className="h-6 w-16 bg-section-bg rounded animate-pulse" />
+                  <div className="mb-5 space-y-3">
+                    <div className="h-6 w-3/4 bg-gray-100 rounded-lg animate-pulse" />
+                    <div className="h-6 w-20 bg-gray-100 rounded-full animate-pulse" />
                   </div>
-                  <div className="space-y-2 mb-4">
-                    <div className="h-3 w-full bg-section-bg rounded animate-pulse" />
-                    <div className="h-3 w-2/3 bg-section-bg rounded animate-pulse" />
+                  <div className="space-y-2 mb-5">
+                    <div className="h-4 w-full bg-gray-100 rounded animate-pulse" />
+                    <div className="h-4 w-2/3 bg-gray-100 rounded animate-pulse" />
                   </div>
-                  <div className="mb-4">
-                    <div className="flex justify-between mb-2">
-                      <div className="h-5 w-12 bg-section-bg rounded animate-pulse" />
-                      <div className="h-3 w-24 bg-section-bg rounded animate-pulse" />
+                  <div className="mb-5 p-4 bg-gray-50 rounded-xl">
+                    <div className="flex justify-between mb-3">
+                      <div className="h-5 w-16 bg-gray-100 rounded animate-pulse" />
+                      <div className="h-4 w-12 bg-gray-100 rounded animate-pulse" />
                     </div>
-                    <div className="h-2 w-full bg-border rounded-full overflow-hidden">
-                      <div className="h-full w-1/4 bg-section-bg rounded-full animate-pulse" />
-                    </div>
+                    <div className="h-2.5 w-full bg-gray-200 rounded-full animate-pulse" />
                   </div>
-                  <div className="grid grid-cols-3 gap-4 mb-4">
+                  <div className="grid grid-cols-3 gap-3 mb-5">
                     {[1, 2, 3].map((j) => (
-                      <div key={j} className="h-8 bg-section-bg rounded animate-pulse" />
+                      <div key={j} className="h-16 bg-gray-50 rounded-xl animate-pulse" />
                     ))}
                   </div>
-                  <div className="flex justify-between pt-3 border-t border-border">
-                    <div className="h-3 w-20 bg-section-bg rounded animate-pulse" />
-                    <div className="flex gap-2">
-                      <div className="h-8 w-16 bg-section-bg rounded animate-pulse" />
-                      <div className="h-8 w-20 bg-section-bg rounded animate-pulse" />
-                    </div>
+                  <div className="flex justify-between pt-4 border-t border-gray-100">
+                    <div className="h-4 w-24 bg-gray-100 rounded animate-pulse" />
+                    <div className="h-8 w-16 bg-gray-100 rounded-lg animate-pulse" />
                   </div>
                 </CardContent>
               </Card>
@@ -207,9 +197,8 @@ export function MyCampaignsPage({
           </div>
         </div>
       ) : campaigns.length > 0 ? (
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-heading-text">Your campaigns</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {campaigns.map((campaign) => {
               const rateLabel = `₹${Number(campaign.rate_per_1k).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / 1K`
               const totalLabel = `₹${Number(campaign.total_budget).toLocaleString("en-IN")}`
@@ -230,84 +219,63 @@ export function MyCampaignsPage({
                       setIsDetailsModalOpen(true)
                     }
                   }}
-                  className="bg-main-bg border border-border shadow-md hover:shadow-lg transition-all duration-200 rounded-xl cursor-pointer"
+                  className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 rounded-2xl cursor-pointer group overflow-hidden"
                 >
                   <CardContent className="p-6">
-                    {/* Header — title + rate badge (same as Explore) */}
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-heading-text mb-1">{campaign.title}</h3>
-                        <Badge className="bg-vibrant-red-orange text-white text-xs shadow-sm rounded-md">
-                          {rateLabel}
-                        </Badge>
+                    {/* Header — title + rate badge */}
+                    <div className="mb-5">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="font-bold text-lg text-heading-text group-hover:text-vibrant-red-orange transition-colors line-clamp-2 leading-tight">
+                          {campaign.title}
+                        </h3>
+                        <div className="flex-shrink-0 ml-2">{getStatusBadge(campaign.status)}</div>
                       </div>
-                      <div className="flex-shrink-0">{getStatusBadge(campaign.status)}</div>
+                      <Badge className="bg-vibrant-red-orange text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
+                        {rateLabel}
+                      </Badge>
                     </div>
 
-                    {/* Description (truncated like Explore) */}
-                    <p className="text-sm text-body-text mb-4">
-                      {(campaign.description ?? "").substring(0, 50)}
-                      {(campaign.description ?? "").length > 50 ? "..." : ""}
+                    {/* Description */}
+                    <p className="text-sm text-muted-label mb-5 line-clamp-2 leading-relaxed">
+                      {campaign.description ?? "No description provided"}
                     </p>
 
-                    {/* Earnings / progress bar (same as Explore) */}
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-lg font-bold text-turquoise-accent">₹0</span>
-                        <span className="text-sm text-muted-label">of {totalLabel} paid out</span>
-                        <span className="text-sm font-semibold text-body-text">0%</span>
+                    {/* Earnings Progress */}
+                    <div className="mb-5 p-4 bg-gray-50 rounded-xl">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-xl font-bold text-turquoise-accent">₹0</span>
+                          <span className="text-xs text-muted-label">of {totalLabel}</span>
+                        </div>
+                        <span className="text-sm font-bold text-heading-text">0%</span>
                       </div>
-                      <div className="w-full bg-border rounded-full h-2">
+                      <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
                         <div
-                          className="bg-turquoise-accent h-2 rounded-full transition-all duration-300 shadow-sm"
+                          className="bg-gradient-to-r from-turquoise-accent to-secondary h-2.5 rounded-full transition-all duration-500"
                           style={{ width: "0%" }}
                         />
                       </div>
                     </div>
 
-                    {/* Type / Platforms / Views (same as Explore) */}
-                    <div className="grid grid-cols-3 gap-4 text-xs mb-4">
-                      <div>
-                        <p className="text-muted-label mb-1">Type</p>
-                        <p className="font-semibold text-body-text">{typeLabel}</p>
+                    {/* Details Grid */}
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="text-center p-3 bg-gray-50 rounded-xl">
+                        <p className="text-xs text-muted-label mb-1">Type</p>
+                        <p className="text-sm font-semibold text-heading-text">{typeLabel}</p>
                       </div>
-                      <div>
-                        <p className="text-muted-label mb-1">Platforms</p>
-                        <div className="flex space-x-1">
-                          <Instagram className="w-4 h-4 text-muted-label" />
+                      <div className="text-center p-3 bg-gray-50 rounded-xl">
+                        <p className="text-xs text-muted-label mb-1">Platform</p>
+                        <div className="flex justify-center">
+                          <Instagram className="w-5 h-5 text-heading-text" />
                         </div>
                       </div>
-                      <div>
-                        <p className="text-muted-label mb-1">Views</p>
-                        <div className="flex items-center space-x-1">
-                          <Eye className="w-3 h-3 text-muted-label" />
-                          <span className="font-semibold text-body-text">0</span>
+                      <div className="text-center p-3 bg-gray-50 rounded-xl">
+                        <p className="text-xs text-muted-label mb-1">Views</p>
+                        <div className="flex items-center justify-center gap-1">
+                          <Eye className="w-3.5 h-3.5 text-muted-label" />
+                          <span className="text-sm font-semibold text-heading-text">0</span>
                         </div>
                       </div>
-                    </div>
-
-                    {/* Actions for draft: only Edit; Publish is in the modal when editing */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-border">
-                      <p className="text-xs text-muted-label">Created {formatDate(campaign.created_at)}</p>
-                      {campaign.status === "draft" && (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            setEditingCampaign(campaign)
-                            setIsModalOpen(true)
-                          }}
-                          className="border-border text-body-text hover:bg-section-bg"
-                        >
-                          <Pencil className="w-3 h-3 mr-1" />
-                          Edit
-                        </Button>
-                      )}
-                      {campaign.status === "active" && (
-                        <p className="text-xs text-turquoise-accent font-medium">Live in Explore</p>
-                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -318,20 +286,20 @@ export function MyCampaignsPage({
       ) : (
         /* No Campaigns Yet Card */
         <div className="flex-1 flex items-center justify-center p-4">
-          <Card className="bg-main-bg border-border w-full max-w-md p-6 sm:p-8 text-center shadow-lg rounded-xl">
+          <Card className="bg-white border border-gray-100 w-full max-w-md p-8 text-center shadow-lg rounded-2xl">
             <CardContent className="flex flex-col items-center justify-center p-0">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-section-bg rounded-full flex items-center justify-center mb-4 sm:mb-6">
-                <Grid3X3 className="w-8 h-8 sm:w-10 sm:h-10 text-muted-label" />
+              <div className="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center mb-6">
+                <Grid3X3 className="w-10 h-10 text-muted-label" />
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-heading-text mb-2">No campaigns yet</h2>
-              <p className="text-sm sm:text-base text-body-text mb-6">
+              <h2 className="text-2xl font-bold text-heading-text mb-3">No campaigns yet</h2>
+              <p className="text-base text-muted-label mb-8 max-w-sm">
                 Create your first campaign to start earning and engaging with creators
               </p>
               <Button
-                className="w-full sm:w-auto bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 shadow-md shadow-vibrant-red-orange/20 rounded-md"
+                className="w-full sm:w-auto bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 shadow-lg shadow-vibrant-red-orange/25 rounded-xl font-semibold px-6"
                 onClick={() => { setEditingCampaign(null); setIsModalOpen(true); }}
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-5 h-5 mr-2" />
                 Create Your First Campaign
               </Button>
             </CardContent>

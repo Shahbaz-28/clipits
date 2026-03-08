@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent } from "@/components/ui/dialog"
 import {
   Upload,
   Loader2,
@@ -12,8 +12,10 @@ import {
   XCircle,
   Clock,
   ExternalLink,
-  Eye,
   IndianRupee,
+  Play,
+  Instagram,
+  X,
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
@@ -48,6 +50,11 @@ export function CreatorSubmissionsPage() {
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState<Record<string, string>>({})
+  const [videoModal, setVideoModal] = useState<{ isOpen: boolean; url: string; type: "video" | "image" }>({
+    isOpen: false,
+    url: "",
+    type: "video",
+  })
 
   const loadSubmissions = async () => {
     if (!user?.id) return
@@ -147,11 +154,41 @@ export function CreatorSubmissionsPage() {
     loadSubmissions()
   }
 
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "pending":
+        return (
+          <Badge className="bg-amber-50 text-amber-600 border border-amber-200 rounded-lg flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1">
+            <Clock className="w-3 h-3" />
+            Pending
+          </Badge>
+        )
+      case "approved":
+        return (
+          <Badge className="bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-lg flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1">
+            <CheckCircle className="w-3 h-3" />
+            Approved
+          </Badge>
+        )
+      case "rejected":
+        return (
+          <Badge className="bg-red-50 text-red-600 border border-red-200 rounded-lg flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1">
+            <XCircle className="w-3 h-3" />
+            Rejected
+          </Badge>
+        )
+      default:
+        return null
+    }
+  }
+
   if (loading) {
     return (
-      <div className="flex flex-col flex-1">
-        <h1 className="text-2xl font-bold text-heading-text mb-4">Submissions</h1>
-        <p className="text-muted-label mb-6">Review and approve content from clippers</p>
+      <div className="flex flex-col flex-1 space-y-8">
+        <div className="border-b border-gray-100 pb-6">
+          <h1 className="text-3xl font-bold text-heading-text mb-2">Submissions</h1>
+          <p className="text-muted-label text-base">Review and approve content from clippers</p>
+        </div>
         <div className="flex items-center gap-2 py-12 text-muted-label">
           <Loader2 className="w-6 h-6 animate-spin" />
           <span>Loading submissions...</span>
@@ -162,146 +199,230 @@ export function CreatorSubmissionsPage() {
 
   if (submissions.length === 0) {
     return (
-      <div className="flex flex-col flex-1">
-        <h1 className="text-2xl font-bold text-heading-text mb-4">Submissions</h1>
-        <p className="text-muted-label mb-6">Review and approve content from clippers</p>
-        <Card className="bg-main-bg border-border max-w-md p-8 text-center">
-          <CardContent className="p-0">
-            <div className="w-14 h-14 rounded-full bg-section-bg flex items-center justify-center mx-auto mb-4">
-              <Upload className="w-7 h-7 text-muted-label" />
-            </div>
-            <h2 className="text-lg font-semibold text-heading-text mb-2">No submissions yet</h2>
-            <p className="text-sm text-muted-label">
-              When clippers submit content for your campaigns, they will appear here for review.
-            </p>
-          </CardContent>
-        </Card>
+      <div className="flex flex-col flex-1 space-y-8">
+        <div className="border-b border-gray-100 pb-6">
+          <h1 className="text-3xl font-bold text-heading-text mb-2">Submissions</h1>
+          <p className="text-muted-label text-base">Review and approve content from clippers</p>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          <Card className="bg-white border border-gray-100 max-w-md p-8 text-center shadow-lg rounded-2xl">
+            <CardContent className="p-0">
+              <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-6">
+                <Upload className="w-8 h-8 text-muted-label" />
+              </div>
+              <h2 className="text-xl font-bold text-heading-text mb-3">No submissions yet</h2>
+              <p className="text-sm text-muted-label">
+                When clippers submit content for your campaigns, they will appear here for review.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col flex-1">
-      <h1 className="text-2xl font-bold text-heading-text mb-4">Submissions</h1>
-      <p className="text-muted-label mb-6">Review and approve content from clippers. Views and earnings are tracked automatically after approval.</p>
-      <div className="space-y-4">
-        {submissions.map((s) => (
-          <Card key={s.id} className="bg-main-bg border-border shadow-md rounded-xl">
-            <CardContent className="p-5 space-y-4">
-              {/* Media preview (image or video) when clipper uploaded a file */}
-              {s.media_url && (
-                <div className="rounded-lg overflow-hidden border border-border bg-section-bg max-w-sm">
-                  {s.media_url.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) ? (
-                    <video
-                      src={s.media_url}
-                      controls
-                      className="w-full max-h-48 object-contain"
-                      preload="metadata"
-                    >
-                      Your browser does not support the video tag.
-                    </video>
-                  ) : (
-                    <img
-                      src={s.media_url}
-                      alt="Submitted media"
-                      className="w-full max-h-48 object-contain bg-section-bg"
-                    />
-                  )}
-                </div>
-              )}
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-muted-label mb-1">{s.campaign.title}</p>
+    <div className="flex flex-col flex-1 space-y-8">
+      {/* Header */}
+      <div className="border-b border-gray-100 pb-6">
+        <h1 className="text-3xl font-bold text-heading-text mb-2">Submissions</h1>
+        <p className="text-muted-label text-base">Review and approve content from clippers. Views and earnings are tracked automatically after approval.</p>
+      </div>
+
+      {/* Submissions Table */}
+      <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+        {/* Table Header */}
+        <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-muted-label uppercase tracking-wide">
+          <div className="col-span-4">Content</div>
+          <div className="col-span-2">Campaign</div>
+          <div className="col-span-1 text-center">Status</div>
+          <div className="col-span-2 text-center">Views</div>
+          <div className="col-span-1 text-center">Earnings</div>
+          <div className="col-span-2 text-center">Actions</div>
+        </div>
+
+        {/* Table Body */}
+        <div className="divide-y divide-gray-100">
+          {submissions.map((s) => (
+            <div key={s.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors">
+              {/* Content */}
+              <div className="col-span-4 flex items-center gap-3">
+                {s.media_url ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const isVideo = s.media_url!.match(/\.(mp4|webm|ogg|mov)(\?|$)/i)
+                      setVideoModal({
+                        isOpen: true,
+                        url: s.media_url!,
+                        type: isVideo ? "video" : "image",
+                      })
+                    }}
+                    className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 relative group cursor-pointer hover:ring-2 hover:ring-vibrant-red-orange transition-all"
+                  >
+                    {s.media_url.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) ? (
+                      <>
+                        <video
+                          src={s.media_url}
+                          className="w-full h-full object-cover"
+                          preload="metadata"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                          <Play className="w-5 h-5 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      <img
+                        src={s.media_url}
+                        alt="Submission"
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </button>
+                ) : (
+                  <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <Instagram className="w-6 h-6 text-muted-label" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
                   <a
                     href={s.content_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-body-text hover:text-turquoise-accent font-medium flex items-center gap-2 truncate"
+                    className="text-sm font-medium text-heading-text hover:text-vibrant-red-orange transition-colors flex items-center gap-1.5 truncate"
                   >
-                    <ExternalLink className="w-4 h-4 flex-shrink-0" />
-                    <span className="truncate">{s.content_link}</span>
+                    <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
+                    <span className="truncate">{s.content_link.split("/").pop() || "View Content"}</span>
                   </a>
-                  <p className="text-sm text-muted-label mt-1">
-                    {s.platform} · Submitted {new Date(s.submitted_at).toLocaleDateString()}
+                  <p className="text-xs text-muted-label mt-1">
+                    {s.platform} · {new Date(s.submitted_at).toLocaleDateString()}
                   </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {s.status === "pending" && (
-                    <Badge className="bg-amber-100 text-amber-700 rounded-md flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      Pending
-                    </Badge>
-                  )}
-                  {s.status === "approved" && (
-                    <Badge className="bg-turquoise-accent/10 text-turquoise-accent rounded-md flex items-center gap-1">
-                      <CheckCircle className="w-3 h-3" />
-                      Approved
-                    </Badge>
-                  )}
-                  {s.status === "rejected" && (
-                    <Badge className="bg-red-100 text-red-700 rounded-md flex items-center gap-1">
-                      <XCircle className="w-3 h-3" />
-                      Rejected
-                    </Badge>
-                  )}
-                  {s.status === "approved" && (
-                    <div className="flex flex-col items-end gap-0.5">
-                      <span className="text-xs text-muted-label">
-                        {s.view_count.toLocaleString()} views gained
-                      </span>
-                      <span className="text-lg font-semibold text-turquoise-accent flex items-center gap-1">
-                        <IndianRupee className="w-4 h-4" />
-                        ₹{Number(s.earnings).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </span>
-                    </div>
-                  )}
                 </div>
               </div>
 
+              {/* Campaign */}
+              <div className="col-span-2">
+                <p className="text-sm font-medium text-heading-text truncate">{s.campaign.title}</p>
+                <p className="text-xs text-muted-label">₹{s.campaign.rate_per_1k}/1K</p>
+              </div>
+
+              {/* Status */}
+              <div className="col-span-1 flex justify-center">
+                {getStatusBadge(s.status)}
+              </div>
+
+              {/* Views */}
+              <div className="col-span-2 text-center">
+                {s.status === "approved" ? (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-center gap-3 text-xs text-muted-label">
+                      <span>Base: {s.baseline_views.toLocaleString()}</span>
+                      <span>Now: {s.latest_views.toLocaleString()}</span>
+                    </div>
+                    <p className="text-sm font-semibold text-heading-text">
+                      +{s.view_count.toLocaleString()} gained
+                    </p>
+                  </div>
+                ) : (
+                  <span className="text-sm text-muted-label">—</span>
+                )}
+              </div>
+
+              {/* Earnings */}
+              <div className="col-span-1 text-center">
+                {s.status === "approved" ? (
+                  <p className="text-sm font-bold text-turquoise-accent flex items-center justify-center gap-0.5">
+                    <IndianRupee className="w-3.5 h-3.5" />
+                    {Number(s.earnings).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                ) : (
+                  <span className="text-sm text-muted-label">—</span>
+                )}
+              </div>
+
               {/* Actions */}
-              {s.status === "pending" && (
-                <div className="flex flex-wrap items-end gap-4 pt-3 border-t border-border">
-                  <Button
-                    size="sm"
-                    disabled={updatingId === s.id}
-                    onClick={() => handleApprove(s)}
-                    className="bg-turquoise-accent hover:bg-turquoise-accent/90 text-white"
-                  >
-                    {updatingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-1" />}
-                    Approve
-                  </Button>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      placeholder="Rejection reason (optional)"
-                      value={rejectReason[s.id] ?? ""}
-                      onChange={(e) => setRejectReason((prev) => ({ ...prev, [s.id]: e.target.value }))}
-                      className="w-48 h-9 bg-section-bg border-border text-body-text rounded-md text-sm"
-                    />
+              <div className="col-span-2 flex justify-center gap-2">
+                {s.status === "pending" && (
+                  <>
+                    <Button
+                      size="sm"
+                      disabled={updatingId === s.id}
+                      onClick={() => handleApprove(s)}
+                      className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-medium"
+                    >
+                      {updatingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                        <>
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          Approve
+                        </>
+                      )}
+                    </Button>
                     <Button
                       size="sm"
                       variant="outline"
                       disabled={updatingId === s.id}
                       onClick={() => handleReject(s)}
-                      className="border-red-200 text-red-700 hover:bg-red-50"
+                      className="border-red-200 text-red-600 hover:bg-red-50 rounded-lg font-medium"
                     >
-                      {updatingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4 mr-1" />}
-                      Reject
+                      {updatingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+                        <>
+                          <XCircle className="w-4 h-4 mr-1" />
+                          Reject
+                        </>
+                      )}
                     </Button>
-                  </div>
-                </div>
-              )}
-              {s.status === "approved" && (
-                <div className="flex items-center gap-4 pt-3 border-t border-border text-sm text-muted-label">
-                  <Eye className="w-4 h-4" />
-                  <span>Baseline: {s.baseline_views.toLocaleString()}</span>
-                  <span>Current: {s.latest_views.toLocaleString()}</span>
-                  <span className="text-body-text font-medium">Gained: {s.view_count.toLocaleString()}</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+                  </>
+                )}
+                {s.status === "rejected" && s.rejection_reason && (
+                  <span className="text-xs text-muted-label italic max-w-[120px] truncate" title={s.rejection_reason}>
+                    {s.rejection_reason}
+                  </span>
+                )}
+                {(s.status === "approved" || s.status === "rejected") && (
+                  <span className="text-xs text-muted-label">No actions</span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
+
+      {/* Rejection Reason Modal/Input - shown below for pending items */}
+      {submissions.some(s => s.status === "pending") && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <p className="text-sm text-amber-700">
+            <strong>Tip:</strong> Click "Reject" to reject a submission. You can add a rejection reason before clicking.
+          </p>
+        </div>
+      )}
+
+      {/* Video/Image Preview Modal */}
+      <Dialog open={videoModal.isOpen} onOpenChange={(open) => setVideoModal({ ...videoModal, isOpen: open })}>
+        <DialogContent className="sm:max-w-4xl bg-white border border-gray-100 rounded-2xl p-0 overflow-hidden">
+          <div className="relative">
+            <button
+              onClick={() => setVideoModal({ ...videoModal, isOpen: false })}
+              className="absolute top-4 right-4 z-10 w-8 h-8 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center transition-colors"
+            >
+              <X className="w-4 h-4 text-white" />
+            </button>
+            {videoModal.type === "video" ? (
+              <video
+                src={videoModal.url}
+                controls
+                autoPlay
+                className="w-full max-h-[80vh] object-contain bg-black"
+              />
+            ) : (
+              <img
+                src={videoModal.url}
+                alt="Submission preview"
+                className="w-full max-h-[80vh] object-contain"
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -5,7 +5,6 @@ import { GeneralSettings } from "./profile-settings/general-settings"
 import { PaymentMethodsSettings } from "./profile-settings/payment-methods-settings"
 import { BalanceSettings } from "./profile-settings/balance-settings"
 import { ConnectedAccountsSettings } from "./profile-settings/connected-accounts-settings"
-import { Card } from "@/components/ui/card"
 import { Settings } from "lucide-react"
 
 const VALID_TABS = ["general", "connected-accounts", "payment-methods", "balance"] as const
@@ -28,16 +27,37 @@ export function ProfilePage({ initialTab = "general" }: { initialTab?: string })
     }
   }
 
+  const getTitle = () => {
+    switch (activeTab) {
+      case "general":
+        return "Account Settings"
+      case "connected-accounts":
+        return "Connected Accounts"
+      case "payment-methods":
+        return "Payment Methods"
+      case "balance":
+        return "Balance & Earnings"
+      default:
+        return "Account Settings"
+    }
+  }
+
   return (
-    <div className="flex flex-col lg:flex-row flex-1 gap-6">
+    <div className="flex flex-col lg:flex-row flex-1 gap-8">
       <ProfileSidebar activeTab={activeTab} />
-      <Card className="flex-1 bg-main-bg rounded-xl border border-border shadow-sm p-6 lg:p-8 overflow-auto">
-        <h1 className="text-3xl font-bold text-heading-text mb-6 flex items-center gap-3">
-          <Settings className="w-8 h-8 text-muted-label" />
-          Account settings
-        </h1>
-        {renderContent()}
-      </Card>
+      <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        {/* Header */}
+        <div className="border-b border-gray-100 px-8 py-6">
+          <h1 className="text-2xl font-bold text-heading-text flex items-center gap-3">
+            <Settings className="w-6 h-6 text-muted-label" />
+            {getTitle()}
+          </h1>
+        </div>
+        {/* Content */}
+        <div className="p-8">
+          {renderContent()}
+        </div>
+      </div>
     </div>
   )
 }

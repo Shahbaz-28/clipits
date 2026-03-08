@@ -48,6 +48,7 @@ export interface CampaignCard {
   requirements: string[]
   assets: { name: string; link: string }[]
   disclaimer: string
+  createdAt: string
 }
 
 /**
@@ -88,5 +89,6 @@ export function mapCampaignRowToCard(
     requirements: Array.isArray(row.requirements) ? row.requirements : [],
     assets: Array.isArray(row.assets) ? row.assets : [],
     disclaimer: row.disclaimer ?? "",
+    createdAt: row.created_at,
   }
 }

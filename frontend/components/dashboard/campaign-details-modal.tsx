@@ -9,19 +9,16 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import {
   DollarSign,
   Tag,
   TrendingUp,
-  Link,
   CheckCircle,
   Instagram,
   Youtube,
   TwitterIcon as TikTok,
   PlayCircle,
 } from "lucide-react"
-// Removed direct import of JoinedCampaignPage as it's now handled by onJoin prop
 
 interface CampaignDetailsModalProps {
   isOpen: boolean
@@ -48,6 +45,7 @@ interface CampaignDetailsModalProps {
     requirements: string[]
     assets: { name: string; link: string }[]
     disclaimer: string
+    createdAt: string
   }
   onJoin?: (campaignData: any) => void
   isJoining?: boolean
@@ -77,122 +75,113 @@ export function CampaignDetailsModal({ isOpen, onClose, campaign, onJoin, isJoin
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[900px] w-[95%] bg-main-bg text-body-text border-border p-6 sm:p-8 flex flex-col max-h-[90vh] rounded-xl shadow-xl">
-        <DialogHeader>
-          <DialogTitle className="text-heading-text text-2xl font-bold">{campaign.title}</DialogTitle>
-          <DialogDescription className="text-muted-label text-base">{campaign.description}</DialogDescription>
+      <DialogContent className="sm:max-w-[600px] w-[95%] bg-white text-heading-text border border-gray-100 p-0 flex flex-col max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+          <DialogTitle className="text-xl font-bold text-heading-text">{campaign.title}</DialogTitle>
+          <DialogDescription className="text-sm text-muted-label mt-1">{campaign.description}</DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto py-4 pr-2 space-y-6">
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
           {/* Progress Bar */}
-          <div className="mb-6">
-            <div className="flex justify-between text-sm text-muted-label mb-2">
-              <span>
-                <span className="font-semibold text-heading-text">₹{campaign.progressPaidOut.toLocaleString()}</span> of{" "}
-                ₹{campaign.totalBudgetDetail.toLocaleString()} paid out
-              </span>
-              <span>
-                {campaign.progressPercentage}% {campaign.daysLeft} days left
+          <div className="p-4 bg-gray-50 rounded-xl">
+            <div className="flex justify-between items-center mb-3">
+              <div className="flex items-baseline gap-1">
+                <span className="text-xl font-bold text-turquoise-accent">₹{campaign.progressPaidOut.toLocaleString()}</span>
+                <span className="text-xs text-muted-label">of ₹{campaign.totalBudgetDetail.toLocaleString()}</span>
+              </div>
+              <span className="text-sm font-semibold text-heading-text">
+                {campaign.progressPercentage}% · {campaign.daysLeft} days
               </span>
             </div>
-            <Progress
-              value={campaign.progressPercentage}
-              className="h-2 bg-border"
-              indicatorClassName="bg-turquoise-accent"
-            />
+            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-turquoise-accent to-secondary h-2 rounded-full transition-all duration-500"
+                style={{ width: `${campaign.progressPercentage}%` }}
+              />
+            </div>
           </div>
 
           {/* Key Metrics */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
-            <Badge
-              variant="outline"
-              className="flex items-center justify-center gap-1 p-2 text-body-text border-border bg-section-bg rounded-lg shadow-sm"
-            >
-              <DollarSign className="w-4 h-4 text-muted-label" />
-              <span className="font-semibold text-turquoise-accent">{campaign.rate}</span>
-            </Badge>
-            <Badge
-              variant="outline"
-              className="flex items-center justify-center gap-1 p-2 text-body-text border-border bg-section-bg rounded-lg shadow-sm"
-            >
-              <Tag className="w-4 h-4 text-muted-label" />
-              {campaign.type}
-            </Badge>
-            <Badge
-              variant="outline"
-              className="flex items-center justify-center gap-1 p-2 text-body-text border-border bg-section-bg rounded-lg shadow-sm"
-            >
-              <TrendingUp className="w-4 h-4 text-muted-label" />
-              Min ₹{campaign.minPayout.toLocaleString()}
-            </Badge>
-            <Badge
-              variant="outline"
-              className="flex items-center justify-center gap-1 p-2 text-body-text border-border bg-section-bg rounded-lg shadow-sm"
-            >
-              <TrendingUp className="w-4 h-4 text-muted-label" />
-              Max ₹{campaign.maxPayout.toLocaleString()}
-            </Badge>
-            <Badge
-              variant="outline"
-              className="flex items-center justify-center gap-1 p-2 text-body-text border-border bg-section-bg rounded-lg shadow-sm"
-            >
-              <Tag className="w-4 h-4 text-muted-label" />
-              {campaign.category}
-            </Badge>
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+            <div className="p-3 bg-gray-50 rounded-lg text-center">
+              <DollarSign className="w-4 h-4 text-turquoise-accent mx-auto mb-1" />
+              <p className="text-xs text-muted-label">Rate</p>
+              <p className="text-sm font-bold text-heading-text">{campaign.rate}</p>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-lg text-center">
+              <Tag className="w-4 h-4 text-vibrant-red-orange mx-auto mb-1" />
+              <p className="text-xs text-muted-label">Type</p>
+              <p className="text-sm font-bold text-heading-text">{campaign.type}</p>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-lg text-center">
+              <TrendingUp className="w-4 h-4 text-amber-500 mx-auto mb-1" />
+              <p className="text-xs text-muted-label">Min</p>
+              <p className="text-sm font-bold text-heading-text">₹{campaign.minPayout}</p>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-lg text-center">
+              <TrendingUp className="w-4 h-4 text-emerald-500 mx-auto mb-1" />
+              <p className="text-xs text-muted-label">Max</p>
+              <p className="text-sm font-bold text-heading-text">₹{campaign.maxPayout}</p>
+            </div>
+            <div className="p-3 bg-gray-50 rounded-lg text-center col-span-3 sm:col-span-1">
+              <Tag className="w-4 h-4 text-blue-500 mx-auto mb-1" />
+              <p className="text-xs text-muted-label">Category</p>
+              <p className="text-sm font-bold text-heading-text">{campaign.category}</p>
+            </div>
           </div>
 
           {/* Platforms */}
-          <div className="mb-6">
-            <h3 className="text-lg font-bold text-heading-text mb-3">Platforms</h3>
-            <div className="flex flex-wrap gap-3">
+          <div>
+            <h3 className="text-sm font-bold text-heading-text mb-2">Platforms</h3>
+            <div className="flex flex-wrap gap-2">
               {campaign.platforms.map((PlatformIcon, idx) => (
                 <Badge
                   key={idx}
                   variant="outline"
-                  className="flex items-center gap-2 p-2 text-body-text border-border bg-section-bg rounded-lg shadow-sm"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-heading-text border border-gray-200 bg-gray-50 rounded-lg"
                 >
-                  <PlatformIcon className="w-5 h-5 text-muted-label" />
-                  {PlatformIcon === Instagram && "Instagram"}
-                  {PlatformIcon === Youtube && "YouTube"}
-                  {PlatformIcon === TikTok && "TikTok"}
+                  <PlatformIcon className="w-4 h-4" />
+                  <span className="text-sm font-medium">
+                    {PlatformIcon === Instagram && "Instagram"}
+                    {PlatformIcon === Youtube && "YouTube"}
+                    {PlatformIcon === TikTok && "TikTok"}
+                  </span>
                 </Badge>
               ))}
             </div>
           </div>
 
           {/* Requirements */}
-          <div className="mb-6">
-            <h3 className="text-lg font-bold text-heading-text mb-3">Requirements</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <h3 className="text-sm font-bold text-heading-text mb-2">Requirements</h3>
+            <div className="space-y-2">
               {campaign.requirements.map((req, idx) => (
-                <Badge
+                <div
                   key={idx}
-                  variant="outline"
-                  className="flex items-center gap-2 p-3 text-body-text border-border bg-section-bg text-left h-auto rounded-lg shadow-sm"
+                  className="flex items-center gap-2 p-2.5 bg-gray-50 rounded-lg"
                 >
-                  <CheckCircle className="w-4 h-4 text-turquoise-accent flex-shrink-0" />
-                  <span className="flex-1">{req}</span>
-                </Badge>
+                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <span className="text-sm text-heading-text">{req}</span>
+                </div>
               ))}
             </div>
           </div>
 
           {/* Assets & Resources */}
           {campaign.assets.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-lg font-bold text-heading-text mb-3">Assets & Resources</h3>
-              <div className="space-y-3">
+            <div>
+              <h3 className="text-sm font-bold text-heading-text mb-2">Assets & Resources</h3>
+              <div className="space-y-2">
                 {campaign.assets.map((asset, idx) => (
                   <a
                     key={idx}
                     href={asset.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 p-3 border border-border rounded-lg bg-section-bg hover:bg-section-bg/70 transition-colors text-body-text shadow-sm"
+                    className="flex items-center gap-2 p-2.5 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors text-heading-text"
                   >
-                    <Link className="w-5 h-5 text-muted-label flex-shrink-0" />
-                    <span className="flex-1 truncate">{asset.name}</span>
-                    <PlayCircle className="w-5 h-5 text-muted-label flex-shrink-0" />
+                    <PlayCircle className="w-4 h-4 text-muted-label flex-shrink-0" />
+                    <span className="text-sm font-medium truncate flex-1">{asset.name}</span>
                   </a>
                 ))}
               </div>
@@ -201,37 +190,37 @@ export function CampaignDetailsModal({ isOpen, onClose, campaign, onJoin, isJoin
 
           {/* Disclaimer */}
           {campaign.disclaimer && (
-            <div className="mb-6">
-              <h3 className="text-lg font-bold text-heading-text mb-3">Disclaimer</h3>
-              <p className="text-sm text-muted-label bg-section-bg p-4 rounded-lg border border-border shadow-sm">
-                {campaign.disclaimer}
-              </p>
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="flex gap-2">
+                <span className="text-xs font-medium text-amber-700">Note:</span>
+                <p className="text-xs text-amber-600">{campaign.disclaimer}</p>
+              </div>
             </div>
           )}
         </div>
 
-        <DialogFooter className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+        <DialogFooter className="px-6 py-4 border-t border-gray-100 flex gap-3">
           <Button
             variant="outline"
             onClick={onClose}
-            className="w-full sm:w-auto border-border text-body-text hover:bg-section-bg bg-transparent rounded-md"
+            className="flex-1 h-10 border border-gray-200 text-heading-text hover:bg-gray-50 bg-white rounded-lg font-medium"
           >
             Close
           </Button>
           {isCreatorView && canEdit ? (
             <Button
               onClick={handleEdit}
-              className="w-full sm:w-auto bg-gradient-to-r from-vibrant-red-orange to-[#FF4B4B] text-white hover:from-[#FF4B4B] hover:to-vibrant-red-orange shadow-lg shadow-vibrant-red-orange/30 transition-all duration-200 rounded-md"
+              className="flex-1 h-10 bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-semibold shadow-lg shadow-vibrant-red-orange/25"
             >
-              Edit
+              Edit Campaign
             </Button>
           ) : !isCreatorView ? (
             <Button
               onClick={handleJoinCampaign}
               disabled={isJoining}
-              className="w-full sm:w-auto bg-gradient-to-r from-vibrant-red-orange to-[#FF4B4B] text-white hover:from-[#FF4B4B] hover:to-vibrant-red-orange shadow-lg shadow-vibrant-red-orange/30 transition-all duration-200 rounded-md"
+              className="flex-1 h-10 bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-semibold shadow-lg shadow-vibrant-red-orange/25"
             >
-              {isJoining ? "Joining..." : alreadyJoined ? "View campaign" : "Join Campaign"}
+              {isJoining ? "Joining..." : alreadyJoined ? "View Campaign" : "Join Campaign"}
             </Button>
           ) : null}
         </DialogFooter>

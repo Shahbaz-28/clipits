@@ -134,65 +134,67 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {campaigns.map((campaign) => (
           <Card
             key={campaign.id}
-            className="bg-main-bg border border-border shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-xl"
+            className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer group rounded-2xl overflow-hidden"
             onClick={() => handleCardClick(campaign)}
           >
             <CardContent className="p-6">
               {/* Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-heading-text mb-1 group-hover:text-vibrant-red-orange transition-colors">
-                    {campaign.title}
-                  </h3>
-                  <Badge
-                    className={`${campaign.color} text-white hover:${campaign.color}/90 text-xs shadow-sm rounded-md`}
-                  >
-                    {campaign.rate}
-                  </Badge>
-                </div>
+              <div className="mb-5">
+                <h3 className="font-bold text-lg text-heading-text mb-3 group-hover:text-vibrant-red-orange transition-colors line-clamp-2 leading-tight">
+                  {campaign.title}
+                </h3>
+                <Badge
+                  className={`${campaign.color} text-white hover:${campaign.color}/90 text-xs font-semibold px-3 py-1 rounded-full shadow-sm`}
+                >
+                  {campaign.rate}
+                </Badge>
               </div>
 
               {/* Description */}
-              <p className="text-sm text-body-text mb-4">{campaign.description.substring(0, 50)}...</p>
+              <p className="text-sm text-muted-label mb-5 line-clamp-2 leading-relaxed">
+                {campaign.description}
+              </p>
 
-              {/* Earnings */}
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-lg font-bold text-turquoise-accent">{campaign.earnings}</span>
-                  <span className="text-sm text-muted-label">of {campaign.total} paid out</span>
-                  <span className="text-sm font-semibold text-body-text">{campaign.percentage}</span>
+              {/* Earnings Progress */}
+              <div className="mb-5 p-4 bg-gray-50 rounded-xl">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xl font-bold text-turquoise-accent">{campaign.earnings}</span>
+                    <span className="text-xs text-muted-label">of {campaign.total}</span>
+                  </div>
+                  <span className="text-sm font-bold text-heading-text">{campaign.percentage}</span>
                 </div>
-                <div className="w-full bg-border rounded-full h-2">
+                <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
                   <div
-                    className="bg-turquoise-accent h-2 rounded-full transition-all duration-300 shadow-sm"
+                    className="bg-gradient-to-r from-turquoise-accent to-secondary h-2.5 rounded-full transition-all duration-500"
                     style={{ width: campaign.percentage }}
                   />
                 </div>
               </div>
 
-              {/* Details */}
-              <div className="grid grid-cols-3 gap-4 text-xs">
-                <div>
-                  <p className="text-muted-label mb-1">Type</p>
-                  <p className="font-semibold text-body-text">{campaign.type}</p>
+              {/* Details Grid */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center p-3 bg-gray-50 rounded-xl">
+                  <p className="text-xs text-muted-label mb-1">Type</p>
+                  <p className="text-sm font-semibold text-heading-text">{campaign.type}</p>
                 </div>
-                <div>
-                  <p className="text-muted-label mb-1">Platforms</p>
-                  <div className="flex space-x-1">
+                <div className="text-center p-3 bg-gray-50 rounded-xl">
+                  <p className="text-xs text-muted-label mb-1">Platform</p>
+                  <div className="flex justify-center">
                     {campaign.platforms.map((Platform, idx) => (
-                      <Platform key={`platform-${idx}`} className="w-4 h-4 text-muted-label" />
+                      <Platform key={`platform-${idx}`} className="w-5 h-5 text-heading-text" />
                     ))}
                   </div>
                 </div>
-                <div>
-                  <p className="text-muted-label mb-1">Views</p>
-                  <div className="flex items-center space-x-1">
-                    <Eye className="w-3 h-3 text-muted-label" />
-                    <span className="font-semibold text-body-text">{campaign.views}</span>
+                <div className="text-center p-3 bg-gray-50 rounded-xl">
+                  <p className="text-xs text-muted-label mb-1">Views</p>
+                  <div className="flex items-center justify-center gap-1">
+                    <Eye className="w-3.5 h-3.5 text-muted-label" />
+                    <span className="text-sm font-semibold text-heading-text">{campaign.views}</span>
                   </div>
                 </div>
               </div>

@@ -165,82 +165,89 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="sm:max-w-[500px] w-[95%] bg-main-bg text-body-text border-border p-6 sm:p-8 flex flex-col max-h-[90vh] rounded-xl shadow-xl overflow-hidden">
-        <DialogHeader>
-          <DialogTitle className="text-heading-text text-center text-2xl font-bold">
-            Create submission
+      <DialogContent className="sm:max-w-[480px] w-[95%] bg-white text-heading-text border border-gray-100 p-0 flex flex-col max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+          <DialogTitle className="text-xl font-bold text-heading-text">
+            Create Submission
           </DialogTitle>
         </DialogHeader>
 
-        {/* Info banner – theme colors */}
-        <div className="flex gap-3 p-3 rounded-lg bg-section-bg border border-border text-body-text text-sm">
-          <Info className="w-5 h-5 shrink-0 text-turquoise-accent mt-0.5" />
-          <p>
-            Only views after you submit count towards payout. Submit as soon as you post to get paid for all of your views.
+        {/* Info banner */}
+        <div className="mx-6 mt-4 flex gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-sm">
+          <Info className="w-4 h-4 shrink-0 mt-0.5" />
+          <p className="text-xs">
+            Only views after you submit count towards payout. Submit as soon as you post to get paid for all views.
           </p>
         </div>
 
         {error && (
-          <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-red-700 text-sm">
+          <div className="mx-6 mt-4 rounded-xl bg-red-50 border border-red-200 p-3 text-red-600 text-sm">
             {error}
           </div>
         )}
 
-        <form id="submit-content-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 py-4 pr-2 space-y-5 modal-form-scroll">
-          <div>
-            <h3 className="text-lg font-semibold text-heading-text mb-1">Submit your social media post</h3>
-            <p className="text-sm text-muted-label mb-4">
-              Share your post&apos;s link and the original image or video below. Once approved, you&apos;ll start earning rewards based on the views your content generates.
-            </p>
-          </div>
-
+        <form id="submit-content-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {/* Provide link */}
-          <div className="space-y-2">
-            <Label htmlFor="postLink" className="text-body-text flex items-center gap-2 font-medium">
-              <Link className="w-4 h-4 text-muted-label" />
-              Provide link <span className="text-red-500">*</span>
+          <div className="space-y-1.5">
+            <Label htmlFor="postLink" className="text-sm font-medium text-heading-text flex items-center gap-2">
+              <Link className="w-3.5 h-3.5 text-muted-label" />
+              Post Link <span className="text-red-500">*</span>
             </Label>
             <Input
               id="postLink"
               type="text"
               inputMode="url"
-              placeholder="https://www.instagram.com/reel/1234567890"
+              placeholder="https://www.instagram.com/reel/..."
               value={postLink}
               onChange={(e) => setPostLink(e.target.value)}
               className={cn(
-                "w-full bg-section-bg border-border text-body-text placeholder:text-muted-label focus-visible:border-vibrant-red-orange focus-visible:ring-0 rounded-md",
-                error && !postLink.trim() && "border-red-500"
+                "h-10 w-full bg-gray-50 border border-gray-200 text-heading-text placeholder:text-muted-label rounded-lg focus:border-vibrant-red-orange focus:ring-1 focus:ring-vibrant-red-orange",
+                error && !postLink.trim() && "border-red-400"
               )}
             />
           </div>
 
-          {/* Media - required */}
-          <div className="space-y-2">
-            <Label className="text-body-text flex items-center gap-2 font-medium">
-              Media <span className="text-red-500">*</span>
+          {/* Media upload */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-heading-text flex items-center gap-2">
+              <Upload className="w-3.5 h-3.5 text-muted-label" />
+              Media File <span className="text-red-500">*</span>
             </Label>
             <p className="text-xs text-muted-label">
-            Upload the original media file (no screenshots). For videos, upload the video. If multiple files exist, upload the first one.            </p>
+              Upload the original image or video (no screenshots)
+            </p>
             <div
-              className="flex flex-col items-center justify-center py-6 px-4 border-2 border-dashed border-border rounded-lg bg-section-bg text-center cursor-pointer hover:border-vibrant-red-orange transition-colors min-h-[100px]"
+              className="flex flex-col items-center justify-center py-5 px-4 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 text-center cursor-pointer hover:border-vibrant-red-orange hover:bg-gray-100 transition-colors"
               onDragOver={handleDragOver}
               onDrop={handleDrop}
               onClick={() => document.getElementById("mediaUploadInput")?.click()}
             >
               {selectedFile ? (
-                <div className="flex flex-col items-center">
+                <div className="flex items-center gap-3">
                   {selectedFile.type.startsWith("image/") ? (
-                    <ImageIcon className="w-8 h-8 text-turquoise-accent mb-2" />
+                    <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                      <ImageIcon className="w-5 h-5 text-emerald-600" />
+                    </div>
                   ) : (
-                    <Video className="w-8 h-8 text-turquoise-accent mb-2" />
+                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <Video className="w-5 h-5 text-blue-600" />
+                    </div>
                   )}
-                  <p className="text-body-text text-sm font-medium truncate max-w-[220px]">{selectedFile.name}</p>
+                  <div className="text-left">
+                    <p className="text-sm font-medium text-heading-text truncate max-w-[200px]">{selectedFile.name}</p>
+                    <p className="text-xs text-muted-label">
+                      {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
+                    </p>
+                  </div>
                 </div>
               ) : (
-                <>
-                  <Upload className="w-8 h-8 text-muted-label mb-2" />
-                  <p className="text-body-text text-sm">Upload media</p>
-                </>
+                <div className="flex flex-col items-center">
+                  <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mb-2">
+                    <Upload className="w-5 h-5 text-muted-label" />
+                  </div>
+                  <p className="text-sm font-medium text-heading-text">Click to upload</p>
+                  <p className="text-xs text-muted-label mt-0.5">or drag and drop</p>
+                </div>
               )}
               <Input
                 id="mediaUploadInput"
@@ -253,13 +260,13 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
           </div>
         </form>
 
-        <DialogFooter className="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+        <DialogFooter className="px-6 py-4 border-t border-gray-100 flex gap-3">
           <Button
             type="button"
             variant="outline"
             onClick={onClose}
             disabled={isSubmitting}
-            className="w-full sm:w-auto border-border text-body-text hover:bg-section-bg bg-transparent rounded-md"
+            className="flex-1 h-10 border border-gray-200 text-heading-text hover:bg-gray-50 bg-white rounded-lg font-medium"
           >
             Cancel
           </Button>
@@ -267,7 +274,7 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
             type="submit"
             form="submit-content-form"
             disabled={isSubmitting}
-            className="w-full sm:w-auto bg-gradient-to-r from-turquoise-accent to-[#20A070] text-white hover:from-[#20A070] hover:to-turquoise-accent shadow-lg shadow-turquoise-accent/30 transition-all duration-200 rounded-md"
+            className="flex-1 h-10 bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-semibold shadow-lg shadow-vibrant-red-orange/25"
           >
             {isSubmitting ? (
               <>

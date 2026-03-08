@@ -9,16 +9,14 @@ import {
   Home,
   Search,
   FolderOpen,
-  Upload,
+  FileText,
   BarChart3,
   Settings,
   X,
-  LogOut,
   Megaphone,
   DollarSign,
 } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
-import { useRouter } from "next/navigation"
 import type { UserRole } from "@/lib/auth-context"
 
 interface SidebarProps {
@@ -30,7 +28,7 @@ interface SidebarProps {
 const CLIPPER_MENU = [
   { id: "explore", label: "Explore Campaigns", icon: Search },
   { id: "joined", label: "Joined", icon: FolderOpen },
-  { id: "my-submissions", label: "My Submissions", icon: Upload },
+  { id: "my-submissions", label: "My Submissions", icon: FileText },
   { id: "earnings", label: "Earnings", icon: DollarSign },
   { id: "profile", label: "Profile", icon: Settings },
 ]
@@ -38,14 +36,13 @@ const CLIPPER_MENU = [
 const CREATOR_MENU = [
   { id: "my-campaigns", label: "My Campaigns", icon: Megaphone },
   { id: "create-campaign", label: "Create Campaign", icon: FolderOpen },
-  { id: "submissions", label: "Submissions", icon: Upload },
+  { id: "submissions", label: "Submissions", icon: FileText },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
   { id: "profile", label: "Profile", icon: Settings },
 ]
 
 export function Sidebar({ sidebarOpen, setSidebarOpen, currentPath }: SidebarProps) {
-  const { user, profile, signOut } = useAuth()
-  const router = useRouter()
+  const { user, profile } = useAuth()
 
   const role: UserRole = profile?.role ?? "clipper"
   const menuItems = role === "creator" ? CREATOR_MENU : CLIPPER_MENU
@@ -54,11 +51,6 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, currentPath }: SidebarPro
     if (itemId === "joined") return currentPath === "/dashboard/joined" || currentPath.startsWith("/dashboard/joined/")
     if (itemId === "profile") return currentPath === "/dashboard/profile" || currentPath.startsWith("/dashboard/profile/")
     return currentPath === `/dashboard/${itemId}`
-  }
-
-  const handleSignOut = async () => {
-    await signOut()
-    router.push("/")
   }
 
   const getInitials = (firstName?: string, lastName?: string, email?: string) => {
@@ -145,40 +137,31 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, currentPath }: SidebarPro
 
           <div className="p-4 border-t border-border">
             {user && (
-              <div className="flex items-center space-x-3 mb-4">
-                <Avatar className="w-10 h-10">
+              <div className="flex items-center space-x-3">
+                <Avatar className="w-9 h-9">
                   <AvatarImage
                     src={user.user_metadata?.avatar_url}
-                    alt={user.user_metadata?.first_name || user.email}
+                    alt={profile?.first_name || user.user_metadata?.first_name || user.email}
                   />
-                  <AvatarFallback className="bg-vibrant-red-orange text-white">
+                  <AvatarFallback className="bg-vibrant-red-orange text-white text-sm">
                     {getInitials(
-                      user.user_metadata?.first_name,
-                      user.user_metadata?.last_name,
+                      profile?.first_name || user.user_metadata?.first_name,
+                      profile?.last_name || user.user_metadata?.last_name,
                       user.email
                     )}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-heading-text truncate">
-                    {user.user_metadata?.first_name && user.user_metadata?.last_name
-                      ? `${user.user_metadata.first_name} ${user.user_metadata.last_name}`
-                      : user.email}
+                    {profile?.first_name
+                      ? profile.first_name
+                      : user.user_metadata?.first_name
+                        ? user.user_metadata.first_name
+                        : user.email?.split("@")[0]}
                   </p>
-                  <p className="text-xs text-muted-label truncate">{user.email}</p>
                 </div>
               </div>
             )}
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full border-border text-body-text hover:bg-section-bg"
-              onClick={handleSignOut}
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
           </div>
         </div>
       </div>
