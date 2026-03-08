@@ -211,8 +211,8 @@ export function MyCampaignsPage({
           <h2 className="text-lg font-semibold text-heading-text">Your campaigns</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {campaigns.map((campaign) => {
-              const rateLabel = `$${Number(campaign.rate_per_1k).toFixed(2)} / 1K`
-              const totalLabel = `$${Number(campaign.total_budget).toLocaleString()}`
+              const rateLabel = `₹${Number(campaign.rate_per_1k).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / 1K`
+              const totalLabel = `₹${Number(campaign.total_budget).toLocaleString("en-IN")}`
               const typeLabel = campaign.type === "ugc" ? "UGC" : "Clipping"
               return (
                 <Card
@@ -253,7 +253,7 @@ export function MyCampaignsPage({
                     {/* Earnings / progress bar (same as Explore) */}
                     <div className="mb-4">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-lg font-bold text-turquoise-accent">$0</span>
+                        <span className="text-lg font-bold text-turquoise-accent">₹0</span>
                         <span className="text-sm text-muted-label">of {totalLabel} paid out</span>
                         <span className="text-sm font-semibold text-body-text">0%</span>
                       </div>

@@ -52,6 +52,7 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, currentPath }: SidebarPro
 
   const isActive = (itemId: string) => {
     if (itemId === "joined") return currentPath === "/dashboard/joined" || currentPath.startsWith("/dashboard/joined/")
+    if (itemId === "profile") return currentPath === "/dashboard/profile" || currentPath.startsWith("/dashboard/profile/")
     return currentPath === `/dashboard/${itemId}`
   }
 
@@ -119,7 +120,7 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, currentPath }: SidebarPro
           <nav className="flex-1 p-4 space-y-2">
             {menuItems.map((item) => {
               const Icon = item.icon
-              const href = `/dashboard/${item.id}`
+              const href = item.id === "profile" ? "/dashboard/profile" : `/dashboard/${item.id}`
               const active = isActive(item.id)
               return (
                 <Link

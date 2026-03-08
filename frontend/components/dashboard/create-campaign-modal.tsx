@@ -297,16 +297,16 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
       justSubmittedRef.current = true
       toast.success("Campaign created and live. It will appear in Explore for clippers.")
       onSuccess?.()
-      onClose()
+        onClose()
       setFormData({ title: "", type: "", category: "" })
-      setBudget(0)
-      setRewardRate(0)
-      setMinPayout(0)
-      setMaxPayout(0)
-      setSelectedPlatforms([])
+        setBudget(0)
+        setRewardRate(0)
+        setMinPayout(0)
+        setMaxPayout(0)
+        setSelectedPlatforms([])
       setRequirementsList([])
       setAssetsList([])
-      setEndDate(undefined)
+        setEndDate(undefined)
     } catch (err) {
       console.error("Error creating campaign:", err)
       const message = err instanceof Error ? err.message : "Something went wrong. Please try again."
@@ -373,7 +373,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                 <Label htmlFor="type" className="text-body-text flex items-center gap-2 text-sm font-medium">
                   <Tag className="w-3.5 h-3.5 text-muted-label" />
                   Campaign Type <span className="text-red-500">*</span>
-                </Label>
+              </Label>
                 <Select
                   value={formData.type || undefined}
                   onValueChange={(value) => handleInputChange("type", value)}
@@ -384,13 +384,13 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                       errors.type && "border-red-500",
                     )}
                   >
-                    <SelectValue placeholder="Select campaign type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-main-bg border-border text-body-text rounded-md">
-                    <SelectItem value="ugc">UGC</SelectItem>
-                    <SelectItem value="clipping">Clipping</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <SelectValue placeholder="Select campaign type" />
+                </SelectTrigger>
+                <SelectContent className="bg-main-bg border-border text-body-text rounded-md">
+                  <SelectItem value="ugc">UGC</SelectItem>
+                  <SelectItem value="clipping">Clipping</SelectItem>
+                </SelectContent>
+              </Select>
                 {errors.type && (
                   <p className="text-red-500 text-xs mt-1">{errors.type}</p>
                 )}
@@ -472,11 +472,11 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                 <IndianRupee className="w-3.5 h-3.5 text-muted-label" />
                 Total Budget (₹) <span className="text-red-500">*</span>
               </Label>
-                <Input
-                  id="totalBudget"
-                  type="number"
+              <Input
+                id="totalBudget"
+                type="number"
                   min={1}
-                  placeholder="50000"
+                placeholder="50000"
                   value={!Number.isFinite(budget) || budget === 0 ? "" : budget}
                   onChange={(e) => {
                     setBudget(Number(e.target.value))
@@ -775,24 +775,24 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
               </Button>
             </>
           ) : (
-            <Button
-              type="submit"
+          <Button
+            type="submit"
               form="create-campaign-form"
-              disabled={isSubmitting}
-              className="w-full sm:w-auto bg-gradient-to-r from-vibrant-red-orange to-[#FF4B4B] text-white hover:from-[#FF4B4B] hover:to-vibrant-red-orange shadow-lg shadow-vibrant-red-orange/30 transition-all duration-200 rounded-md"
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                <>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Campaign
-                </>
-              )}
-            </Button>
+            disabled={isSubmitting}
+            className="w-full sm:w-auto bg-gradient-to-r from-vibrant-red-orange to-[#FF4B4B] text-white hover:from-[#FF4B4B] hover:to-vibrant-red-orange shadow-lg shadow-vibrant-red-orange/30 transition-all duration-200 rounded-md"
+          >
+            {isSubmitting ? (
+              <>
+                <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Submitting...
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Campaign
+              </>
+            )}
+          </Button>
           )}
         </DialogFooter>
       </DialogContent>

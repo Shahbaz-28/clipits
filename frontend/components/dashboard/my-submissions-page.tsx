@@ -158,7 +158,7 @@ export function MySubmissionsPage() {
                   {getStatusBadge(s.status)}
                   {s.status === "approved" && (
                     <>
-                      <span className="text-sm text-muted-label">{s.view_count.toLocaleString()} views</span>
+                      <span className="text-sm text-muted-label">{s.view_count.toLocaleString()} views gained</span>
                       <span className="text-lg font-semibold text-turquoise-accent">
                         ₹{Number(s.earnings).toLocaleString()}
                       </span>

@@ -1,34 +1,34 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, Megaphone, Eye, DollarSign } from "lucide-react"
+import { Users, Megaphone, Eye, IndianRupee } from "lucide-react"
 
 export function AdminMetricCards() {
   const metrics = [
     {
       title: "Total Approved Creators",
-      value: "1,234",
-      change: "+20% from last month",
+      value: "0",
+      change: "—",
       icon: Users,
       color: "text-primary",
     },
     {
       title: "Total Campaigns",
-      value: "567",
-      change: "+15% from last month",
+      value: "0",
+      change: "—",
       icon: Megaphone,
       color: "text-accent",
     },
     {
       title: "Total Views Generated",
-      value: "1.2M",
-      change: "+30% from last month",
+      value: "0",
+      change: "—",
       icon: Eye,
       color: "text-highlight",
     },
     {
       title: "Total Payouts Released",
-      value: "$125,000",
-      change: "+25% from last month",
-      icon: DollarSign,
+      value: "₹0",
+      change: "—",
+      icon: IndianRupee,
       color: "text-primary",
     },
   ]

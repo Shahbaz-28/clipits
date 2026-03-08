@@ -9,6 +9,9 @@ export type UserRole = "clipper" | "creator" | "admin"
 export interface UserProfile {
   role: UserRole
   onboarding_done: boolean
+  first_name: string | null
+  last_name: string | null
+  username: string | null
 }
 
 interface AuthContextType {
@@ -42,13 +45,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfileLoading(true)
     const { data, error } = await supabase
       .from("users")
-      .select("role, onboarding_done")
+      .select("role, onboarding_done, first_name, last_name, username")
       .eq("id", userId)
       .single()
     if (!error && data) {
       setProfile({
         role: (data.role as UserRole) || "clipper",
         onboarding_done: data.onboarding_done ?? false,
+        first_name: data.first_name ?? null,
+        last_name: data.last_name ?? null,
+        username: data.username ?? null,
       })
     } else {
       setProfile(null)

@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   Upload,
   Loader2,
@@ -15,7 +14,6 @@ import {
   ExternalLink,
   Eye,
   IndianRupee,
-  MessageSquare,
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
@@ -31,6 +29,8 @@ interface SubmissionWithCampaign {
   status: "pending" | "approved" | "rejected"
   view_count: number
   earnings: number
+  baseline_views: number
+  latest_views: number
   submitted_at: string
   rejection_reason: string | null
   campaign: {
@@ -42,18 +42,11 @@ interface SubmissionWithCampaign {
   }
 }
 
-function computeEarnings(viewCount: number, ratePer1k: number, minPayout: number, maxPayout: number): number {
-  const raw = (viewCount / 1000) * ratePer1k
-  const clamped = Math.max(minPayout, Math.min(maxPayout, raw))
-  return Math.round(clamped * 100) / 100
-}
-
 export function CreatorSubmissionsPage() {
   const { user } = useAuth()
   const [submissions, setSubmissions] = useState<SubmissionWithCampaign[]>([])
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
-  const [viewCountInputs, setViewCountInputs] = useState<Record<string, string>>({})
   const [rejectReason, setRejectReason] = useState<Record<string, string>>({})
 
   const loadSubmissions = async () => {
@@ -71,7 +64,7 @@ export function CreatorSubmissionsPage() {
     }
     const { data: subRows, error } = await supabase
       .from("submissions")
-      .select("id, campaign_id, user_id, content_link, media_url, platform, status, view_count, earnings, submitted_at, rejection_reason")
+      .select("id, campaign_id, user_id, content_link, media_url, platform, status, view_count, earnings, baseline_views, latest_views, submitted_at, rejection_reason")
       .in("campaign_id", campaignIds)
       .order("submitted_at", { ascending: false })
 
@@ -87,11 +80,6 @@ export function CreatorSubmissionsPage() {
       campaign: campaignMap.get(r.campaign_id)!,
     }))
     setSubmissions(list)
-    const inputs: Record<string, string> = {}
-    list.forEach((s) => {
-      inputs[s.id] = String(s.view_count)
-    })
-    setViewCountInputs(inputs)
     setLoading(false)
   }
 
@@ -101,30 +89,39 @@ export function CreatorSubmissionsPage() {
 
   const handleApprove = async (sub: SubmissionWithCampaign) => {
     setUpdatingId(sub.id)
-    const viewCount = parseInt(viewCountInputs[sub.id] ?? "0", 10) || 0
-    const earnings = computeEarnings(
-      viewCount,
-      sub.campaign.rate_per_1k,
-      sub.campaign.min_payout,
-      sub.campaign.max_payout
-    )
+
     const { error } = await supabase
       .from("submissions")
       .update({
         status: "approved",
-        view_count: viewCount,
-        earnings,
         reviewed_at: new Date().toISOString(),
         reviewed_by: user?.id,
         rejection_reason: null,
       })
       .eq("id", sub.id)
-    setUpdatingId(null)
     if (error) {
+      setUpdatingId(null)
       toast.error(error.message)
       return
     }
-    toast.success("Submission approved.")
+
+    try {
+      const res = await fetch("/api/views/fetch-baseline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ submissionId: sub.id, reelUrl: sub.content_link }),
+      })
+      const result = await res.json()
+      if (result.fromApi) {
+        toast.success(`Approved! Baseline views captured: ${result.views.toLocaleString()}`)
+      } else {
+        toast.success("Approved! View tracking will start on the next check.")
+      }
+    } catch {
+      toast.success("Approved! View tracking will start on the next check.")
+    }
+
+    setUpdatingId(null)
     loadSubmissions()
   }
 
@@ -147,29 +144,6 @@ export function CreatorSubmissionsPage() {
     }
     toast.success("Submission rejected.")
     setRejectReason((prev) => ({ ...prev, [sub.id]: "" }))
-    loadSubmissions()
-  }
-
-  const handleSetViewsOnly = async (sub: SubmissionWithCampaign) => {
-    if (sub.status !== "approved") return
-    const viewCount = parseInt(viewCountInputs[sub.id] ?? "0", 10) || 0
-    const earnings = computeEarnings(
-      viewCount,
-      sub.campaign.rate_per_1k,
-      sub.campaign.min_payout,
-      sub.campaign.max_payout
-    )
-    setUpdatingId(sub.id)
-    const { error } = await supabase
-      .from("submissions")
-      .update({ view_count: viewCount, earnings })
-      .eq("id", sub.id)
-    setUpdatingId(null)
-    if (error) {
-      toast.error(error.message)
-      return
-    }
-    toast.success("Views and earnings updated.")
     loadSubmissions()
   }
 
@@ -209,7 +183,7 @@ export function CreatorSubmissionsPage() {
   return (
     <div className="flex flex-col flex-1">
       <h1 className="text-2xl font-bold text-heading-text mb-4">Submissions</h1>
-      <p className="text-muted-label mb-6">Review and approve content from clippers. Set view count to calculate earnings.</p>
+      <p className="text-muted-label mb-6">Review and approve content from clippers. Views and earnings are tracked automatically after approval.</p>
       <div className="space-y-4">
         {submissions.map((s) => (
           <Card key={s.id} className="bg-main-bg border-border shadow-md rounded-xl">
@@ -271,72 +245,59 @@ export function CreatorSubmissionsPage() {
                     </Badge>
                   )}
                   {s.status === "approved" && (
-                    <span className="text-lg font-semibold text-turquoise-accent flex items-center gap-1">
-                      <IndianRupee className="w-4 h-4" />
-                      {Number(s.earnings).toLocaleString()}
-                    </span>
+                    <div className="flex flex-col items-end gap-0.5">
+                      <span className="text-xs text-muted-label">
+                        {s.view_count.toLocaleString()} views gained
+                      </span>
+                      <span className="text-lg font-semibold text-turquoise-accent flex items-center gap-1">
+                        <IndianRupee className="w-4 h-4" />
+                        ₹{Number(s.earnings).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
 
-              {/* View count & actions */}
-              <div className="flex flex-wrap items-end gap-4 pt-3 border-t border-border">
-                <div className="flex items-end gap-2">
-                  <Label className="text-sm text-muted-label flex items-center gap-1">
-                    <Eye className="w-4 h-4" />
-                    Views
-                  </Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    value={viewCountInputs[s.id] ?? s.view_count}
-                    onChange={(e) => setViewCountInputs((prev) => ({ ...prev, [s.id]: e.target.value }))}
-                    className="w-24 h-9 bg-section-bg border-border text-body-text rounded-md"
-                  />
-                </div>
-                {s.status === "pending" && (
-                  <>
-                    <Button
-                      size="sm"
-                      disabled={updatingId === s.id}
-                      onClick={() => handleApprove(s)}
-                      className="bg-turquoise-accent hover:bg-turquoise-accent/90 text-white"
-                    >
-                      {updatingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-1" />}
-                      Approve & set views
-                    </Button>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        placeholder="Rejection reason (optional)"
-                        value={rejectReason[s.id] ?? ""}
-                        onChange={(e) => setRejectReason((prev) => ({ ...prev, [s.id]: e.target.value }))}
-                        className="w-48 h-9 bg-section-bg border-border text-body-text rounded-md text-sm"
-                      />
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        disabled={updatingId === s.id}
-                        onClick={() => handleReject(s)}
-                        className="border-red-200 text-red-700 hover:bg-red-50"
-                      >
-                        {updatingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4 mr-1" />}
-                        Reject
-                      </Button>
-                    </div>
-                  </>
-                )}
-                {s.status === "approved" && (
+              {/* Actions */}
+              {s.status === "pending" && (
+                <div className="flex flex-wrap items-end gap-4 pt-3 border-t border-border">
                   <Button
                     size="sm"
-                    variant="outline"
                     disabled={updatingId === s.id}
-                    onClick={() => handleSetViewsOnly(s)}
-                    className="border-border text-body-text"
+                    onClick={() => handleApprove(s)}
+                    className="bg-turquoise-accent hover:bg-turquoise-accent/90 text-white"
                   >
-                    {updatingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : "Update views"}
+                    {updatingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-1" />}
+                    Approve
                   </Button>
-                )}
-              </div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Rejection reason (optional)"
+                      value={rejectReason[s.id] ?? ""}
+                      onChange={(e) => setRejectReason((prev) => ({ ...prev, [s.id]: e.target.value }))}
+                      className="w-48 h-9 bg-section-bg border-border text-body-text rounded-md text-sm"
+                    />
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={updatingId === s.id}
+                      onClick={() => handleReject(s)}
+                      className="border-red-200 text-red-700 hover:bg-red-50"
+                    >
+                      {updatingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4 mr-1" />}
+                      Reject
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {s.status === "approved" && (
+                <div className="flex items-center gap-4 pt-3 border-t border-border text-sm text-muted-label">
+                  <Eye className="w-4 h-4" />
+                  <span>Baseline: {s.baseline_views.toLocaleString()}</span>
+                  <span>Current: {s.latest_views.toLocaleString()}</span>
+                  <span className="text-body-text font-medium">Gained: {s.view_count.toLocaleString()}</span>
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}

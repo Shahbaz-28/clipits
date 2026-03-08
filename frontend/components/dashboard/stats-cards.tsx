@@ -1,31 +1,31 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { TrendingUp, DollarSign, CheckCircle, Star } from "lucide-react"
+import { TrendingUp, IndianRupee, CheckCircle, Star } from "lucide-react"
 
 const stats = [
   {
     title: "Active Campaigns",
-    value: "24",
+    value: "0",
     icon: TrendingUp,
     color: "text-vibrant-red-orange",
     bgColor: "bg-vibrant-red-orange/10",
   },
   {
     title: "Total Earnings",
-    value: "$12.5K",
-    icon: DollarSign,
+    value: "₹0",
+    icon: IndianRupee,
     color: "text-turquoise-accent",
     bgColor: "bg-turquoise-accent/10",
   },
   {
     title: "Success Rate",
-    value: "94%",
+    value: "—",
     icon: CheckCircle,
     color: "text-vibrant-red-orange",
     bgColor: "bg-vibrant-red-orange/10",
   },
   {
     title: "Avg. Rating",
-    value: "4.8",
+    value: "—",
     icon: Star,
     color: "text-sunny-yellow",
     bgColor: "bg-sunny-yellow/10",

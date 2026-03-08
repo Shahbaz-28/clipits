@@ -1,31 +1,31 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { LayoutGrid, Eye, DollarSign, CheckCircle } from "lucide-react"
+import { LayoutGrid, Eye, IndianRupee, CheckCircle } from "lucide-react"
 
 const overviewStats = [
   {
     title: "Total Campaigns",
-    value: "48",
+    value: "0",
     icon: LayoutGrid,
     color: "text-vibrant-red-orange",
     bgColor: "bg-vibrant-red-orange/10",
   },
   {
     title: "Total Views Generated",
-    value: "15.2M",
+    value: "0",
     icon: Eye,
     color: "text-turquoise-accent",
     bgColor: "bg-turquoise-accent/10",
   },
   {
     title: "Total Amount Spent",
-    value: "₹85,000",
-    icon: DollarSign,
+    value: "₹0",
+    icon: IndianRupee,
     color: "text-vibrant-red-orange",
     bgColor: "bg-vibrant-red-orange/10",
   },
   {
     title: "Total Approved Posts",
-    value: "320",
+    value: "0",
     icon: CheckCircle,
     color: "text-sunny-yellow",
     bgColor: "bg-sunny-yellow/10",

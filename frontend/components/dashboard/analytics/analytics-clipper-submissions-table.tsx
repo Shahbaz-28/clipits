@@ -7,49 +7,21 @@ import { Badge } from "@/components/ui/badge"
 import { Check, X, PlayCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const submissions = [
-  {
-    clipperName: "CreatorX",
-    videoThumbnail: "/placeholder.svg?height=60&width=100",
-    videoLink: "#",
-    submittedDate: "2024-07-15",
-    views: "1.2K",
-    status: "Pending",
-  },
-  {
-    clipperName: "VideoGenius",
-    videoThumbnail: "/placeholder.svg?height=60&width=100",
-    videoLink: "#",
-    submittedDate: "2024-07-14",
-    views: "3.5K",
-    status: "Approved",
-  },
-  {
-    clipperName: "ClipMaster",
-    videoThumbnail: "/placeholder.svg?height=60&width=100",
-    videoLink: "#",
-    submittedDate: "2024-07-13",
-    views: "800",
-    status: "Rejected",
-  },
-  {
-    clipperName: "ContentFlow",
-    videoThumbnail: "/placeholder.svg?height=60&width=100",
-    videoLink: "#",
-    submittedDate: "2024-07-12",
-    views: "2.1K",
-    status: "Pending",
-  },
-]
-
 export function AnalyticsClipperSubmissionsTable() {
+  const submissions: {
+    clipperName: string
+    videoThumbnail: string
+    videoLink: string
+    submittedDate: string
+    views: string
+    status: string
+  }[] = []
+
   return (
     <div className="rounded-md border border-border bg-main-bg overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow className="bg-section-bg hover:bg-section-bg">
-            {" "}
-            {/* Ensured consistent background */}
             <TableHead className="text-muted-label">Clipper Name</TableHead>
             <TableHead className="text-muted-label">Submitted Video</TableHead>
             <TableHead className="text-muted-label">Submitted Date</TableHead>
@@ -59,7 +31,14 @@ export function AnalyticsClipperSubmissionsTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {submissions.map((submission, index) => (
+          {submissions.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
+                No clipper submissions yet.
+              </TableCell>
+            </TableRow>
+          ) : (
+            submissions.map((submission, index) => (
             <TableRow key={index} className="hover:bg-section-bg/50">
               <TableCell className="font-medium text-body-text">{submission.clipperName}</TableCell>
               <TableCell>
@@ -130,7 +109,8 @@ export function AnalyticsClipperSubmissionsTable() {
                 )}
               </TableCell>
             </TableRow>
-          ))}
+            ))
+          )}
         </TableBody>
       </Table>
     </div>

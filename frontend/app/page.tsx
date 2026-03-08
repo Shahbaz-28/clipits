@@ -99,7 +99,7 @@ export default function HomePage() {
               <DollarSign className="w-8 h-8 text-vibrant-red-orange" />
             </div>
             <h3 className="text-xl font-semibold text-heading-text mb-2">Get Paid</h3>
-            <p className="text-muted-label">Earn up to $3.00 per 1K views with our competitive payment rates.</p>
+            <p className="text-muted-label">Earn up to ₹3.00 per 1K views with our competitive payment rates.</p>
           </div>
         </div>
       </section>
