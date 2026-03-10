@@ -18,6 +18,7 @@ import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
+import { useRouter } from "next/navigation"
 
 interface SubmitContentModalProps {
   isOpen: boolean
@@ -28,18 +29,43 @@ interface SubmitContentModalProps {
 
 export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: SubmitContentModalProps) {
   const { user } = useAuth()
+  const router = useRouter()
   const [postLink, setPostLink] = useState("")
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [instagramStatus, setInstagramStatus] = useState<{
+    instagram_verified_at: string | null
+  } | null>(null)
 
   useEffect(() => {
-    if (isOpen) {
-      setPostLink("")
-      setSelectedFile(null)
-      setError(null)
+    if (!isOpen) return
+    setPostLink("")
+    setSelectedFile(null)
+    setError(null)
+
+    const fetchInstagramStatus = async () => {
+      if (!user?.id) {
+        setInstagramStatus(null)
+        return
+      }
+      const { data, error: statusError } = await supabase
+        .from("users")
+        .select("instagram_verified_at")
+        .eq("id", user.id)
+        .single()
+
+      if (statusError || !data) {
+        setInstagramStatus(null)
+        return
+      }
+      setInstagramStatus({
+        instagram_verified_at: (data as { instagram_verified_at: string | null }).instagram_verified_at ?? null,
+      })
     }
-  }, [isOpen])
+
+    void fetchInstagramStatus()
+  }, [isOpen, user?.id])
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -88,6 +114,13 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
       setError("Please enter a valid link (e.g. https://www.instagram.com/reel/...).")
       return
     }
+    if (!instagramStatus || !instagramStatus.instagram_verified_at) {
+      const msg =
+        "You must verify your Instagram account in Profile → Connected accounts before submitting content."
+      setError(msg)
+      toast.error(msg)
+      return
+    }
     if (!selectedFile) {
       setError("Media is required. Upload the original file you posted.")
       return
@@ -105,6 +138,23 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
 
     setIsSubmitting(true)
     try {
+      // Validate that the reel belongs to the verified Instagram account
+      const ownerRes = await fetch("/api/instagram/validate-reel-owner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, reelUrl: link }),
+      })
+      const ownerData = await ownerRes.json()
+      if (!ownerData.ok) {
+        const msg =
+          ownerData.error ||
+          "This reel does not appear to belong to your verified Instagram account. Please double-check the link."
+        setError(msg)
+        toast.error(msg)
+        setIsSubmitting(false)
+        return
+      }
+
       const safeName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, "_")
       const storagePath = `private/${campaignId}/${user.id}/${Date.now()}_${safeName}`
 
@@ -182,7 +232,25 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
 
         {error && (
           <div className="mx-6 mt-4 rounded-xl bg-red-50 border border-red-200 p-3 text-red-600 text-sm">
-            {error}
+            {error ===
+            "You must verify your Instagram account in Profile \u2192 Connected accounts before submitting content." ? (
+              <span>
+                You must verify your Instagram account in{" "}
+                <button
+                  type="button"
+                  className="underline font-semibold"
+                  onClick={() => {
+                    onClose()
+                    router.push("/dashboard/profile/connected-accounts")
+                  }}
+                >
+                  Profile &rarr; Connected accounts
+                </button>{" "}
+                before submitting content.
+              </span>
+            ) : (
+              error
+            )}
           </div>
         )}
 

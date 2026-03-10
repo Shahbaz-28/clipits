@@ -27,6 +27,7 @@ interface CampaignDetailsModalProps {
     id: string
     title: string
     description: string
+    thumbnailUrl: string | null
     earnings: string
     total: string
     percentage: string
@@ -76,7 +77,17 @@ export function CampaignDetailsModal({ isOpen, onClose, campaign, onJoin, isJoin
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] w-[95%] bg-white text-heading-text border border-gray-100 p-0 flex flex-col max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
+        {campaign.thumbnailUrl && (
+          <div className="w-full h-40 bg-gray-100 overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={campaign.thumbnailUrl}
+              alt={campaign.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <DialogHeader className="px-6 pt-4 pb-4 border-b border-gray-100">
           <DialogTitle className="text-xl font-bold text-heading-text">{campaign.title}</DialogTitle>
           <DialogDescription className="text-sm text-muted-label mt-1">{campaign.description}</DialogDescription>
         </DialogHeader>

@@ -34,6 +34,7 @@ export interface EditingCampaign {
   id: string
   title: string
   description: string | null
+  thumbnail_url?: string | null
   type: string
   category: string | null
   total_budget: number
@@ -61,6 +62,7 @@ interface FormErrors {
   min_payout?: string
   max_payout?: string
   platforms?: string
+  assets?: string
 }
 
 export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaign }: CreateCampaignModalProps) {
@@ -71,11 +73,13 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
   const [rewardRate, setRewardRate] = useState<number>(0)
   const [minPayout, setMinPayout] = useState<number>(0)
   const [maxPayout, setMaxPayout] = useState<number>(0)
-  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([])
+  const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>(["instagram"])
   const [requirementsList, setRequirementsList] = useState<string[]>([])
   const [requirementInput, setRequirementInput] = useState("")
   const [assetsList, setAssetsList] = useState<{ name: string; link: string }[]>([])
   const [assetLinkInput, setAssetLinkInput] = useState("")
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [errors, setErrors] = useState<FormErrors>({})
@@ -115,20 +119,41 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
       setAssetsList(Array.isArray(editingCampaign.assets) ? editingCampaign.assets : [])
       setAssetLinkInput("")
       setEndDate(editingCampaign.end_date ? new Date(editingCampaign.end_date) : undefined)
+      setThumbnailFile(null)
+      setThumbnailPreview(editingCampaign.thumbnail_url ?? null)
     } else {
       setFormData({ title: "", type: "", category: "" })
       setBudget(0)
       setRewardRate(0)
       setMinPayout(0)
       setMaxPayout(0)
-      setSelectedPlatforms([])
+      setSelectedPlatforms(["instagram"])
       setRequirementsList([])
       setRequirementInput("")
       setAssetsList([])
       setAssetLinkInput("")
       setEndDate(undefined)
+      setThumbnailFile(null)
+      setThumbnailPreview(null)
     }
   }, [isOpen, editingCampaign])
+
+  const handleThumbnailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith("image/")) {
+      toast.error("Thumbnail must be an image file.")
+      return
+    }
+    const maxSizeMb = 10
+    if (file.size > maxSizeMb * 1024 * 1024) {
+      toast.error(`Thumbnail must be smaller than ${maxSizeMb}MB.`)
+      return
+    }
+    setThumbnailFile(file)
+    const objectUrl = URL.createObjectURL(file)
+    setThumbnailPreview(objectUrl)
+  }
 
   const handlePlatformToggle = (platform: string) => {
     setSelectedPlatforms((prev) =>
@@ -163,6 +188,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
       assets: assetsList,
       disclaimer: null,
       end_date: endDate ? endDate.toISOString() : null,
+      thumbnail_url: editingCampaign?.thumbnail_url ?? null,
     }
   }
 
@@ -206,6 +232,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
     if (maxPayout > 0 && minPayout > maxPayout)
       e.max_payout = "Max payout must be greater than or equal to min payout"
     if (selectedPlatforms.length === 0) e.platforms = "Select at least one platform"
+    if (assetsList.length === 0) e.assets = "Add at least one asset link"
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -224,13 +251,38 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
     try {
       const payload = buildPayload()
 
+      // Upload thumbnail if provided
+      if (thumbnailFile && user?.id) {
+        const BUCKET = "campaign-thumbnails"
+        const safeName = thumbnailFile.name.replace(/[^a-zA-Z0-9._-]/g, "_")
+        const storagePath = `thumbnails/${user.id}/${Date.now()}_${safeName}`
+
+        const { error: uploadError } = await supabase.storage
+          .from(BUCKET)
+          .upload(storagePath, thumbnailFile, { cacheControl: "3600", upsert: false })
+
+        if (uploadError) {
+          const message =
+            uploadError.message?.includes("Bucket not found") || uploadError.message?.includes("bucket")
+              ? "Thumbnail upload failed: Storage bucket not set up. Create a public bucket named 'campaign-thumbnails' in Supabase Storage."
+              : uploadError.message
+          setSubmitError(message)
+          toast.error(message)
+          setIsSubmitting(false)
+          return
+        }
+
+        const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(storagePath)
+        payload.thumbnail_url = urlData.publicUrl
+      }
+
       if (editingCampaign) {
         // Update existing campaign
         const updatePayload: Record<string, unknown> = {
           ...payload,
           updated_at: new Date().toISOString(),
         }
-        if (publish) updatePayload.status = "active"
+        if (publish) updatePayload.status = "pending_review"
 
         const updatePromise = supabase
           .from("campaigns")
@@ -263,14 +315,14 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
           return
         }
         justSubmittedRef.current = true
-        toast.success(publish ? "Campaign is now live in Explore." : "Draft saved.")
+        toast.success(publish ? "Campaign submitted for admin review." : "Draft saved.")
         onSuccess?.()
         onClose()
         return
       }
 
-      // Create new campaign (go live)
-      const insertPayload = { ...payload, status: "active", created_by: user.id }
+      // Create new campaign (go to admin review)
+      const insertPayload = { ...payload, status: "pending_review", created_by: user.id }
 
       const insertPromise = supabase.from("campaigns").insert(insertPayload)
       const timeoutMs = 15000
@@ -289,7 +341,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
       }
 
       justSubmittedRef.current = true
-      toast.success("Campaign created and live. It will appear in Explore for clippers.")
+      toast.success("Campaign created and submitted for admin review.")
       onSuccess?.()
         onClose()
       setFormData({ title: "", type: "", category: "" })
@@ -320,8 +372,8 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-label mt-1">
             {editingCampaign
-              ? "Update your draft. Use Publish to make it live in Explore."
-              : "Create a campaign; it will go live in Explore. Close without submitting to save as draft."}
+              ? "Update your draft. Publish to submit for admin review."
+              : "Create a campaign; it will go to admin review first. Close without submitting to save as draft."}
           </DialogDescription>
         </DialogHeader>
 
@@ -426,12 +478,35 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
               {/* Campaign Thumbnail */}
               <div className="space-y-1.5">
                 <Label className="text-sm font-medium text-heading-text">Campaign Thumbnail</Label>
-                <div className="flex flex-col items-center justify-center py-4 px-3 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 text-center cursor-pointer hover:border-[#FF4B4B] hover:bg-gray-100 transition-colors">
-                  <Upload className="w-5 h-5 text-muted-label mb-1" />
-                  <p className="text-sm font-medium text-heading-text">Click to upload</p>
-                  <p className="text-xs text-muted-label">PNG, JPG up to 10MB</p>
-                  <Input id="thumbnail" type="file" className="sr-only" accept=".png,.jpg,.jpeg" />
-                </div>
+                <button
+                  type="button"
+                  className="flex flex-col items-center justify-center py-4 px-3 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 text-center cursor-pointer hover:border-[#FF4B4B] hover:bg-gray-100 transition-colors relative overflow-hidden"
+                  onClick={() => document.getElementById("campaignThumbnailInput")?.click()}
+                >
+                  {thumbnailPreview ? (
+                    <div className="w-full h-32 rounded-lg overflow-hidden mb-2">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={thumbnailPreview}
+                        alt="Campaign thumbnail preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5 text-muted-label mb-1" />
+                      <p className="text-sm font-medium text-heading-text">Click to upload</p>
+                      <p className="text-xs text-muted-label">PNG, JPG up to 10MB</p>
+                    </>
+                  )}
+                  <Input
+                    id="campaignThumbnailInput"
+                    type="file"
+                    className="sr-only"
+                    accept=".png,.jpg,.jpeg"
+                    onChange={handleThumbnailChange}
+                  />
+                </button>
               </div>
             </div>
 
@@ -487,12 +562,19 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                 <Input
                   id="rewardRate"
                   type="number"
-                  min={0.01}
-                  step="0.1"
-                  placeholder="3.0"
+                  min={1}
+                  step={1}
+                  inputMode="numeric"
+                  placeholder="3"
                   value={rewardRate === 0 ? "" : rewardRate}
                   onChange={(e) => {
-                    setRewardRate(Number(e.target.value))
+                    const val = e.target.value
+                    if (!val) {
+                      setRewardRate(0)
+                    } else {
+                      const parsed = Math.floor(Number(val))
+                      setRewardRate(Number.isNaN(parsed) ? 0 : parsed)
+                    }
                     if (errors.rate_per_1k) setErrors((prev) => ({ ...prev, rate_per_1k: undefined }))
                   }}
                   className={cn(errors.rate_per_1k && "border-red-400")}
@@ -662,6 +744,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                     ))}
                   </ul>
                 )}
+                {errors.assets && <p className="text-red-500 text-xs">{errors.assets}</p>}
               </div>
             </div>
           </div>

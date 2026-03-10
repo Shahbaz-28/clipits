@@ -8,6 +8,7 @@ export interface CampaignRow {
   id: string
   title: string
   description: string | null
+  thumbnail_url?: string | null
   type: "ugc" | "clipping"
   category: string | null
   total_budget: number
@@ -30,6 +31,7 @@ export interface CampaignCard {
   id: string
   title: string
   description: string
+  thumbnailUrl: string | null
   earnings: string
   total: string
   percentage: string
@@ -71,6 +73,7 @@ export function mapCampaignRowToCard(
     id: row.id,
     title: row.title,
     description: row.description ?? "",
+    thumbnailUrl: row.thumbnail_url ?? null,
     earnings: "₹0",
     total: `₹${Number(row.total_budget).toLocaleString("en-IN")}`,
     percentage: "0%",

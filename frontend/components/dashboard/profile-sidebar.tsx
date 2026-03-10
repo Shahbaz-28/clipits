@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Settings, CreditCard, Wallet, LogOut, Link as LinkIcon } from "lucide-react"
+import { User, CreditCard, Wallet, LogOut, Link as LinkIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/lib/auth-context"
 
@@ -28,7 +28,7 @@ export function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
     router.push("/")
   }
   const navItems = [
-    { id: "general", icon: Settings, label: "General" },
+    { id: "general", icon: User, label: "General" },
     { id: "connected-accounts", icon: LinkIcon, label: "Connected accounts" },
     { id: "payment-methods", icon: CreditCard, label: "Payment methods" },
     { id: "balance", icon: Wallet, label: "Balance" },

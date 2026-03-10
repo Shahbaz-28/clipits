@@ -22,8 +22,8 @@ export async function GET(req: NextRequest) {
   const { data: submissions, error } = await supabaseAdmin
     .from("submissions")
     .select(`
-      id, content_link, baseline_views, latest_views, view_count, earnings, reviewed_at,
-      campaigns!inner ( id, rate_per_1k, min_payout, max_payout, end_date )
+      id, user_id, campaign_id, content_link, baseline_views, latest_views, view_count, earnings, reviewed_at,
+      campaigns!inner ( id, rate_per_1k, min_payout, max_payout, end_date, campaign_spent, amount_paid, status )
     `)
     .eq("status", "approved")
 
@@ -39,7 +39,10 @@ export async function GET(req: NextRequest) {
 
   for (const sub of submissions || []) {
     const campaign = Array.isArray(sub.campaigns) ? sub.campaigns[0] : sub.campaigns
-    if (!campaign) { skipped++; continue }
+    if (!campaign) {
+      skipped++
+      continue
+    }
 
     if (campaign.end_date && new Date(campaign.end_date) < now) {
       skipped++
@@ -97,6 +100,19 @@ export async function GET(req: NextRequest) {
         earnings: finalEarnings,
       })
       .eq("id", sub.id)
+
+    const delta = finalEarnings - currentEarnings
+    if (delta > 0) {
+      const newCampaignSpent = Number(campaign.campaign_spent || 0) + delta
+      const updates: Record<string, unknown> = {
+        campaign_spent: newCampaignSpent,
+      }
+      const amountPaid = Number(campaign.amount_paid || 0)
+      if (amountPaid > 0 && newCampaignSpent >= amountPaid && campaign.status !== "completed") {
+        updates.status = "completed"
+      }
+      await supabaseAdmin.from("campaigns").update(updates).eq("id", campaign.id)
+    }
 
     updated++
 

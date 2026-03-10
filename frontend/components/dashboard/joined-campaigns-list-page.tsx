@@ -25,6 +25,7 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
       return
     }
     async function load() {
+      if (!user?.id) return
       setLoading(true)
       const { data: joins, error: joinsError } = await supabase
         .from("user_campaigns")
@@ -104,9 +105,19 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
         {campaigns.map((campaign) => (
           <Card
             key={campaign.id}
-            className="bg-main-bg border border-border shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-xl"
+            className="bg-main-bg border border-border shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-xl overflow-hidden"
             onClick={() => onNavigate("joined-campaign", campaign)}
           >
+            {campaign.thumbnailUrl && (
+              <div className="w-full h-28 bg-gray-100 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={campaign.thumbnailUrl}
+                  alt={campaign.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            )}
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">

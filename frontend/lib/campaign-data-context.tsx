@@ -36,7 +36,7 @@ export function CampaignDataProvider({ children }: { children: React.ReactNode }
     try {
       const { data, error } = await supabase
         .from("campaigns")
-        .select("id, title, description, rate_per_1k, total_budget, category, type, status, created_at, requirements, assets, platforms, end_date")
+        .select("id, title, description, rate_per_1k, total_budget, category, type, status, created_at, requirements, assets, platforms, end_date, thumbnail_url")
         .eq("created_by", user.id)
         .order("created_at", { ascending: false })
       if (!error && data) {

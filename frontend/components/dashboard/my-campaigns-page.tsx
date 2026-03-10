@@ -13,10 +13,16 @@ import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 
+declare global {
+  interface Window {
+    Razorpay?: any
+  }
+}
+
 interface MyCampaign extends EditingCampaign {
   category: string | null
   disclaimer: string | null
-  status: "draft" | "pending_budget" | "active" | "ended"
+  status: "draft" | "pending_review" | "rejected" | "awaiting_payment" | "live" | "paused" | "completed"
   created_at: string
 }
 
@@ -63,6 +69,7 @@ export function MyCampaignsPage({
   const [loading, setLoading] = useState(() =>
     prefetchedCampaigns === undefined ? true : prefetchCampaignsLoading
   )
+  const [activatingId, setActivatingId] = useState<string | null>(null)
 
   const fetchCampaigns = async () => {
     if (!user?.id) {
@@ -74,7 +81,7 @@ export function MyCampaignsPage({
     try {
       const { data, error } = await supabase
         .from("campaigns")
-        .select("id, title, description, rate_per_1k, total_budget, min_payout, max_payout, category, type, status, created_at, requirements, assets, platforms, end_date, disclaimer")
+        .select("id, title, description, rate_per_1k, total_budget, min_payout, max_payout, category, type, status, created_at, requirements, assets, platforms, end_date, disclaimer, thumbnail_url")
         .eq("created_by", user.id)
         .order("created_at", { ascending: false })
 
@@ -123,12 +130,48 @@ export function MyCampaignsPage({
 
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { className: string; icon: typeof Clock; label: string }> = {
-      draft: { className: "bg-amber-50 text-amber-600 border border-amber-200", icon: Clock, label: "Draft" },
-      pending_budget: { className: "bg-orange-50 text-orange-600 border border-orange-200", icon: Clock, label: "Pending" },
-      active: { className: "bg-emerald-50 text-emerald-600 border border-emerald-200", icon: CheckCircle, label: "Active" },
-      ended: { className: "bg-gray-50 text-gray-500 border border-gray-200", icon: XCircle, label: "Ended" },
+      draft: {
+        className: "bg-amber-50 text-amber-600 border border-amber-200",
+        icon: Clock,
+        label: "Draft",
+      },
+      pending_review: {
+        className: "bg-orange-50 text-orange-600 border border-orange-200",
+        icon: Clock,
+        label: "Under review",
+      },
+      rejected: {
+        className: "bg-red-50 text-red-600 border border-red-200",
+        icon: XCircle,
+        label: "Rejected",
+      },
+      awaiting_payment: {
+        className: "bg-blue-50 text-blue-600 border border-blue-200",
+        icon: Clock,
+        label: "Awaiting payment",
+      },
+      live: {
+        className: "bg-emerald-50 text-emerald-600 border border-emerald-200",
+        icon: CheckCircle,
+        label: "Live",
+      },
+      paused: {
+        className: "bg-gray-50 text-gray-500 border border-gray-200",
+        icon: Clock,
+        label: "Paused",
+      },
+      completed: {
+        className: "bg-gray-50 text-gray-500 border border-gray-200",
+        icon: CheckCircle,
+        label: "Completed",
+      },
     }
-    const v = variants[status] || { className: "bg-gray-50 text-gray-500 border border-gray-200", icon: Clock, label: status }
+    const v =
+      variants[status] || ({
+        className: "bg-gray-50 text-gray-500 border border-gray-200",
+        icon: Clock,
+        label: status,
+      } as const)
     const Icon = v.icon
     return (
       <Badge className={`${v.className} rounded-lg flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1`}>
@@ -138,6 +181,96 @@ export function MyCampaignsPage({
     )
   }
 
+  const loadRazorpayScript = () =>
+    new Promise<boolean>((resolve) => {
+      if (typeof window === "undefined") return resolve(false)
+      if (window.Razorpay) return resolve(true)
+      const script = document.createElement("script")
+      script.src = "https://checkout.razorpay.com/v1/checkout.js"
+      script.onload = () => resolve(true)
+      script.onerror = () => resolve(false)
+      document.body.appendChild(script)
+    })
+
+  const handleActivateCampaign = async (campaign: MyCampaign) => {
+    if (!user?.id) {
+      toast.error("You must be signed in to activate a campaign.")
+      return
+    }
+    const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+    if (!keyId) {
+      toast.error("Razorpay key is not configured.")
+      return
+    }
+    setActivatingId(campaign.id)
+    try {
+      const ok = await loadRazorpayScript()
+      if (!ok) {
+        toast.error("Failed to load Razorpay. Check your internet connection.")
+        return
+      }
+
+      const res = await fetch("/api/razorpay/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ campaignId: campaign.id, userId: user.id }),
+      })
+      const data = await res.json()
+      if (!res.ok || data.error) {
+        toast.error(data.error || "Could not start payment.")
+        return
+      }
+
+      const options = {
+        key: keyId,
+        amount: data.amount,
+        currency: data.currency,
+        name: "ClipIts",
+        description: campaign.title,
+        order_id: data.orderId,
+        prefill: {
+          email: (user as any)?.email ?? "",
+        },
+        theme: {
+          color: "#FF4B4B",
+        },
+        handler: async (response: any) => {
+          try {
+            const verifyRes = await fetch("/api/razorpay/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                orderId: response.razorpay_order_id,
+                paymentId: response.razorpay_payment_id,
+                signature: response.razorpay_signature,
+                campaignId: campaign.id,
+                userId: user.id,
+              }),
+            })
+            const verifyData = await verifyRes.json()
+            if (!verifyRes.ok || verifyData.error) {
+              toast.error(verifyData.error || "Payment verification failed.")
+              return
+            }
+            toast.success("Payment successful. Your campaign is now live.")
+            await refreshCampaigns()
+          } catch (err) {
+            console.error(err)
+            toast.error("Payment verification failed. Please contact support if money was deducted.")
+          }
+        },
+      }
+
+      const razorpay = new window.Razorpay!(options)
+      razorpay.open()
+    } catch (err) {
+      console.error(err)
+      toast.error("Could not start Razorpay checkout. Please try again.")
+    } finally {
+      setActivatingId(null)
+    }
+  }
+
   return (
     <div className="flex-1 flex flex-col space-y-8">
       {/* Header Section */}
@@ -145,7 +278,9 @@ export function MyCampaignsPage({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-heading-text mb-2">My Campaigns</h1>
-            <p className="text-muted-label text-base">Manage your created campaigns. Publish drafts so they appear in Explore for clippers.</p>
+            <p className="text-muted-label text-base">
+              Manage your campaigns. Publish drafts to send them for admin review and activate them with payment.
+            </p>
           </div>
           <Button
             className="w-full sm:w-auto bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 shadow-lg shadow-vibrant-red-orange/25 rounded-xl font-semibold px-6"
@@ -277,6 +412,31 @@ export function MyCampaignsPage({
                         </div>
                       </div>
                     </div>
+
+                    {campaign.status === "awaiting_payment" && (
+                      <div className="mt-4 flex justify-end">
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            void handleActivateCampaign(campaign)
+                          }}
+                          disabled={activatingId === campaign.id}
+                          className="bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-medium"
+                        >
+                          {activatingId === campaign.id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Processing...
+                            </>
+                          ) : (
+                            "Activate & Pay"
+                          )}
+                        </Button>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )

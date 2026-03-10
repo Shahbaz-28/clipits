@@ -10,7 +10,9 @@ export default function DashboardPage() {
   const role = profile?.role ?? "clipper"
 
   useEffect(() => {
-    if (role === "creator") {
+    if (role === "admin") {
+      router.replace("/admin")
+    } else if (role === "creator") {
       router.replace("/dashboard/my-campaigns")
     } else {
       router.replace("/dashboard/explore")

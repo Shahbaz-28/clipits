@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Home,
-  Search,
+  Compass,
   FolderOpen,
   FileText,
   BarChart3,
-  Settings,
+  User,
   X,
   Megaphone,
   DollarSign,
@@ -26,11 +26,11 @@ interface SidebarProps {
 }
 
 const CLIPPER_MENU = [
-  { id: "explore", label: "Explore Campaigns", icon: Search },
+  { id: "explore", label: "Explore Campaigns", icon: Compass },
   { id: "joined", label: "Joined", icon: FolderOpen },
   { id: "my-submissions", label: "My Submissions", icon: FileText },
-  { id: "earnings", label: "Earnings", icon: DollarSign },
-  { id: "profile", label: "Profile", icon: Settings },
+  { id: "earnings", label: "Wallet & Earnings", icon: DollarSign },
+  { id: "profile", label: "Profile", icon: User },
 ]
 
 const CREATOR_MENU = [
@@ -38,7 +38,7 @@ const CREATOR_MENU = [
   { id: "create-campaign", label: "Create Campaign", icon: FolderOpen },
   { id: "submissions", label: "Submissions", icon: FileText },
   { id: "analytics", label: "Analytics", icon: BarChart3 },
-  { id: "profile", label: "Profile", icon: Settings },
+  { id: "profile", label: "Profile", icon: User },
 ]
 
 export function Sidebar({ sidebarOpen, setSidebarOpen, currentPath }: SidebarProps) {
@@ -158,6 +158,9 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, currentPath }: SidebarPro
                       : user.user_metadata?.first_name
                         ? user.user_metadata.first_name
                         : user.email?.split("@")[0]}
+                  </p>
+                  <p className="text-xs text-muted-label mt-0.5">
+                    {role === "creator" ? "Creator account" : "Clipper account"}
                   </p>
                 </div>
               </div>

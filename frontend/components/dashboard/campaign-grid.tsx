@@ -34,7 +34,7 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
         const { data: rows, error: campaignsError } = await supabase
           .from("campaigns")
           .select("*")
-          .eq("status", "active")
+          .eq("status", "live")
           .order("created_at", { ascending: false })
 
         if (campaignsError) {
@@ -127,7 +127,7 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
   if (campaigns.length === 0) {
     return (
       <div className="text-center py-12 text-muted-label">
-        No active campaigns yet. Check back later.
+        No live campaigns yet. Check back later.
       </div>
     )
   }
@@ -141,6 +141,16 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
             className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer group rounded-2xl overflow-hidden"
             onClick={() => handleCardClick(campaign)}
           >
+            {campaign.thumbnailUrl && (
+              <div className="w-full h-32 bg-gray-100 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={campaign.thumbnailUrl}
+                  alt={campaign.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            )}
             <CardContent className="p-6">
               {/* Header */}
               <div className="mb-5">

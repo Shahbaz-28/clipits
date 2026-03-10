@@ -50,6 +50,7 @@ export function CreatorSubmissionsPage() {
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState<Record<string, string>>({})
+  const [refreshingId, setRefreshingId] = useState<string | null>(null)
   const [videoModal, setVideoModal] = useState<{ isOpen: boolean; url: string; type: "video" | "image" }>({
     isOpen: false,
     url: "",
@@ -152,6 +153,37 @@ export function CreatorSubmissionsPage() {
     toast.success("Submission rejected.")
     setRejectReason((prev) => ({ ...prev, [sub.id]: "" }))
     loadSubmissions()
+  }
+
+  const handleRefreshViews = async (sub: SubmissionWithCampaign) => {
+    setRefreshingId(sub.id)
+    try {
+      const res = await fetch("/api/views/refresh-single", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ submissionId: sub.id }),
+      })
+      const data = await res.json()
+      if (!res.ok || data.error) {
+        toast.error(data.error || "Could not refresh views.")
+      } else if (data.skipped) {
+        toast.message("Views not updated", {
+          description: data.reason || "New view count was lower than the last recorded value.",
+        })
+      } else {
+        toast.success(
+          `Views refreshed to ${data.views?.toLocaleString?.() ?? data.views}. +${
+            data.viewsGained?.toLocaleString?.() ?? data.viewsGained
+          } gained.`,
+        )
+      }
+      await loadSubmissions()
+    } catch (err) {
+      console.error(err)
+      toast.error("Could not refresh views. Please try again later.")
+    } finally {
+      setRefreshingId(null)
+    }
   }
 
   const getStatusBadge = (status: string) => {
@@ -314,7 +346,7 @@ export function CreatorSubmissionsPage() {
               {/* Views */}
               <div className="col-span-2 text-center">
                 {s.status === "approved" ? (
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-center gap-3 text-xs text-muted-label">
                       <span>Base: {s.baseline_views.toLocaleString()}</span>
                       <span>Now: {s.latest_views.toLocaleString()}</span>
@@ -322,6 +354,23 @@ export function CreatorSubmissionsPage() {
                     <p className="text-sm font-semibold text-heading-text">
                       +{s.view_count.toLocaleString()} gained
                     </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="xs"
+                      disabled={refreshingId === s.id}
+                      onClick={() => handleRefreshViews(s)}
+                      className="h-7 px-2 text-[11px] rounded-lg border-gray-200 text-muted-label hover:text-heading-text hover:border-gray-300"
+                    >
+                      {refreshingId === s.id ? (
+                        <>
+                          <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                          Refreshing...
+                        </>
+                      ) : (
+                        "Refresh views now"
+                      )}
+                    </Button>
                   </div>
                 ) : (
                   <span className="text-sm text-muted-label">—</span>

@@ -1,7 +1,8 @@
 "use client"
+
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { LayoutDashboard, Users, Megaphone, FileText, Wallet, Settings, UserCog } from "lucide-react"
+import { usePathname, useRouter } from "next/navigation"
+import { LayoutDashboard, Megaphone, LogOut, User } from "lucide-react"
 
 import {
   Sidebar,
@@ -16,11 +17,20 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button"
+import { useAuth } from "@/lib/auth-context"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 
 export function AdminSidebar() {
   const pathname = usePathname()
-  const { isMobile, openMobile, setOpenMobile, state } = useSidebar()
+  const { isMobile, openMobile, setOpenMobile } = useSidebar()
+  const router = useRouter()
+  const { signOut } = useAuth()
+
+  const handleLogout = async () => {
+    await signOut()
+    router.replace("/")
+  }
 
   const navItems = [
     {
@@ -29,34 +39,9 @@ export function AdminSidebar() {
       icon: LayoutDashboard,
     },
     {
-      title: "Creator Requests",
-      href: "/admin?tab=creator-requests",
-      icon: Users,
-    },
-    {
-      title: "Campaigns",
-      href: "/admin?tab=campaigns",
-      icon: Megaphone,
-    },
-    {
-      title: "Clipper Submissions",
-      href: "/admin?tab=clipper-submissions",
-      icon: FileText,
-    },
-    {
-      title: "Wallet & Payouts",
-      href: "/admin?tab=wallet-payouts",
-      icon: Wallet,
-    },
-    {
-      title: "User Management",
-      href: "/admin?tab=user-management",
-      icon: UserCog,
-    },
-    {
-      title: "Settings",
-      href: "/admin?tab=settings",
-      icon: Settings,
+      title: "Profile",
+      href: "/admin/profile",
+      icon: User,
     },
   ]
 
@@ -106,6 +91,17 @@ export function AdminSidebar() {
             </SidebarGroup>
           </SidebarContent>
           <SidebarRail />
+          <div className="p-4 border-t border-border">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start text-destructive border-destructive/40 hover:bg-destructive/5"
+              onClick={handleLogout}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </SheetContent>
       </Sheet>
     )
@@ -149,6 +145,17 @@ export function AdminSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <div className="p-4 border-t border-border">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start text-destructive border-destructive/40 hover:bg-destructive/5"
+          onClick={handleLogout}
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Logout
+        </Button>
+      </div>
       <SidebarRail />
     </Sidebar>
   )

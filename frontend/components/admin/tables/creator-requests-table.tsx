@@ -6,22 +6,23 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Check, X, Eye, Loader2 } from "lucide-react"
+import { supabase } from "@/lib/supabase"
 import { toast } from "sonner"
 
 interface CreatorRequest {
   id: string
   title: string
-  description: string
+  description: string | null
   rate_per_1k: number
   total_budget: number
-  category: string
+  category: string | null
   type: string
-  status: 'pending' | 'approved' | 'rejected'
+  status: "pending_review" | "rejected" | "awaiting_payment"
   created_at: string
   creator: {
-    first_name: string
-    last_name: string
-    email: string
+    first_name: string | null
+    last_name: string | null
+    email: string | null
   }
 }
 
@@ -31,21 +32,100 @@ export function CreatorRequestsTable() {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchRequests()
+    void fetchRequests()
   }, [])
 
   const fetchRequests = async () => {
-    // Data will come from Supabase when you add it back
-    setRequests([])
-    setLoading(false)
+    setLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from("campaigns")
+        .select(
+          `
+          id,
+          title,
+          description,
+          rate_per_1k,
+          total_budget,
+          category,
+          type,
+          status,
+          created_at,
+          users!campaigns_created_by_fkey (
+            first_name,
+            last_name,
+            email
+          )
+        `,
+        )
+        .eq("status", "pending_review")
+        .order("created_at", { ascending: false })
+
+      if (error) {
+        // eslint-disable-next-line no-console
+        console.error("Error loading creator requests:", error.message)
+        toast.error("Could not load creator requests.")
+        setRequests([])
+        return
+      }
+
+      const mapped: CreatorRequest[] =
+        data?.map((row: any) => ({
+          id: row.id,
+          title: row.title,
+          description: row.description,
+          rate_per_1k: Number(row.rate_per_1k ?? 0),
+          total_budget: Number(row.total_budget ?? 0),
+          category: row.category,
+          type: row.type,
+          status: row.status as CreatorRequest["status"],
+          created_at: row.created_at,
+          creator: {
+            first_name: row.users?.first_name ?? null,
+            last_name: row.users?.last_name ?? null,
+            email: row.users?.email ?? null,
+          },
+        })) ?? []
+
+      setRequests(mapped)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleStatusUpdate = async (requestId: string, status: 'approved' | 'rejected') => {
+  const handleStatusUpdate = async (requestId: string, status: "awaiting_payment" | "rejected") => {
     setActionLoading(requestId)
-    // Will use Supabase when you add it back
-    toast.success(`Request ${status} successfully`)
-    fetchRequests()
-    setActionLoading(null)
+    try {
+      let adminNote: string | null = null
+      if (status === "rejected") {
+        // Simple prompt for now; can be replaced with a proper modal later
+        // eslint-disable-next-line no-alert
+        const reason = window.prompt("Enter rejection reason (optional):") ?? ""
+        adminNote = reason.trim() || null
+      }
+
+      const updates: Record<string, unknown> = {
+        status,
+      }
+      if (status === "awaiting_payment") {
+        updates.admin_approved_at = new Date().toISOString()
+        updates.admin_rejected_reason = null
+      }
+      if (status === "rejected") {
+        updates.admin_rejected_reason = adminNote
+      }
+
+      const { error } = await supabase.from("campaigns").update(updates).eq("id", requestId)
+      if (error) {
+        toast.error(error.message)
+        return
+      }
+
+      toast.success(status === "awaiting_payment" ? "Campaign approved. Waiting for creator payment." : "Campaign rejected.")
+      await fetchRequests()
+    } finally {
+      setActionLoading(null)
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -56,15 +136,16 @@ export function CreatorRequestsTable() {
     })
   }
 
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      pending: 'bg-yellow-100 text-yellow-700',
-      approved: 'bg-green-100 text-green-700',
-      rejected: 'bg-red-100 text-red-700'
+  const getStatusBadge = (status: CreatorRequest["status"]) => {
+    const variants: Record<CreatorRequest["status"], { className: string; label: string }> = {
+      pending_review: { className: "bg-yellow-100 text-yellow-700", label: "Under review" },
+      awaiting_payment: { className: "bg-blue-100 text-blue-700", label: "Awaiting payment" },
+      rejected: { className: "bg-red-100 text-red-700", label: "Rejected" },
     }
+    const v = variants[status]
     return (
-      <Badge className={`${variants[status as keyof typeof variants]} rounded-md`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+      <Badge className={`${v.className} rounded-md`}>
+        {v.label}
       </Badge>
     )
   }
@@ -133,13 +214,13 @@ export function CreatorRequestsTable() {
                       {formatDate(request.created_at)}
                     </TableCell>
                     <TableCell className="text-right px-6 py-3">
-                      {request.status === 'pending' && (
+                      {request.status === "pending_review" && (
                         <>
                           <Button
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 rounded-md"
-                            onClick={() => handleStatusUpdate(request.id, 'approved')}
+                            onClick={() => handleStatusUpdate(request.id, "awaiting_payment")}
                             disabled={actionLoading === request.id}
                           >
                             {actionLoading === request.id ? (
@@ -153,7 +234,7 @@ export function CreatorRequestsTable() {
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 rounded-md"
-                            onClick={() => handleStatusUpdate(request.id, 'rejected')}
+                            onClick={() => handleStatusUpdate(request.id, "rejected")}
                             disabled={actionLoading === request.id}
                           >
                             {actionLoading === request.id ? (
