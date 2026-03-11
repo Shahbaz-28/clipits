@@ -1,16 +1,8 @@
-# ClipIt - Content Creator Platform
+# Clixyo  - Content Creator Platform
 
 A modern platform connecting content creators with brands, enabling creators to earn money from their content through campaigns and submissions.
 
-# Supabase Configuration
-SUPABASE_URL=https://nhbsuleeotnkkwmwtjxu.supabase.co
-SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oYnN1bGVlb3Rua2t3bXd0anh1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4NDAyMjUsImV4cCI6MjA3MDQxNjIyNX0.MNcC5NkRfxydPwia9NnwKbkU75SIInq_WDNbVizowho
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oYnN1bGVlb3Rua2t3bXd0anh1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDg0MDIyNSwiZXhwIjoyMDcwNDE2MjI1fQ.3PBQxde0Q-64zHqghZ5BlOGu0JAJZEZU7_fU6dB0kVw
-
-# Server Configuration
-PORT=5000
-NODE_ENV=development
-CORS_ORIGIN=http://localhost:3000
+See `.env.example` for required environment variables.
 
 ## 🚀 Features
 
@@ -59,7 +51,7 @@ Before you begin, ensure you have the following installed:
 
 ```bash
 git clone <repository-url>
-cd clipit
+cd Clixyo 
 ```
 
 ### 2. Set Up Supabase
@@ -194,7 +186,7 @@ The application will be available at:
 ## 📁 Project Structure
 
 ```
-clipit/
+Clixyo /
 ├── frontend/                 # Next.js frontend application
 │   ├── app/                 # App Router pages
 │   │   ├── dashboard/       # Protected dashboard routes

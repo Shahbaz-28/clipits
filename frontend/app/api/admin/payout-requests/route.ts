@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { getAuthAdmin, isAuthError } from "@/lib/api-auth"
 
-export async function GET(_req: NextRequest) {
+export async function GET(req: NextRequest) {
+  const auth = await getAuthAdmin(req)
+  if (isAuthError(auth)) return auth
+
   try {
     const { data, error } = await supabaseAdmin
       .from("payout_requests")
@@ -38,4 +42,3 @@ export async function GET(_req: NextRequest) {
     return NextResponse.json({ error: "Failed to load payout requests" }, { status: 500 })
   }
 }
-

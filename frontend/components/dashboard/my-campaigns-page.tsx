@@ -12,6 +12,7 @@ import type { CampaignCard, CampaignRow } from "@/lib/campaigns"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
+import { authFetch } from "@/lib/api-client"
 
 declare global {
   interface Window {
@@ -210,10 +211,9 @@ export function MyCampaignsPage({
         return
       }
 
-      const res = await fetch("/api/razorpay/create-order", {
+      const res = await authFetch("/api/razorpay/create-order", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ campaignId: campaign.id, userId: user.id }),
+        body: JSON.stringify({ campaignId: campaign.id }),
       })
       const data = await res.json()
       if (!res.ok || data.error) {
@@ -225,7 +225,7 @@ export function MyCampaignsPage({
         key: keyId,
         amount: data.amount,
         currency: data.currency,
-        name: "ClipIts",
+        name: "Clixyo s",
         description: campaign.title,
         order_id: data.orderId,
         prefill: {
@@ -236,15 +236,13 @@ export function MyCampaignsPage({
         },
         handler: async (response: any) => {
           try {
-            const verifyRes = await fetch("/api/razorpay/verify-payment", {
+            const verifyRes = await authFetch("/api/razorpay/verify-payment", {
               method: "POST",
-              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 orderId: response.razorpay_order_id,
                 paymentId: response.razorpay_payment_id,
                 signature: response.razorpay_signature,
                 campaignId: campaign.id,
-                userId: user.id,
               }),
             })
             const verifyData = await verifyRes.json()

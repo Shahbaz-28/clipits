@@ -1,17 +1,21 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { fetchInstagramProfile } from "@/lib/socialkit"
+import { getAuthUser, isAuthError } from "@/lib/api-auth"
 
 export async function POST(req: NextRequest) {
+  const auth = await getAuthUser(req)
+  if (isAuthError(auth)) return auth
+  const userId = auth.userId
+
   try {
-    const { userId, username, code, accountId } = (await req.json()) as {
-      userId: string
+    const { username, code, accountId } = (await req.json()) as {
       username: string
       code: string
       accountId: string
     }
 
-    if (!userId || !username || !code || !accountId) {
+    if (!username || !code || !accountId) {
       return NextResponse.json(
         { verified: false, error: "Missing required fields." },
         { status: 400 }

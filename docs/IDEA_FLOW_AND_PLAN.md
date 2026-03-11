@@ -1,4 +1,4 @@
-# ClipIts — Complete Idea, Flow & Build Plan
+# Clixyo s — Complete Idea, Flow & Build Plan
 
 **Single doc:** What we're building, how it flows, which features first, and the execution plan.
 
@@ -13,7 +13,7 @@
 
 ### 1.1 Product in one sentence
 
-**ClipIts** is a **Content Reward platform**: creators/brands run campaigns; participants post content on **Instagram**, submit the link, get approved, and **earn per view** (CPM). We manage campaigns, submissions, approval, and payouts. **Initial scope: Instagram only.**
+**Clixyo s** is a **Content Reward platform**: creators/brands run campaigns; participants post content on **Instagram**, submit the link, get approved, and **earn per view** (CPM). We manage campaigns, submissions, approval, and payouts. **Initial scope: Instagram only.**
 
 ### 1.2 Campaign types (from Whop)
 
@@ -87,7 +87,7 @@ Plus: **Fund and launch** — campaign needs budget before it goes **Active**; w
 | 3 | Open campaign, read requirements & assets | Campaign detail page. |
 | 4 | Join campaign | One click; stored in `user_campaigns`. |
 | 5 | Post on Instagram (Reel/post) per requirements | Off-platform. |
-| 6 | Submit in ClipIts: paste Instagram post/Reel link (+ optional media) | Submit form; stored in `submissions` with `platform: 'instagram'`. |
+| 6 | Submit in Clixyo s: paste Instagram post/Reel link (+ optional media) | Submit form; stored in `submissions` with `platform: 'instagram'`. |
 | 7 | (Optional) Verify Instagram: add code to bio → click Verify | Verification flow (§1.5.1 in PROJECT_OVERVIEW). |
 | 8 | Wait for approval | Admin/creator reviews. |
 | 9 | Once approved: earn per view (rate + min/max); see balance | Earnings/balance UI. |

@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { getAuthAdmin, isAuthError } from "@/lib/api-auth"
 
 export async function POST(req: NextRequest) {
+  const auth = await getAuthAdmin(req)
+  if (isAuthError(auth)) return auth
+
   try {
     const { requestId, transactionRef } = (await req.json()) as {
       requestId: string
@@ -46,4 +50,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to mark payout as paid" }, { status: 500 })
   }
 }
-

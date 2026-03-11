@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { fetchReelMeta } from "@/lib/socialkit"
+import { getAuthUser, isAuthError } from "@/lib/api-auth"
 
 export async function POST(req: NextRequest) {
+  const auth = await getAuthUser(req)
+  if (isAuthError(auth)) return auth
+  const userId = auth.userId
+
   try {
-    const { userId, reelUrl, accountId } = (await req.json()) as {
-      userId: string
+    const { reelUrl, accountId } = (await req.json()) as {
       reelUrl: string
       accountId: string
     }
 
-    if (!userId || !reelUrl || !accountId) {
+    if (!reelUrl || !accountId) {
       return NextResponse.json(
         { ok: false, error: "Missing required fields." },
         { status: 400 }

@@ -1,4 +1,4 @@
-## ClipIts Payment Flow — Implementation Plan
+## Clixyo s Payment Flow — Implementation Plan
 
 ### Overview
 

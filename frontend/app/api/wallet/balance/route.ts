@@ -1,24 +1,18 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { getAuthUser, isAuthError } from "@/lib/api-auth"
 
 export async function POST(req: NextRequest) {
+  const auth = await getAuthUser(req)
+  if (isAuthError(auth)) return auth
+  const userId = auth.userId
+
   try {
-    const { userId } = (await req.json()) as { userId: string }
-
-    if (!userId) {
-      return NextResponse.json({ error: "Missing userId" }, { status: 400 })
-    }
-
-    const [{ data: userRow, error: userError }, { data: earnedRows, error: earningsError }, { data: payoutRows, error: payoutError }] =
+    const [{ data: earnedRows, error: earningsError }, { data: payoutRows, error: payoutError }] =
       await Promise.all([
-        supabaseAdmin.from("users").select("id, email").eq("id", userId).single(),
         supabaseAdmin.from("submissions").select("earnings").eq("user_id", userId).eq("status", "approved"),
         supabaseAdmin.from("payout_requests").select("amount, status").eq("user_id", userId),
       ])
-
-    if (userError || !userRow) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 })
-    }
 
     if (earningsError) {
       console.error("[wallet/balance] earnings error:", earningsError)
@@ -55,4 +49,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to load wallet balance" }, { status: 500 })
   }
 }
-

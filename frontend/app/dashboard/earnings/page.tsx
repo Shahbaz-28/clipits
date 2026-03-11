@@ -11,6 +11,7 @@ import { DollarSign, Loader2, ExternalLink, Link, Wallet, Search } from "lucide-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
+import { authFetch } from "@/lib/api-client"
 import { toast } from "sonner"
 
 interface ApprovedSubmission {
@@ -58,20 +59,12 @@ export default function EarningsPage() {
   const [payoutPage, setPayoutPage] = useState(1)
   const pageSize = 10
 
-  const loadWallet = async (userId: string) => {
+  const loadWallet = async () => {
     try {
       const [balanceRes, historyRes, detailsRes] = await Promise.all([
-        fetch("/api/wallet/balance", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId }),
-        }),
-        fetch("/api/wallet/payout-history", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId }),
-        }),
-        fetch(`/api/wallet/payout-details?userId=${encodeURIComponent(userId)}`),
+        authFetch("/api/wallet/balance", { method: "POST" }),
+        authFetch("/api/wallet/payout-history", { method: "POST" }),
+        authFetch("/api/wallet/payout-details"),
       ])
 
       const balanceData = await balanceRes.json()
@@ -143,7 +136,7 @@ export default function EarningsPage() {
       }
 
       if (user?.id) {
-        await loadWallet(user.id)
+        await loadWallet()
       }
       setLoading(false)
     }
@@ -206,10 +199,9 @@ export default function EarningsPage() {
     }
     setSavingUpi(true)
     try {
-      const res = await fetch("/api/wallet/payout-details", {
+      const res = await authFetch("/api/wallet/payout-details", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, upiId: trimmed }),
+        body: JSON.stringify({ upiId: trimmed }),
       })
       const data = await res.json()
       if (!res.ok || data.error) {
@@ -236,10 +228,9 @@ export default function EarningsPage() {
     }
     setRequesting(true)
     try {
-      const res = await fetch("/api/wallet/request-payout", {
+      const res = await authFetch("/api/wallet/request-payout", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, amount: parsedAmount }),
+        body: JSON.stringify({ amount: parsedAmount }),
       })
       const data = await res.json()
       if (!res.ok || data.error) {
@@ -248,7 +239,7 @@ export default function EarningsPage() {
       }
       toast.success("Payout request created.")
       setPayoutAmount("")
-      await loadWallet(user.id)
+      await loadWallet()
     } catch (err) {
       console.error(err)
       toast.error("Could not create payout request.")

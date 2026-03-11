@@ -1,4 +1,4 @@
-# ClipIts — Project Overview & Documentation
+# Clixyo s — Project Overview & Documentation
 
 **Version:** 1.0  
 **Last updated:** January 2026
@@ -11,7 +11,7 @@ This document describes what we are building, what we will use to build it, and 
 
 ### 1.1 Product vision
 
-**ClipIts** is a **Content Reward platform** — similar in concept to [Whop Content Rewards](https://help.whop.com/en/articles/11429379-how-to-join-a-whop-content-reward). We connect:
+**Clixyo s** is a **Content Reward platform** — similar in concept to [Whop Content Rewards](https://help.whop.com/en/articles/11429379-how-to-join-a-whop-content-reward). We connect:
 
 - **Creators / brands** who want their content promoted (campaign owners).
 - **Participants (clippers)** who post that content on their own social channels and get **paid per view** (CPM).
@@ -43,7 +43,7 @@ We are **launching with Instagram only**. All campaigns, submissions, and view/p
 - **Campaigns:** Only Instagram campaigns (e.g. `platforms: ["instagram"]` or single-platform UI).
 - **Submissions:** Participant submits an **Instagram post/Reel link** (and optionally the media file).
 - **Views:** From manual/admin entry or, when we add it, Instagram (Connect Instagram) or manual.
-- **Verification:** Optional **Instagram bio verification** (paste code in bio → verify in ClipIts) to prove ownership of the account.
+- **Verification:** Optional **Instagram bio verification** (paste code in bio → verify in Clixyo s) to prove ownership of the account.
 
 This keeps the first version simple: one platform, one flow, one set of requirements and assets.
 
@@ -57,8 +57,8 @@ This keeps the first version simple: one platform, one flow, one set of requirem
 2. **Discover campaigns** — Browse campaigns; filter by budget, CPM, category, type. All shown campaigns are **Instagram** campaigns.
 3. **Join a campaign** — One click to join; user is then allowed to submit for that campaign.
 4. **Post on Instagram** — User posts content on their **Instagram** (Reel or post) per campaign requirements (hashtags, tags, etc.).
-5. **Submit in ClipIts** — User pastes the **Instagram post/Reel link** (and optionally uploads the media file). Submission is stored with `platform: "instagram"`.
-6. **(Optional) Verify Instagram account** — To prove they own the account: ClipIts shows a verification code → user puts it in their **Instagram bio** → user clicks Verify in ClipIts. We confirm and mark the account as verified (or skip this in v1). See §1.5.1 for the full logic.
+5. **Submit in Clixyo s** — User pastes the **Instagram post/Reel link** (and optionally uploads the media file). Submission is stored with `platform: "instagram"`.
+6. **(Optional) Verify Instagram account** — To prove they own the account: Clixyo s shows a verification code → user puts it in their **Instagram bio** → user clicks Verify in Clixyo s. We confirm and mark the account as verified (or skip this in v1). See §1.5.1 for the full logic.
 7. **Wait for approval** — Admin/creator approves or rejects the submission. Once approved, earnings are calculated from views (see §1.8).
 8. **Earn & withdraw** — User sees balance, requests payout, withdraws to bank via Stripe.
 
@@ -71,20 +71,20 @@ We verify that the user owns the Instagram account by having them put a **one-ti
 **Step-by-step logic**
 
 1. **User starts verification**  
-   - User is on ClipIts (e.g. on “Submit” or “Settings → Linked accounts”).  
+   - User is on Clixyo s (e.g. on “Submit” or “Settings → Linked accounts”).  
    - User enters their **Instagram profile URL** (e.g. `https://instagram.com/username`) or we already have it from a submission.  
    - We parse and store the **username** (e.g. `username`).
 
 2. **We generate and show the code**  
-   - Backend (Supabase Edge Function or DB + RPC) generates a **unique verification code** (e.g. 6–8 alphanumeric: `CLIPIT-A1B2C3`).  
+   - Backend (Supabase Edge Function or DB + RPC) generates a **unique verification code** (e.g. 6–8 alphanumeric: `Clixyo -A1B2C3`).  
    - Code is stored in DB (e.g. `user_social_accounts` or `verification_codes`): `user_id`, `platform` = `instagram`, `username`, `code`, `status` = `pending`, `created_at`.  
    - Code expires after a short window (e.g. 10–15 minutes) so it can’t be reused.  
    - Frontend shows the code and short instructions: “Add this code to your Instagram bio, then click Verify.”
 
 3. **User adds the code to Instagram**  
    - User opens Instagram → Profile → Edit profile → Bio.  
-   - User pastes the code (e.g. `CLIPIT-A1B2C3`) into the bio and saves.  
-   - User returns to ClipIts and clicks **Verify**.
+   - User pastes the code (e.g. `Clixyo -A1B2C3`) into the bio and saves.  
+   - User returns to Clixyo s and clicks **Verify**.
 
 4. **We check that the code is in the bio**  
    Two ways we can do this:
@@ -120,7 +120,7 @@ We verify that the user owns the Instagram account by having them put a **one-ti
 |------|-----|------|
 | 1 | User | Enters Instagram profile URL (or we have it). |
 | 2 | System | Generate unique code, save to DB, show code + instructions. |
-| 3 | User | Puts code in Instagram bio, saves, comes back to ClipIts, clicks Verify. |
+| 3 | User | Puts code in Instagram bio, saves, comes back to Clixyo s, clicks Verify. |
 | 4 | System | **Option A:** Call Meta API, read bio, check for code → success/fail. **Option B (v1):** Mark pending for admin check, or trust and mark verified. |
 | 5 | System | Mark account verified, show success. |
 
@@ -164,7 +164,7 @@ This follows the [Whop Content Reward](https://help.whop.com/en/articles/1142937
 
 #### When do views count?
 
-- **From submission time.** As soon as the participant submits the post link (and optional media) in ClipIts, we consider that the “start” of tracking. Whop states: *“Only views after you submit count towards payout. Submit as soon as you post to get paid for all of your post’s views.”*
+- **From submission time.** As soon as the participant submits the post link (and optional media) in Clixyo s, we consider that the “start” of tracking. Whop states: *“Only views after you submit count towards payout. Submit as soon as you post to get paid for all of your post’s views.”*
 - **Approval does not reset the clock.** Once the admin/creator approves the submission, we pay for **every view since the submission was uploaded** (not only views after approval). So: submit → (views accumulate) → approve → pay for all views since submit.
 
 #### How we calculate earnings per submission
@@ -214,7 +214,7 @@ We need a **source of view counts** per submission (post link). **Initial (Insta
 
 - Public view-count APIs are limited or require the post owner’s token. Prefer **manual entry** or **admin-set views** unless we integrate a specific partner/API.
 
-#### Recommended approach for ClipIts
+#### Recommended approach for Clixyo s
 
 | Priority | Approach | When |
 |----------|----------|------|

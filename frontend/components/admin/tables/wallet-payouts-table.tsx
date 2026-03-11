@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Loader2, Check, X, Search } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
+import { authFetch } from "@/lib/api-client"
 
 interface AdminPayoutRow {
   id: string
@@ -46,7 +47,7 @@ export function WalletPayoutsTable() {
   const load = async () => {
     setLoading(true)
     try {
-      const res = await fetch("/api/admin/payout-requests")
+      const res = await authFetch("/api/admin/payout-requests")
       const data = await res.json()
       if (!res.ok || data.error) {
         toast.error(data.error || "Could not load payout requests.")
@@ -83,9 +84,8 @@ export function WalletPayoutsTable() {
     if (!selectedRow) return
     setActionId(selectedRow.id)
     try {
-      const res = await fetch("/api/admin/payout-requests/pay", {
+      const res = await authFetch("/api/admin/payout-requests/pay", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           requestId: selectedRow.id,
           transactionRef: transactionRefInput.trim() || undefined,
@@ -111,9 +111,8 @@ export function WalletPayoutsTable() {
     if (!selectedRow) return
     setActionId(selectedRow.id)
     try {
-      const res = await fetch("/api/admin/payout-requests/reject", {
+      const res = await authFetch("/api/admin/payout-requests/reject", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           requestId: selectedRow.id,
           adminNote: adminNoteInput.trim() || undefined,

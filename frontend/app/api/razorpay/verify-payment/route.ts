@@ -1,18 +1,22 @@
 import { NextRequest, NextResponse } from "next/server"
 import crypto from "crypto"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { getAuthUser, isAuthError } from "@/lib/api-auth"
 
 export async function POST(req: NextRequest) {
+  const auth = await getAuthUser(req)
+  if (isAuthError(auth)) return auth
+  const userId = auth.userId
+
   try {
-    const { orderId, paymentId, signature, campaignId, userId } = (await req.json()) as {
+    const { orderId, paymentId, signature, campaignId } = (await req.json()) as {
       orderId: string
       paymentId: string
       signature: string
       campaignId: string
-      userId: string
     }
 
-    if (!orderId || !paymentId || !signature || !campaignId || !userId) {
+    if (!orderId || !paymentId || !signature || !campaignId) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 

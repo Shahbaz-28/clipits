@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { authFetch } from "@/lib/api-client"
 import { useAuth } from "@/lib/auth-context"
 import { toast } from "sonner"
 
@@ -114,9 +115,8 @@ export function CreatorSubmissionsPage() {
     }
 
     try {
-      const res = await fetch("/api/views/fetch-baseline", {
+      const res = await authFetch("/api/views/fetch-baseline", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ submissionId: sub.id, reelUrl: sub.content_link }),
       })
       const result = await res.json()
@@ -158,9 +158,8 @@ export function CreatorSubmissionsPage() {
   const handleRefreshViews = async (sub: SubmissionWithCampaign) => {
     setRefreshingId(sub.id)
     try {
-      const res = await fetch("/api/views/refresh-single", {
+      const res = await authFetch("/api/views/refresh-single", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ submissionId: sub.id }),
       })
       const data = await res.json()
@@ -357,7 +356,7 @@ export function CreatorSubmissionsPage() {
                     <Button
                       type="button"
                       variant="outline"
-                      size="xs"
+                      size="sm"
                       disabled={refreshingId === s.id}
                       onClick={() => handleRefreshViews(s)}
                       className="h-7 px-2 text-[11px] rounded-lg border-gray-200 text-muted-label hover:text-heading-text hover:border-gray-300"

@@ -26,6 +26,7 @@ import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+import { authFetch } from "@/lib/api-client"
 
 interface IgAccount {
   id: string
@@ -138,10 +139,9 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
 
     setIsSubmitting(true)
     try {
-      const ownerRes = await fetch("/api/instagram/validate-reel-owner", {
+      const ownerRes = await authFetch("/api/instagram/validate-reel-owner", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, reelUrl: link, accountId: selectedAccountId }),
+        body: JSON.stringify({ reelUrl: link, accountId: selectedAccountId }),
       })
       const ownerData = await ownerRes.json()
       if (!ownerData.ok) {

@@ -14,6 +14,7 @@ import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
+import { authFetch } from "@/lib/api-client"
 
 const CODE_EXPIRY_MINUTES = 10
 
@@ -185,10 +186,9 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
     setVerifyError("")
 
     try {
-      const res = await fetch("/api/instagram/verify-bio", {
+      const res = await authFetch("/api/instagram/verify-bio", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, username, code, accountId }),
+        body: JSON.stringify({ username, code, accountId }),
       })
 
       const data = await res.json()

@@ -1,4 +1,4 @@
-## ClipIts Business Model
+## Clixyo s Business Model
 
 ### 1. Roles
 

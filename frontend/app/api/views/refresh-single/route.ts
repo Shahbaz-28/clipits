@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { fetchReelViews } from "@/lib/socialkit"
+import { getAuthUser, isAuthError } from "@/lib/api-auth"
 
 export async function POST(req: NextRequest) {
+  const auth = await getAuthUser(req)
+  if (isAuthError(auth)) return auth
+
   try {
     const { submissionId } = (await req.json()) as { submissionId: string }
 
@@ -23,6 +27,17 @@ export async function POST(req: NextRequest) {
 
     if (error || !sub) {
       return NextResponse.json({ error: "Submission not found" }, { status: 404 })
+    }
+
+    if (sub.user_id !== auth.userId) {
+      const { data: profile } = await supabaseAdmin
+        .from("users")
+        .select("role")
+        .eq("id", auth.userId)
+        .single()
+      if (!profile || profile.role !== "admin") {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      }
     }
 
     const campaign = Array.isArray(sub.campaigns) ? sub.campaigns[0] : sub.campaigns
@@ -102,4 +117,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Internal error" }, { status: 500 })
   }
 }
-

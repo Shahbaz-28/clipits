@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { getAuthUser, isAuthError } from "@/lib/api-auth"
 
 export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get("userId")
-  if (!userId) {
-    return NextResponse.json({ error: "Missing userId" }, { status: 400 })
-  }
+  const auth = await getAuthUser(req)
+  if (isAuthError(auth)) return auth
+  const userId = auth.userId
 
   try {
     const { data, error } = await supabaseAdmin
@@ -28,10 +28,14 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const auth = await getAuthUser(req)
+  if (isAuthError(auth)) return auth
+  const userId = auth.userId
+
   try {
-    const { userId, upiId } = (await req.json()) as { userId: string; upiId: string }
-    if (!userId || !upiId) {
-      return NextResponse.json({ error: "Missing userId or upiId" }, { status: 400 })
+    const { upiId } = (await req.json()) as { upiId: string }
+    if (!upiId) {
+      return NextResponse.json({ error: "Missing upiId" }, { status: 400 })
     }
 
     const trimmedUpi = upiId.trim()
@@ -66,4 +70,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to save payout details" }, { status: 500 })
   }
 }
-

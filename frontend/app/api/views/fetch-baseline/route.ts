@@ -1,12 +1,37 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { fetchReelViews } from "@/lib/socialkit"
+import { getAuthUser, isAuthError } from "@/lib/api-auth"
 
 export async function POST(req: NextRequest) {
+  const auth = await getAuthUser(req)
+  if (isAuthError(auth)) return auth
+
   try {
     const { submissionId, reelUrl } = await req.json()
     if (!submissionId || !reelUrl) {
       return NextResponse.json({ error: "submissionId and reelUrl required" }, { status: 400 })
+    }
+
+    const { data: sub, error: subError } = await supabaseAdmin
+      .from("submissions")
+      .select("id, user_id")
+      .eq("id", submissionId)
+      .single()
+
+    if (subError || !sub) {
+      return NextResponse.json({ error: "Submission not found" }, { status: 404 })
+    }
+
+    if (sub.user_id !== auth.userId) {
+      const { data: profile } = await supabaseAdmin
+        .from("users")
+        .select("role")
+        .eq("id", auth.userId)
+        .single()
+      if (!profile || profile.role !== "admin") {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+      }
     }
 
     const stats = await fetchReelViews(reelUrl)

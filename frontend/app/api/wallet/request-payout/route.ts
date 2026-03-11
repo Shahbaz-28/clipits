@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { getAuthUser, isAuthError } from "@/lib/api-auth"
 
 const MIN_WITHDRAWAL = 2000
 
 export async function POST(req: NextRequest) {
+  const auth = await getAuthUser(req)
+  if (isAuthError(auth)) return auth
+  const userId = auth.userId
+
   try {
-    const { userId, amount } = (await req.json()) as { userId: string; amount: number }
-    if (!userId || !amount) {
-      return NextResponse.json({ error: "Missing userId or amount" }, { status: 400 })
+    const { amount } = (await req.json()) as { amount: number }
+    if (!amount) {
+      return NextResponse.json({ error: "Missing amount" }, { status: 400 })
     }
 
     const requestedAmount = Number(amount)
@@ -109,4 +114,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to create payout request" }, { status: 500 })
   }
 }
-

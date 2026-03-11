@@ -1,4 +1,4 @@
-# ClipIts — Project Rules
+# Clixyo s — Project Rules
 
 Use these rules for consistent code generation and alignment. Do not rely on a separate Node backend for app flows; follow the docs and phases.
 

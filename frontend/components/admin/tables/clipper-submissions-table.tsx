@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 import { toast } from "sonner"
+import { authFetch } from "@/lib/api-client"
 
 interface AdminSubmissionRow {
   id: string
@@ -111,9 +112,8 @@ export function ClipperSubmissionsTable() {
     }
 
     try {
-      const res = await fetch("/api/views/fetch-baseline", {
+      const res = await authFetch("/api/views/fetch-baseline", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ submissionId: submission.id, reelUrl: submission.content_link }),
       })
       const result = await res.json()

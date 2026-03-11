@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import Razorpay from "razorpay"
 import { supabaseAdmin } from "@/lib/supabase-admin"
+import { getAuthUser, isAuthError } from "@/lib/api-auth"
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -8,14 +9,15 @@ const razorpay = new Razorpay({
 })
 
 export async function POST(req: NextRequest) {
-  try {
-    const { campaignId, userId } = (await req.json()) as {
-      campaignId: string
-      userId: string
-    }
+  const auth = await getAuthUser(req)
+  if (isAuthError(auth)) return auth
+  const userId = auth.userId
 
-    if (!campaignId || !userId) {
-      return NextResponse.json({ error: "Missing campaignId or userId" }, { status: 400 })
+  try {
+    const { campaignId } = (await req.json()) as { campaignId: string }
+
+    if (!campaignId) {
+      return NextResponse.json({ error: "Missing campaignId" }, { status: 400 })
     }
 
     const { data: campaign, error } = await supabaseAdmin
