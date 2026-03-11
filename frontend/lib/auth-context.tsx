@@ -43,6 +43,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     setProfileLoading(true)
+    // eslint-disable-next-line no-console
+    console.log("[auth-context] fetching profile for", userId)
     const { data, error } = await supabase
       .from("users")
       .select("role, onboarding_done, first_name, last_name, username")
@@ -71,6 +73,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const {
         data: { session: initialSession },
       } = await supabase.auth.getSession()
+      // eslint-disable-next-line no-console
+      console.log("[auth-context] initial session", {
+        hasSession: !!initialSession,
+        userId: initialSession?.user?.id,
+      })
       setSession(initialSession)
       setUser(initialSession?.user ?? null)
       setLoading(false)

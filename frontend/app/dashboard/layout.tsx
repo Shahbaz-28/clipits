@@ -1,9 +1,9 @@
 "use client"
 
-import { redirect } from "next/navigation"
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
-import { useEffect } from "react"
 
 export default function DashboardLayout({
   children,
@@ -11,22 +11,33 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const { session, loading, profile, profileLoading } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
+    // Debug auth state in dashboard layout
+    // eslint-disable-next-line no-console
+    console.log("[dashboard/layout] auth state", {
+      loading,
+      hasSession: !!session,
+      profileLoading,
+      hasProfile: !!profile,
+      onboardingDone: profile?.onboarding_done,
+    })
+
     if (loading) return
     if (!session) {
-      redirect("/sign-in")
+      router.replace("/sign-in")
       return
     }
     if (!profileLoading && (!profile || !profile.onboarding_done)) {
-      redirect("/onboarding")
+      router.replace("/onboarding")
     }
-  }, [session, loading, profile, profileLoading])
+  }, [session, loading, profile, profileLoading, router])
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-vibrant-red-orange"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-vibrant-red-orange" />
       </div>
     )
   }
@@ -38,7 +49,7 @@ export default function DashboardLayout({
   if (!profileLoading && (!profile || !profile.onboarding_done)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-vibrant-red-orange"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-vibrant-red-orange" />
       </div>
     )
   }

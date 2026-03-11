@@ -36,6 +36,8 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
       setLoading(true)
       setError(null)
       try {
+        // eslint-disable-next-line no-console
+        console.log("[campaign-grid] loading campaigns for user", user?.id)
         const { data: rows, error: campaignsError } = await supabase
           .from("campaigns")
           .select("*")
