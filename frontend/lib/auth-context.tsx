@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useEffect, useState, useRef } from "react"
+import { createContext, useContext, useEffect, useState, useRef, useCallback } from "react"
 import type { User, Session } from "@supabase/supabase-js"
 import { supabase } from "./supabase"
 
@@ -41,8 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [profileLoading, setProfileLoading] = useState(true)
   const lastUserId = useRef<string | null>(null)
+  const initialLoadDone = useRef(false)
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string) => {
     if (lastUserId.current === userId && profile) return
     lastUserId.current = userId
     setProfileLoading(true)
@@ -60,46 +61,75 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         username: data.username ?? null,
       })
     } else {
-      // eslint-disable-next-line no-console
-      console.warn("[auth-context] profile fetch failed", error?.message)
       setProfile(null)
     }
     setProfileLoading(false)
-  }
+  }, [profile])
 
-  const refreshProfile = async () => {
+  const refreshProfile = useCallback(async () => {
     if (user?.id) {
       lastUserId.current = null
       await fetchProfile(user.id)
     }
-  }
+  }, [user?.id, fetchProfile])
 
   useEffect(() => {
     let mounted = true
+
+    const initAuth = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession()
+
+        if (!mounted) return
+
+        if (initialSession) {
+          setSession(initialSession)
+          setUser(initialSession.user)
+          setLoading(false)
+          initialLoadDone.current = true
+          await fetchProfile(initialSession.user.id)
+        } else {
+          setSession(null)
+          setUser(null)
+          setProfile(null)
+          setProfileLoading(false)
+          setLoading(false)
+          initialLoadDone.current = true
+        }
+      } catch {
+        if (!mounted) return
+        setLoading(false)
+        setProfileLoading(false)
+        initialLoadDone.current = true
+      }
+    }
+
+    initAuth()
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, currentSession) => {
       if (!mounted) return
 
+      if (!initialLoadDone.current) return
+
       if (event === "SIGNED_OUT") {
         setSession(null)
         setUser(null)
         setProfile(null)
         setProfileLoading(false)
-        setLoading(false)
         lastUserId.current = null
         return
       }
 
-      if (currentSession) {
-        setSession(currentSession)
-        setUser(currentSession.user)
-        setLoading(false)
-        await fetchProfile(currentSession.user.id)
-      } else if (event === "INITIAL_SESSION") {
-        setLoading(false)
-        setProfileLoading(false)
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        if (currentSession) {
+          setSession(currentSession)
+          setUser(currentSession.user)
+          if (currentSession.user.id !== lastUserId.current) {
+            await fetchProfile(currentSession.user.id)
+          }
+        }
       }
     })
 
@@ -109,13 +139,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await supabase.auth.signOut()
     setUser(null)
     setSession(null)
     setProfile(null)
     lastUserId.current = null
-  }
+  }, [])
 
   return (
     <AuthContext.Provider
