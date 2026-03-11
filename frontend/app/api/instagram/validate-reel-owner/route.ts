@@ -4,37 +4,45 @@ import { fetchReelMeta } from "@/lib/socialkit"
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, reelUrl } = (await req.json()) as {
+    const { userId, reelUrl, accountId } = (await req.json()) as {
       userId: string
       reelUrl: string
+      accountId: string
     }
 
-    if (!userId || !reelUrl) {
+    if (!userId || !reelUrl || !accountId) {
       return NextResponse.json(
         { ok: false, error: "Missing required fields." },
         { status: 400 }
       )
     }
 
-    const { data: user, error: userErr } = await supabaseAdmin
-      .from("users")
-      .select("instagram_username, instagram_verified_at")
-      .eq("id", userId)
+    const { data: account, error: accErr } = await supabaseAdmin
+      .from("user_instagram_accounts")
+      .select("username, verified_at, user_id")
+      .eq("id", accountId)
       .single()
 
-    if (userErr || !user) {
+    if (accErr || !account) {
       return NextResponse.json(
-        { ok: false, error: "User not found." },
+        { ok: false, error: "Instagram account record not found." },
         { status: 404 }
       )
     }
 
-    if (!user.instagram_verified_at || !user.instagram_username) {
+    if (account.user_id !== userId) {
+      return NextResponse.json(
+        { ok: false, error: "Unauthorized." },
+        { status: 403 }
+      )
+    }
+
+    if (!account.verified_at || !account.username) {
       return NextResponse.json(
         {
           ok: false,
           error:
-            "Instagram account is not verified. Verify your account in Profile → Connected accounts first.",
+            "This Instagram account is not verified. Verify it in Profile \u2192 Connected accounts first.",
         },
         { status: 403 }
       )
@@ -52,7 +60,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const verifiedUsername = String(user.instagram_username).replace(/^@/, "").toLowerCase()
+    const verifiedUsername = String(account.username).replace(/^@/, "").toLowerCase()
     const reelAuthor = String(meta.author || "").replace(/^@/, "").toLowerCase()
 
     if (!reelAuthor) {
@@ -70,7 +78,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           ok: false,
-          error: `This reel belongs to @${meta.author}, but your verified account is @${verifiedUsername}. Please submit a reel from your own account.`,
+          error: `This reel belongs to @${meta.author}, but the selected account is @${account.username}. Please submit a reel from the correct account.`,
         },
         { status: 200 }
       )
@@ -85,4 +93,3 @@ export async function POST(req: NextRequest) {
     )
   }
 }
-

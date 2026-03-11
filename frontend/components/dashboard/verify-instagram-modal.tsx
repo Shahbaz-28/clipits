@@ -67,6 +67,7 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
   const [username, setUsername] = useState("")
   const [urlError, setUrlError] = useState("")
 
+  const [accountId, setAccountId] = useState<string | null>(null)
   const [code, setCode] = useState("")
   const [codeGeneratedAt, setCodeGeneratedAt] = useState<Date | null>(null)
   const [copied, setCopied] = useState(false)
@@ -80,6 +81,7 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
     setProfileUrl("")
     setUsername("")
     setUrlError("")
+    setAccountId(null)
     setCode("")
     setCodeGeneratedAt(null)
     setCopied(false)
@@ -123,14 +125,39 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
     setCode(newCode)
     setCodeGeneratedAt(new Date())
 
-    const { error } = await supabase
-      .from("users")
-      .update({ instagram_verification_code: newCode })
-      .eq("id", user.id)
+    const { data: existingAccounts } = await supabase
+      .from("user_instagram_accounts")
+      .select("id")
+      .eq("user_id", user.id)
+      .ilike("username", uname)
 
-    if (error) {
-      toast.error("Could not save verification code. Please try again.")
-      return
+    if (existingAccounts && existingAccounts.length > 0) {
+      const existing = existingAccounts[0]
+      const { error } = await supabase
+        .from("user_instagram_accounts")
+        .update({ verification_code: newCode, verified_at: null })
+        .eq("id", existing.id)
+      if (error) {
+        toast.error("Could not save verification code. Please try again.")
+        return
+      }
+      setAccountId(existing.id)
+    } else {
+      const { data: inserted, error } = await supabase
+        .from("user_instagram_accounts")
+        .insert({
+          user_id: user.id,
+          username: uname,
+          verification_code: newCode,
+          is_default: false,
+        })
+        .select("id")
+        .single()
+      if (error || !inserted) {
+        toast.error("Could not save verification code. Please try again.")
+        return
+      }
+      setAccountId(inserted.id)
     }
 
     setStep("verify-code")
@@ -148,7 +175,7 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
   }
 
   const handleVerify = async () => {
-    if (!user?.id || !code) return
+    if (!user?.id || !code || !accountId) return
     if (timeLeft <= 0) {
       setVerifyError("Code has expired. Please go back and start again.")
       return
@@ -161,12 +188,25 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
       const res = await fetch("/api/instagram/verify-bio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, username, code }),
+        body: JSON.stringify({ userId: user.id, username, code, accountId }),
       })
 
       const data = await res.json()
 
       if (data.verified) {
+        const { data: existingAccounts } = await supabase
+          .from("user_instagram_accounts")
+          .select("id")
+          .eq("user_id", user.id)
+          .not("id", "eq", accountId)
+
+        if (!existingAccounts || existingAccounts.length === 0) {
+          await supabase
+            .from("user_instagram_accounts")
+            .update({ is_default: true })
+            .eq("id", accountId)
+        }
+
         toast.success("Instagram account verified!")
         onVerified()
         onClose()
@@ -260,7 +300,6 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
                 </p>
               </div>
 
-              {/* Step 1 */}
               <div className="flex gap-3">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FF4B4B] text-white text-xs font-bold">
                   1
@@ -271,7 +310,6 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
                 </div>
               </div>
 
-              {/* Step 2 */}
               <div className="flex gap-3">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FF4B4B] text-white text-xs font-bold">
                   2
@@ -299,7 +337,6 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
                 </div>
               </div>
 
-              {/* Step 3 */}
               <div className="flex gap-3">
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FF4B4B] text-white text-xs font-bold">
                   3
@@ -312,7 +349,6 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
                 </div>
               </div>
 
-              {/* Timer */}
               <div className={cn(
                 "p-3 rounded-xl text-xs flex items-center gap-2",
                 isExpired
@@ -329,7 +365,6 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
                 )}
               </div>
 
-              {/* Error */}
               {verifyError && (
                 <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />

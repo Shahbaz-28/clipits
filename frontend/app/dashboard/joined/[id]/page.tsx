@@ -23,7 +23,7 @@ export default function JoinedCampaignDetailPage() {
         .from("campaigns")
         .select("*")
         .eq("id", id)
-        .eq("status", "active")
+        .eq("status", "live")
         .single()
       if (error || !data) {
         toast.error("Campaign not found or not available.")

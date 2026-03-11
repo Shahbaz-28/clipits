@@ -4,6 +4,9 @@ import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   Upload,
   Loader2,
@@ -15,6 +18,7 @@ import {
   IndianRupee,
   Play,
   X,
+  Search,
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
@@ -37,10 +41,16 @@ interface SubmissionRow {
   campaign?: { title: string }
 }
 
+type StatusFilter = "all" | "pending" | "approved" | "rejected"
+
 export function MySubmissionsPage() {
   const { user } = useAuth()
   const [submissions, setSubmissions] = useState<SubmissionRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [page, setPage] = useState(1)
+  const pageSize = 10
   const [videoModal, setVideoModal] = useState<{ isOpen: boolean; url: string; type: "video" | "image" }>({
     isOpen: false,
     url: "",
@@ -89,6 +99,24 @@ export function MySubmissionsPage() {
     }
     load()
   }, [user?.id])
+
+  const filtered = submissions.filter((s) => {
+    const matchesStatus = statusFilter === "all" ? true : s.status === statusFilter
+    const term = searchTerm.trim().toLowerCase()
+    if (!term) return matchesStatus
+    const campaignMatch = s.campaign?.title?.toLowerCase().includes(term)
+    const linkMatch = s.content_link?.toLowerCase().includes(term)
+    return matchesStatus && (campaignMatch || linkMatch)
+  })
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const currentPage = Math.min(page, totalPages)
+  const startIndex = (currentPage - 1) * pageSize
+  const paginated = filtered.slice(startIndex, startIndex + pageSize)
+
+  useEffect(() => {
+    setPage(1)
+  }, [statusFilter, searchTerm])
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -167,6 +195,31 @@ export function MySubmissionsPage() {
 
       {/* Submissions Table */}
       <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-3 px-6 py-4 border-b border-gray-100 items-start sm:items-center justify-between">
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full sm:w-auto">
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+              <SelectTrigger className="h-9 w-[150px] text-sm">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+            <div className="relative flex-1 sm:w-[220px]">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+              <Input
+                placeholder="Search by campaign or link"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8 h-9 text-sm"
+              />
+            </div>
+          </div>
+        </div>
         {/* Table Header */}
         <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-muted-label uppercase tracking-wide">
           <div className="col-span-4">Content</div>
@@ -178,7 +231,12 @@ export function MySubmissionsPage() {
 
         {/* Table Body */}
         <div className="divide-y divide-gray-100">
-          {submissions.map((s) => (
+          {paginated.length === 0 ? (
+            <div className="px-6 py-12 text-center text-muted-label text-sm">
+              No submissions match your filters.
+            </div>
+          ) : (
+          paginated.map((s) => (
             <div key={s.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors">
               {/* Content */}
               <div className="col-span-4 flex items-center gap-3">
@@ -282,8 +340,38 @@ export function MySubmissionsPage() {
                 )}
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
+        {filtered.length > 0 && (
+          <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100 text-sm text-muted-label">
+            <span>
+              Showing {startIndex + 1}–{Math.min(startIndex + pageSize, filtered.length)} of {filtered.length}
+            </span>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-8 px-3 text-xs"
+                disabled={currentPage === 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Previous
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-8 px-3 text-xs"
+                disabled={currentPage === totalPages}
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Video/Image Preview Modal */}

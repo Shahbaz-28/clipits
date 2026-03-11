@@ -6,6 +6,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button"
 import { Edit, Trash, Eye, Loader2, CheckCircle2, Clock, XCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/lib/supabase"
 
 type AdminCampaignRow = {
@@ -21,6 +23,10 @@ type AdminCampaignRow = {
 export function CampaignsTable() {
   const [campaigns, setCampaigns] = useState<AdminCampaignRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState<"all" | AdminCampaignRow["status"]>("all")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [page, setPage] = useState(1)
+  const pageSize = 10
 
   useEffect(() => {
     const fetchCampaigns = async () => {
@@ -146,12 +152,57 @@ export function CampaignsTable() {
     )
   }
 
+  const filtered = campaigns.filter((c) => {
+    const matchesStatus = statusFilter === "all" ? true : c.status === statusFilter
+    const term = searchTerm.trim().toLowerCase()
+    if (!term) return matchesStatus
+    return c.title.toLowerCase().includes(term)
+  })
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const currentPage = Math.min(page, totalPages)
+  const startIndex = (currentPage - 1) * pageSize
+  const paginated = filtered.slice(startIndex, startIndex + pageSize)
+
+  useEffect(() => {
+    setPage(1)
+  }, [statusFilter, searchTerm])
+
   return (
     <Card className="shadow-sm border border-border rounded-xl">
-      {" "}
-      {/* Added rounded-xl */}
       <CardHeader className="px-6 py-4">
-        <CardTitle className="text-xl font-semibold text-foreground">Campaigns</CardTitle>
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <CardTitle className="text-xl font-semibold text-foreground">Campaigns</CardTitle>
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Status</span>
+              <Select
+                value={statusFilter}
+                onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}
+              >
+                <SelectTrigger className="h-8 w-[150px] text-xs">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="draft">Draft</SelectItem>
+                  <SelectItem value="pending_review">Under review</SelectItem>
+                  <SelectItem value="awaiting_payment">Awaiting payment</SelectItem>
+                  <SelectItem value="live">Live</SelectItem>
+                  <SelectItem value="paused">Paused</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Input
+              placeholder="Search by title"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-8 text-xs w-[220px]"
+            />
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         {loading ? (
@@ -160,61 +211,92 @@ export function CampaignsTable() {
             <span>Loading campaigns…</span>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-muted-foreground px-6 py-3">Campaign Name</TableHead>
-                  <TableHead className="text-muted-foreground px-6 py-3">Status</TableHead>
-                  <TableHead className="min-w-[150px] text-muted-foreground px-6 py-3">Created / End Date</TableHead>
-                  <TableHead className="text-muted-foreground px-6 py-3">Total Views</TableHead>
-                  <TableHead className="text-muted-foreground px-6 py-3">Budget</TableHead>
-                  <TableHead className="text-right min-w-[120px] text-muted-foreground px-6 py-3">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {campaigns.length === 0 ? (
+          <>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
-                      No campaigns yet.
-                    </TableCell>
+                    <TableHead className="text-muted-foreground px-6 py-3">Campaign Name</TableHead>
+                    <TableHead className="text-muted-foreground px-6 py-3">Status</TableHead>
+                    <TableHead className="min-w-[150px] text-muted-foreground px-6 py-3">Created / End Date</TableHead>
+                    <TableHead className="text-muted-foreground px-6 py-3">Total Views</TableHead>
+                    <TableHead className="text-muted-foreground px-6 py-3">Budget</TableHead>
+                    <TableHead className="text-right min-w-[120px] text-muted-foreground px-6 py-3">Action</TableHead>
                   </TableRow>
-                ) : (
-                  campaigns.map((campaign) => (
-                    <TableRow key={campaign.id}>
-                      <TableCell className="font-medium text-foreground px-6 py-3">{campaign.title}</TableCell>
-                      <TableCell className="px-6 py-3">{renderStatusBadge(campaign.status)}</TableCell>
-                      <TableCell className="text-muted-foreground px-6 py-3">
-                        {formatDate(campaign.created_at)}{" "}
-                        <span className="text-xs text-muted-foreground/80">→</span>{" "}
-                        {formatDate(campaign.end_date)}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground px-6 py-3">
-                        {campaign.total_views.toLocaleString("en-IN")}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground px-6 py-3">
-                        ₹{campaign.total_budget.toLocaleString("en-IN")}
-                      </TableCell>
-                      <TableCell className="text-right px-6 py-3">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md">
-                          <Eye className="h-4 w-4 text-muted-foreground" />
-                          <span className="sr-only">View</span>
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md">
-                          <Edit className="h-4 w-4 text-muted-foreground" />
-                          <span className="sr-only">Edit</span>
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md">
-                          <Trash className="h-4 w-4 text-destructive" />
-                          <span className="sr-only">Delete</span>
-                        </Button>
+                </TableHeader>
+                <TableBody>
+                  {paginated.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
+                        No campaigns yet.
                       </TableCell>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  ) : (
+                    paginated.map((campaign) => (
+                      <TableRow key={campaign.id}>
+                        <TableCell className="font-medium text-foreground px-6 py-3">{campaign.title}</TableCell>
+                        <TableCell className="px-6 py-3">{renderStatusBadge(campaign.status)}</TableCell>
+                        <TableCell className="text-muted-foreground px-6 py-3">
+                          {formatDate(campaign.created_at)}{" "}
+                          <span className="text-xs text-muted-foreground/80">→</span>{" "}
+                          {formatDate(campaign.end_date)}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground px-6 py-3">
+                          {campaign.total_views.toLocaleString("en-IN")}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground px-6 py-3">
+                          ₹{campaign.total_budget.toLocaleString("en-IN")}
+                        </TableCell>
+                        <TableCell className="text-right px-6 py-3">
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md">
+                            <Eye className="h-4 w-4 text-muted-foreground" />
+                            <span className="sr-only">View</span>
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md">
+                            <Edit className="h-4 w-4 text-muted-foreground" />
+                            <span className="sr-only">Edit</span>
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md">
+                            <Trash className="h-4 w-4 text-destructive" />
+                            <span className="sr-only">Delete</span>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+            {filtered.length > 0 && (
+              <div className="flex items-center justify-between px-6 py-3 border-t border-border text-xs text-muted-foreground">
+                <span>
+                  Showing {startIndex + 1}–{Math.min(startIndex + pageSize, filtered.length)} of {filtered.length}
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-3 text-xs"
+                    disabled={currentPage === 1}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-3 text-xs"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

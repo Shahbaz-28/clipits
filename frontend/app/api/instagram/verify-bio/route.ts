@@ -4,33 +4,41 @@ import { fetchInstagramProfile } from "@/lib/socialkit"
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId, username, code } = (await req.json()) as {
+    const { userId, username, code, accountId } = (await req.json()) as {
       userId: string
       username: string
       code: string
+      accountId: string
     }
 
-    if (!userId || !username || !code) {
+    if (!userId || !username || !code || !accountId) {
       return NextResponse.json(
         { verified: false, error: "Missing required fields." },
         { status: 400 }
       )
     }
 
-    const { data: user, error: userErr } = await supabaseAdmin
-      .from("users")
-      .select("instagram_verification_code")
-      .eq("id", userId)
+    const { data: account, error: accErr } = await supabaseAdmin
+      .from("user_instagram_accounts")
+      .select("verification_code, user_id")
+      .eq("id", accountId)
       .single()
 
-    if (userErr || !user) {
+    if (accErr || !account) {
       return NextResponse.json(
-        { verified: false, error: "User not found." },
+        { verified: false, error: "Instagram account record not found." },
         { status: 404 }
       )
     }
 
-    if (user.instagram_verification_code !== code) {
+    if (account.user_id !== userId) {
+      return NextResponse.json(
+        { verified: false, error: "Unauthorized." },
+        { status: 403 }
+      )
+    }
+
+    if (account.verification_code !== code) {
       return NextResponse.json(
         { verified: false, error: "Verification code mismatch. Please restart verification." },
         { status: 400 }
@@ -60,14 +68,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const resolvedUsername = profile.username || username
+
     const { error: updateErr } = await supabaseAdmin
-      .from("users")
+      .from("user_instagram_accounts")
       .update({
-        instagram_verified_at: new Date().toISOString(),
-        instagram_username: profile.username || username,
-        instagram_verification_code: null,
+        verified_at: new Date().toISOString(),
+        username: resolvedUsername,
+        verification_code: null,
       })
-      .eq("id", userId)
+      .eq("id", accountId)
 
     if (updateErr) {
       console.error("[verify-bio] DB update error:", updateErr)
@@ -77,7 +87,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    return NextResponse.json({ verified: true, username: profile.username || username })
+    return NextResponse.json({ verified: true, username: resolvedUsername })
   } catch (err) {
     console.error("[verify-bio] unexpected error:", err)
     return NextResponse.json(

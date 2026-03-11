@@ -28,7 +28,7 @@ export default function AdminLayout({
     }
   }, [user, profile, loading, profileLoading, router])
 
-  if (loading || profileLoading || !user || !profile || profile.role !== "admin") {
+  if (loading || profileLoading) {
     return (
       <div className="min-h-svh flex items-center justify-center text-muted-foreground text-sm">
         Checking admin access…

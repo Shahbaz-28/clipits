@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Instagram, Eye } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Instagram, Eye, Search } from "lucide-react"
 import { CampaignDetailsModal } from "./campaign-details-modal"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
@@ -25,6 +27,9 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
   const [selectedCampaign, setSelectedCampaign] = useState<CampaignCard | null>(null)
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const [joiningId, setJoiningId] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [page, setPage] = useState(1)
+  const pageSize = 12
 
   useEffect(() => {
     async function load() {
@@ -62,6 +67,10 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
     }
     load()
   }, [user?.id, refreshKey])
+
+  useEffect(() => {
+    setPage(1)
+  }, [searchTerm])
 
   const handleCardClick = (campaign: CampaignCard) => {
     setSelectedCampaign(campaign)
@@ -132,10 +141,42 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
     )
   }
 
+  const filtered = campaigns.filter((c) => {
+    const term = searchTerm.trim().toLowerCase()
+    if (!term) return true
+    return (
+      c.title.toLowerCase().includes(term) ||
+      (c.description ?? "").toLowerCase().includes(term)
+    )
+  })
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const currentPage = Math.min(page, totalPages)
+  const startIndex = (currentPage - 1) * pageSize
+  const paginated = filtered.slice(startIndex, startIndex + pageSize)
+
+  if (filtered.length === 0) {
+    return (
+      <div className="text-center py-12 text-muted-label">
+        No campaigns match your search.
+      </div>
+    )
+  }
+
   return (
     <>
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+          <Input
+            placeholder="Search campaigns by title or description"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-8 h-9"
+          />
+        </div>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {campaigns.map((campaign) => (
+        {paginated.map((campaign) => (
           <Card
             key={campaign.id}
             className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer group rounded-2xl overflow-hidden"
@@ -212,6 +253,35 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
           </Card>
         ))}
       </div>
+      {filtered.length > pageSize && (
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100 text-sm text-muted-label">
+          <span>
+            Showing {startIndex + 1}–{Math.min(startIndex + pageSize, filtered.length)} of {filtered.length}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="h-8 px-3 text-xs"
+              disabled={currentPage === 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              Previous
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="h-8 px-3 text-xs"
+              disabled={currentPage === totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       {selectedCampaign && (
         <CampaignDetailsModal

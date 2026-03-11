@@ -27,12 +27,18 @@ export function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
     await signOut()
     router.push("/")
   }
-  const navItems = [
+  const isCreator = profile?.role === "creator"
+
+  const baseNavItems = [
     { id: "general", icon: User, label: "General" },
     { id: "connected-accounts", icon: LinkIcon, label: "Connected accounts" },
     { id: "payment-methods", icon: CreditCard, label: "Payment methods" },
     { id: "balance", icon: Wallet, label: "Balance" },
   ]
+
+  const navItems = isCreator
+    ? baseNavItems.filter((item) => item.id !== "connected-accounts")
+    : baseNavItems
 
   return (
     <div className="w-full lg:w-72 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col">

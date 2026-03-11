@@ -4,7 +4,11 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { DollarSign, Loader2, ExternalLink, Link, Wallet } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { DollarSign, Loader2, ExternalLink, Link, Wallet, Search } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 import { toast } from "sonner"
@@ -44,6 +48,15 @@ export default function EarningsPage() {
   const [loading, setLoading] = useState(true)
   const [requesting, setRequesting] = useState(false)
   const [payoutAmount, setPayoutAmount] = useState<string>("")
+  const [upiModalOpen, setUpiModalOpen] = useState(false)
+  const [upiInput, setUpiInput] = useState("")
+  const [savingUpi, setSavingUpi] = useState(false)
+  const [earningsSearch, setEarningsSearch] = useState("")
+  const [earningsPage, setEarningsPage] = useState(1)
+  const [payoutStatusFilter, setPayoutStatusFilter] = useState<"all" | PayoutRequest["status"]>("all")
+  const [payoutSearch, setPayoutSearch] = useState("")
+  const [payoutPage, setPayoutPage] = useState(1)
+  const pageSize = 10
 
   const loadWallet = async (userId: string) => {
     try {
@@ -80,6 +93,7 @@ export default function EarningsPage() {
       if (detailsRes.ok && !detailsData.error) {
         const defaultDetail = detailsData.defaultDetail as { upi_id?: string } | null
         setPayoutDetails({ upiId: defaultDetail?.upi_id ?? null })
+        setUpiInput(defaultDetail?.upi_id ?? "")
       }
     } catch (err) {
       console.error(err)
@@ -136,6 +150,14 @@ export default function EarningsPage() {
     void load()
   }, [user?.id])
 
+  useEffect(() => {
+    setEarningsPage(1)
+  }, [earningsSearch])
+
+  useEffect(() => {
+    setPayoutPage(1)
+  }, [payoutStatusFilter, payoutSearch])
+
   if (loading) {
     return (
       <>
@@ -152,12 +174,37 @@ export default function EarningsPage() {
   const hasEarnings = submissions.length > 0
   const canRequestPayout = availableBalance >= 2000 && !!payoutDetails.upiId
 
+  const filteredEarnings = submissions.filter((s) => {
+    const term = earningsSearch.trim().toLowerCase()
+    if (!term) return true
+    return s.campaign?.title?.toLowerCase().includes(term) || s.content_link?.toLowerCase().includes(term)
+  })
+  const earningsTotalPages = Math.max(1, Math.ceil(filteredEarnings.length / pageSize))
+  const earningsCurrentPage = Math.min(earningsPage, earningsTotalPages)
+  const earningsStartIndex = (earningsCurrentPage - 1) * pageSize
+  const paginatedEarnings = filteredEarnings.slice(earningsStartIndex, earningsStartIndex + pageSize)
+
+  const filteredPayouts = payoutHistory.filter((p) => {
+    const matchesStatus = payoutStatusFilter === "all" ? true : p.status === payoutStatusFilter
+    const term = payoutSearch.trim().toLowerCase()
+    if (!term) return matchesStatus
+    const amountMatch = p.amount.toString().includes(term)
+    const refMatch = p.transaction_ref?.toLowerCase().includes(term)
+    return matchesStatus && (amountMatch || refMatch)
+  })
+  const payoutTotalPages = Math.max(1, Math.ceil(filteredPayouts.length / pageSize))
+  const payoutCurrentPage = Math.min(payoutPage, payoutTotalPages)
+  const payoutStartIndex = (payoutCurrentPage - 1) * pageSize
+  const paginatedPayouts = filteredPayouts.slice(payoutStartIndex, payoutStartIndex + pageSize)
+
   const handleSavePayoutDetails = async () => {
     if (!user?.id) return
-    // eslint-disable-next-line no-alert
-    const upi = window.prompt("Enter your UPI ID (e.g. name@upi)", payoutDetails.upiId ?? "") ?? ""
-    const trimmed = upi.trim()
-    if (!trimmed) return
+    const trimmed = upiInput.trim()
+    if (!trimmed) {
+      toast.error("Enter your UPI ID.")
+      return
+    }
+    setSavingUpi(true)
     try {
       const res = await fetch("/api/wallet/payout-details", {
         method: "POST",
@@ -171,9 +218,12 @@ export default function EarningsPage() {
       }
       setPayoutDetails({ upiId: data.detail?.upi_id ?? trimmed })
       toast.success("Payout details saved.")
+      setUpiModalOpen(false)
     } catch (err) {
       console.error(err)
       toast.error("Could not save payout details.")
+    } finally {
+      setSavingUpi(false)
     }
   }
 
@@ -266,7 +316,7 @@ export default function EarningsPage() {
                       size="sm"
                       variant="outline"
                       className="border-border text-body-text"
-                      onClick={handleSavePayoutDetails}
+                      onClick={() => setUpiModalOpen(true)}
                     >
                       {payoutDetails.upiId ? "Edit UPI" : "Add UPI"}
                     </Button>
@@ -314,9 +364,20 @@ export default function EarningsPage() {
 
           {/* Approved submissions list */}
           <div>
-            <h2 className="text-lg font-semibold text-heading-text mb-3">Earnings from approved content</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+              <h2 className="text-lg font-semibold text-heading-text">Earnings from approved content</h2>
+              <div className="relative w-full sm:w-[220px]">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+                <Input
+                  placeholder="Search by campaign or link"
+                  value={earningsSearch}
+                  onChange={(e) => setEarningsSearch(e.target.value)}
+                  className="pl-8 h-9 text-sm"
+                />
+              </div>
+            </div>
             <div className="space-y-3">
-              {submissions.map((s) => (
+              {paginatedEarnings.map((s) => (
                 <Card key={s.id} className="bg-main-bg border-border shadow-sm rounded-xl">
                   <CardContent className="p-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
@@ -347,16 +408,72 @@ export default function EarningsPage() {
                 </Card>
               ))}
             </div>
+            {filteredEarnings.length > pageSize && (
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border text-sm text-muted-label">
+                <span>
+                  Showing {earningsStartIndex + 1}–{Math.min(earningsStartIndex + pageSize, filteredEarnings.length)} of {filteredEarnings.length}
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-8 px-3 text-xs"
+                    disabled={earningsCurrentPage === 1}
+                    onClick={() => setEarningsPage((p) => Math.max(1, p - 1))}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-8 px-3 text-xs"
+                    disabled={earningsCurrentPage === earningsTotalPages}
+                    onClick={() => setEarningsPage((p) => Math.min(earningsTotalPages, p + 1))}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Payout history */}
           <div>
-            <h2 className="text-lg font-semibold text-heading-text mb-3">Payout history</h2>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+              <h2 className="text-lg font-semibold text-heading-text">Payout history</h2>
+              <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+                <Select value={payoutStatusFilter} onValueChange={(v) => setPayoutStatusFilter(v as typeof payoutStatusFilter)}>
+                  <SelectTrigger className="h-9 w-[140px] text-sm">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="processing">Processing</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="relative w-full sm:w-[200px]">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+                  <Input
+                    placeholder="Search amount or ref"
+                    value={payoutSearch}
+                    onChange={(e) => setPayoutSearch(e.target.value)}
+                    className="pl-8 h-9 text-sm"
+                  />
+                </div>
+              </div>
+            </div>
             {payoutHistory.length === 0 ? (
               <p className="text-sm text-muted-label">No payout requests yet.</p>
+            ) : filteredPayouts.length === 0 ? (
+              <p className="text-sm text-muted-label">No payouts match your filters.</p>
             ) : (
               <div className="space-y-2">
-                {payoutHistory.map((payout) => (
+                {paginatedPayouts.map((payout) => (
                   <Card key={payout.id} className="bg-main-bg border-border shadow-sm rounded-xl">
                     <CardContent className="p-4 flex items-center justify-between gap-3">
                       <div>
@@ -396,9 +513,88 @@ export default function EarningsPage() {
                 ))}
               </div>
             )}
+            {filteredPayouts.length > pageSize && (
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border text-sm text-muted-label">
+                <span>
+                  Showing {payoutStartIndex + 1}–{Math.min(payoutStartIndex + pageSize, filteredPayouts.length)} of {filteredPayouts.length}
+                </span>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-8 px-3 text-xs"
+                    disabled={payoutCurrentPage === 1}
+                    onClick={() => setPayoutPage((p) => Math.max(1, p - 1))}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="h-8 px-3 text-xs"
+                    disabled={payoutCurrentPage === payoutTotalPages}
+                    onClick={() => setPayoutPage((p) => Math.min(payoutTotalPages, p + 1))}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
+
+      <Dialog open={upiModalOpen} onOpenChange={setUpiModalOpen}>
+        <DialogContent className="sm:max-w-[420px] bg-white text-heading-text border border-gray-100 rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold text-heading-text">
+              {payoutDetails.upiId ? "Update UPI ID" : "Add UPI ID"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="upiId" className="text-sm font-medium text-heading-text">
+                UPI ID
+              </Label>
+              <Input
+                id="upiId"
+                placeholder="name@upi"
+                value={upiInput}
+                onChange={(e) => setUpiInput(e.target.value)}
+              />
+              <p className="text-xs text-muted-label">This will be used for withdrawals.</p>
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1 border-gray-200"
+                onClick={() => setUpiModalOpen(false)}
+                disabled={savingUpi}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                className="flex-1 bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90"
+                onClick={handleSavePayoutDetails}
+                disabled={savingUpi}
+              >
+                {savingUpi ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save"
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

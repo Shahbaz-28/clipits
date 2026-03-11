@@ -3,7 +3,9 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { FolderOpen, Eye, Instagram, Loader2 } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { FolderOpen, Eye, Instagram, Loader2, Search } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 import { mapCampaignRowToCard, type CampaignCard, type CampaignRow } from "@/lib/campaigns"
@@ -17,6 +19,9 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
   const { user } = useAuth()
   const [campaigns, setCampaigns] = useState<CampaignCard[]>([])
   const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [page, setPage] = useState(1)
+  const pageSize = 12
 
   useEffect(() => {
     if (!user?.id) {
@@ -68,6 +73,23 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
     load()
   }, [user?.id])
 
+  useEffect(() => {
+    setPage(1)
+  }, [searchTerm])
+
+  const filtered = campaigns.filter((c) => {
+    const term = searchTerm.trim().toLowerCase()
+    if (!term) return true
+    return (
+      c.title.toLowerCase().includes(term) ||
+      (c.description ?? "").toLowerCase().includes(term)
+    )
+  })
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const currentPage = Math.min(page, totalPages)
+  const startIndex = (currentPage - 1) * pageSize
+  const paginated = filtered.slice(startIndex, startIndex + pageSize)
+
   if (loading) {
     return (
       <div className="flex flex-col flex-1">
@@ -97,12 +119,44 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
     )
   }
 
+  if (filtered.length === 0) {
+    return (
+      <div className="flex flex-col flex-1">
+        <h1 className="text-2xl font-bold text-heading-text mb-4">Joined Campaigns</h1>
+        <p className="text-muted-label mb-6">Campaigns you&apos;ve joined. Click to view details and submit content.</p>
+        <div className="relative max-w-sm mb-6">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+          <Input
+            placeholder="Search campaigns"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-8 h-9"
+          />
+        </div>
+        <div className="text-center py-12 text-muted-label">
+          No campaigns match your search.
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col flex-1">
       <h1 className="text-2xl font-bold text-heading-text mb-4">Joined Campaigns</h1>
       <p className="text-muted-label mb-6">Campaigns you&apos;ve joined. Click to view details and submit content.</p>
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+          <Input
+            placeholder="Search campaigns by title or description"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-8 h-9"
+          />
+        </div>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {campaigns.map((campaign) => (
+        {paginated.map((campaign) => (
           <Card
             key={campaign.id}
             className="bg-main-bg border border-border shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-xl overflow-hidden"
@@ -177,6 +231,35 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
           </Card>
         ))}
       </div>
+      {filtered.length > pageSize && (
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-border text-sm text-muted-label">
+          <span>
+            Showing {startIndex + 1}–{Math.min(startIndex + pageSize, filtered.length)} of {filtered.length}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="h-8 px-3 text-xs"
+              disabled={currentPage === 1}
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              Previous
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="h-8 px-3 text-xs"
+              disabled={currentPage === totalPages}
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

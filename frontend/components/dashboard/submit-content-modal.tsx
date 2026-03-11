@@ -13,12 +13,26 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Upload, Link, Info, ImageIcon, Video } from "lucide-react"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Link, Info, Instagram } from "lucide-react"
 import { toast } from "sonner"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+
+interface IgAccount {
+  id: string
+  username: string
+  verified_at: string | null
+  is_default: boolean
+}
 
 interface SubmitContentModalProps {
   isOpen: boolean
@@ -31,58 +45,46 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
   const { user } = useAuth()
   const router = useRouter()
   const [postLink, setPostLink] = useState("")
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [instagramStatus, setInstagramStatus] = useState<{
-    instagram_verified_at: string | null
-  } | null>(null)
+
+  const [igAccounts, setIgAccounts] = useState<IgAccount[]>([])
+  const [selectedAccountId, setSelectedAccountId] = useState<string>("")
+  const [loadingAccounts, setLoadingAccounts] = useState(true)
 
   useEffect(() => {
     if (!isOpen) return
     setPostLink("")
-    setSelectedFile(null)
     setError(null)
+    setSelectedAccountId("")
 
-    const fetchInstagramStatus = async () => {
+    const fetchIgAccounts = async () => {
       if (!user?.id) {
-        setInstagramStatus(null)
+        setIgAccounts([])
+        setLoadingAccounts(false)
         return
       }
-      const { data, error: statusError } = await supabase
-        .from("users")
-        .select("instagram_verified_at")
-        .eq("id", user.id)
-        .single()
+      setLoadingAccounts(true)
+      const { data, error: fetchErr } = await supabase
+        .from("user_instagram_accounts")
+        .select("id, username, verified_at, is_default")
+        .eq("user_id", user.id)
+        .not("verified_at", "is", null)
+        .order("is_default", { ascending: false })
 
-      if (statusError || !data) {
-        setInstagramStatus(null)
-        return
+      if (fetchErr || !data) {
+        setIgAccounts([])
+      } else {
+        const accounts = data as IgAccount[]
+        setIgAccounts(accounts)
+        const defaultAcc = accounts.find((a) => a.is_default) || accounts[0]
+        if (defaultAcc) setSelectedAccountId(defaultAcc.id)
       }
-      setInstagramStatus({
-        instagram_verified_at: (data as { instagram_verified_at: string | null }).instagram_verified_at ?? null,
-      })
+      setLoadingAccounts(false)
     }
 
-    void fetchInstagramStatus()
+    void fetchIgAccounts()
   }, [isOpen, user?.id])
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      setSelectedFile(event.target.files[0])
-    }
-  }
-
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-  }
-
-  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault()
-    if (event.dataTransfer.files && event.dataTransfer.files[0]) {
-      setSelectedFile(event.dataTransfer.files[0])
-    }
-  }
 
   const normalizeAndValidateUrl = (s: string): { ok: boolean; url: string } => {
     const trimmed = s.trim()
@@ -99,8 +101,6 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
     }
   }
 
-  const BUCKET = "submission-media"
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -114,15 +114,15 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
       setError("Please enter a valid link (e.g. https://www.instagram.com/reel/...).")
       return
     }
-    if (!instagramStatus || !instagramStatus.instagram_verified_at) {
+    if (igAccounts.length === 0) {
       const msg =
-        "You must verify your Instagram account in Profile → Connected accounts before submitting content."
+        "You must verify at least one Instagram account in Profile \u2192 Connected accounts before submitting content."
       setError(msg)
       toast.error(msg)
       return
     }
-    if (!selectedFile) {
-      setError("Media is required. Upload the original file you posted.")
+    if (!selectedAccountId) {
+      setError("Please select which Instagram account this reel belongs to.")
       return
     }
     if (!user?.id) {
@@ -138,43 +138,21 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
 
     setIsSubmitting(true)
     try {
-      // Validate that the reel belongs to the verified Instagram account
       const ownerRes = await fetch("/api/instagram/validate-reel-owner", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, reelUrl: link }),
+        body: JSON.stringify({ userId: user.id, reelUrl: link, accountId: selectedAccountId }),
       })
       const ownerData = await ownerRes.json()
       if (!ownerData.ok) {
         const msg =
           ownerData.error ||
-          "This reel does not appear to belong to your verified Instagram account. Please double-check the link."
+          "This reel does not appear to belong to your selected Instagram account. Please double-check the link."
         setError(msg)
         toast.error(msg)
         setIsSubmitting(false)
         return
       }
-
-      const safeName = selectedFile.name.replace(/[^a-zA-Z0-9._-]/g, "_")
-      const storagePath = `private/${campaignId}/${user.id}/${Date.now()}_${safeName}`
-
-      const { error: uploadError } = await supabase.storage.from(BUCKET).upload(storagePath, selectedFile, {
-        cacheControl: "3600",
-        upsert: false,
-      })
-
-      if (uploadError) {
-        const msg =
-          uploadError.message?.includes("Bucket not found") || uploadError.message?.includes("bucket")
-            ? "Media upload failed: Storage bucket not set up. Ask the admin to create a public bucket named 'submission-media' in Supabase."
-            : uploadError.message
-        setError(msg)
-        toast.error(msg)
-        return
-      }
-
-      const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(storagePath)
-      const mediaUrl = urlData.publicUrl
 
       const { error: insertError } = await supabase.from("submissions").insert({
         campaign_id: campaignId,
@@ -182,7 +160,7 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
         content_link: link,
         platform: "instagram",
         status: "pending",
-        media_url: mediaUrl,
+        instagram_account_id: selectedAccountId,
       })
       if (insertError) {
         const msg =
@@ -213,6 +191,8 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
     }
   }
 
+  const selectedAccount = igAccounts.find((a) => a.id === selectedAccountId)
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="sm:max-w-[480px] w-[95%] bg-white text-heading-text border border-gray-100 p-0 flex flex-col max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden">
@@ -233,9 +213,9 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
         {error && (
           <div className="mx-6 mt-4 rounded-xl bg-red-50 border border-red-200 p-3 text-red-600 text-sm">
             {error ===
-            "You must verify your Instagram account in Profile \u2192 Connected accounts before submitting content." ? (
+            "You must verify at least one Instagram account in Profile \u2192 Connected accounts before submitting content." ? (
               <span>
-                You must verify your Instagram account in{" "}
+                You must verify at least one Instagram account in{" "}
                 <button
                   type="button"
                   className="underline font-semibold"
@@ -255,7 +235,52 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
         )}
 
         <form id="submit-content-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-          {/* Provide link */}
+          {/* Instagram account selector */}
+          <div className="space-y-1.5">
+            <Label className="text-sm font-medium text-heading-text flex items-center gap-2">
+              <Instagram className="w-3.5 h-3.5 text-pink-500" />
+              Instagram Account <span className="text-red-500">*</span>
+            </Label>
+            {loadingAccounts ? (
+              <div className="h-10 rounded-lg bg-gray-100 animate-pulse" />
+            ) : igAccounts.length === 0 ? (
+              <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-600">
+                No verified Instagram accounts.{" "}
+                <button
+                  type="button"
+                  className="underline font-semibold"
+                  onClick={() => {
+                    onClose()
+                    router.push("/dashboard/profile/connected-accounts")
+                  }}
+                >
+                  Connect one now
+                </button>
+              </div>
+            ) : igAccounts.length === 1 ? (
+              <div className="flex items-center gap-2 h-10 px-3 rounded-lg bg-gray-50 border border-gray-200 text-sm text-heading-text">
+                <Instagram className="w-4 h-4 text-pink-500" />
+                @{igAccounts[0].username}
+              </div>
+            ) : (
+              <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+                <SelectTrigger className="h-10 bg-gray-50 border-gray-200 rounded-lg text-heading-text">
+                  <SelectValue placeholder="Select account">
+                    {selectedAccount ? `@${selectedAccount.username}` : "Select account"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {igAccounts.map((acc) => (
+                    <SelectItem key={acc.id} value={acc.id}>
+                      @{acc.username} {acc.is_default ? "(default)" : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+
+          {/* Post link */}
           <div className="space-y-1.5">
             <Label htmlFor="postLink" className="text-sm font-medium text-heading-text flex items-center gap-2">
               <Link className="w-3.5 h-3.5 text-muted-label" />
@@ -275,57 +300,7 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
             />
           </div>
 
-          {/* Media upload */}
-          <div className="space-y-1.5">
-            <Label className="text-sm font-medium text-heading-text flex items-center gap-2">
-              <Upload className="w-3.5 h-3.5 text-muted-label" />
-              Media File <span className="text-red-500">*</span>
-            </Label>
-            <p className="text-xs text-muted-label">
-              Upload the original image or video (no screenshots)
-            </p>
-            <div
-              className="flex flex-col items-center justify-center py-5 px-4 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 text-center cursor-pointer hover:border-vibrant-red-orange hover:bg-gray-100 transition-colors"
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onClick={() => document.getElementById("mediaUploadInput")?.click()}
-            >
-              {selectedFile ? (
-                <div className="flex items-center gap-3">
-                  {selectedFile.type.startsWith("image/") ? (
-                    <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                      <ImageIcon className="w-5 h-5 text-emerald-600" />
-                    </div>
-                  ) : (
-                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                      <Video className="w-5 h-5 text-blue-600" />
-                    </div>
-                  )}
-                  <div className="text-left">
-                    <p className="text-sm font-medium text-heading-text truncate max-w-[200px]">{selectedFile.name}</p>
-                    <p className="text-xs text-muted-label">
-                      {(selectedFile.size / 1024 / 1024).toFixed(1)} MB
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center">
-                  <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mb-2">
-                    <Upload className="w-5 h-5 text-muted-label" />
-                  </div>
-                  <p className="text-sm font-medium text-heading-text">Click to upload</p>
-                  <p className="text-xs text-muted-label mt-0.5">or drag and drop</p>
-                </div>
-              )}
-              <Input
-                id="mediaUploadInput"
-                type="file"
-                className="sr-only"
-                accept="image/*,video/*"
-                onChange={handleFileChange}
-              />
-            </div>
-          </div>
+          {/* Media upload removed: we only require the reel link now */}
         </form>
 
         <DialogFooter className="px-6 py-4 border-t border-gray-100 flex gap-3">

@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Check, X, Eye, Loader2 } from "lucide-react"
+import { Check, X, Eye, Loader2, Search } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/lib/supabase"
 import { toast } from "sonner"
 
@@ -30,6 +32,10 @@ export function CreatorRequestsTable() {
   const [requests, setRequests] = useState<CreatorRequest[]>([])
   const [loading, setLoading] = useState(true)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [statusFilter, setStatusFilter] = useState<"all" | CreatorRequest["status"]>("pending_review")
+  const [searchTerm, setSearchTerm] = useState("")
+  const [page, setPage] = useState(1)
+  const pageSize = 10
 
   useEffect(() => {
     void fetchRequests()
@@ -58,7 +64,6 @@ export function CreatorRequestsTable() {
           )
         `,
         )
-        .eq("status", "pending_review")
         .order("created_at", { ascending: false })
 
       if (error) {
@@ -150,6 +155,26 @@ export function CreatorRequestsTable() {
     )
   }
 
+  const filtered = requests.filter((r) => {
+    const matchesStatus = statusFilter === "all" ? true : r.status === statusFilter
+    const term = searchTerm.trim().toLowerCase()
+    if (!term) return matchesStatus
+    const creatorName = `${r.creator.first_name ?? ""} ${r.creator.last_name ?? ""}`.toLowerCase()
+    const email = (r.creator.email ?? "").toLowerCase()
+    const title = r.title.toLowerCase()
+    const matchesSearch = creatorName.includes(term) || email.includes(term) || title.includes(term)
+    return matchesStatus && matchesSearch
+  })
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const currentPage = Math.min(page, totalPages)
+  const startIndex = (currentPage - 1) * pageSize
+  const paginated = filtered.slice(startIndex, startIndex + pageSize)
+
+  useEffect(() => {
+    setPage(1)
+  }, [statusFilter, searchTerm])
+
   if (loading) {
     return (
       <Card className="shadow-sm border border-border rounded-xl">
@@ -169,7 +194,37 @@ export function CreatorRequestsTable() {
   return (
     <Card className="shadow-sm border border-border rounded-xl">
       <CardHeader className="px-6 py-4">
-        <CardTitle className="text-xl font-semibold text-foreground">Creator Requests</CardTitle>
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <CardTitle className="text-xl font-semibold text-foreground">Creator Requests</CardTitle>
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Status</span>
+              <Select
+                value={statusFilter}
+                onValueChange={(v) => setStatusFilter(v as typeof statusFilter)}
+              >
+                <SelectTrigger className="h-8 w-[150px] text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="pending_review">Pending review</SelectItem>
+                  <SelectItem value="awaiting_payment">Awaiting payment</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                placeholder="Search creator or title"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="h-8 pl-7 pr-2 text-xs w-[200px]"
+              />
+            </div>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-x-auto">
@@ -186,14 +241,14 @@ export function CreatorRequestsTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {requests.length === 0 ? (
+              {paginated.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No creator requests found
                   </TableCell>
                 </TableRow>
               ) : (
-                requests.map((request) => (
+                paginated.map((request) => (
                   <TableRow key={request.id}>
                     <TableCell className="font-medium text-foreground px-6 py-3">
                       {request.creator.first_name} {request.creator.last_name}
@@ -256,6 +311,35 @@ export function CreatorRequestsTable() {
               )}
             </TableBody>
           </Table>
+          {filtered.length > 0 && (
+            <div className="flex items-center justify-between px-6 py-3 border-t border-border text-xs text-muted-foreground">
+              <span>
+                Showing {startIndex + 1}–{Math.min(startIndex + pageSize, filtered.length)} of {filtered.length}
+              </span>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-3 text-xs"
+                  disabled={currentPage === 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
+                  Previous
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-3 text-xs"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
