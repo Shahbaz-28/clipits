@@ -10,29 +10,16 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { session, loading, profile, profileLoading } = useAuth()
+  const { session, loading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
-    // Debug auth state in dashboard layout
-    // eslint-disable-next-line no-console
-    console.log("[dashboard/layout] auth state", {
-      loading,
-      hasSession: !!session,
-      profileLoading,
-      hasProfile: !!profile,
-      onboardingDone: profile?.onboarding_done,
-    })
-
     if (loading) return
     if (!session) {
       router.replace("/sign-in")
       return
     }
-    if (!profileLoading && (!profile || !profile.onboarding_done)) {
-      router.replace("/onboarding")
-    }
-  }, [session, loading, profile, profileLoading, router])
+  }, [session, loading, router])
 
   if (loading) {
     return (
@@ -44,14 +31,6 @@ export default function DashboardLayout({
 
   if (!session) {
     return null
-  }
-
-  if (!profileLoading && (!profile || !profile.onboarding_done)) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-vibrant-red-orange" />
-      </div>
-    )
   }
 
   return <DashboardShell>{children}</DashboardShell>
