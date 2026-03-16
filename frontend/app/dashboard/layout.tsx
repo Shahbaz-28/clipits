@@ -10,7 +10,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { session, loading } = useAuth()
+  const { session, profile, loading, profileLoading } = useAuth()
   const router = useRouter()
 
   useEffect(() => {
@@ -19,7 +19,10 @@ export default function DashboardLayout({
       router.replace("/sign-in")
       return
     }
-  }, [session, loading, router])
+    if (!profileLoading && (!profile || !profile.onboarding_done)) {
+      router.replace("/onboarding")
+    }
+  }, [session, profile, profileLoading, loading, router])
 
   if (loading) {
     return (
@@ -31,6 +34,14 @@ export default function DashboardLayout({
 
   if (!session) {
     return null
+  }
+
+  if (!profileLoading && (!profile || !profile.onboarding_done)) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-vibrant-red-orange" />
+      </div>
+    )
   }
 
   return <DashboardShell>{children}</DashboardShell>
