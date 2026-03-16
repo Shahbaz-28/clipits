@@ -5,9 +5,9 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Wallet, Loader2, ArrowRight } from "lucide-react"
-import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
 import { toast } from "sonner"
+import { authFetch } from "@/lib/api-client"
 
 export function BalanceSettings() {
   const { user } = useAuth()
@@ -22,22 +22,24 @@ export function BalanceSettings() {
     }
     async function load() {
       setLoading(true)
-      const { data, error } = await supabase
-        .from("submissions")
-        .select("earnings")
-        .eq("user_id", user?.id ?? "")
-        .eq("status", "approved")
-      if (error) {
-        toast.error(error.message)
+      try {
+        const res = await authFetch("/api/wallet/balance", { method: "POST" })
+        const data = await res.json()
+        if (!res.ok || data.error) {
+          toast.error(data.error || "Could not load wallet balance.")
+          setBalance(0)
+        } else {
+          setBalance(data.availableBalance ?? 0)
+        }
+      } catch (err) {
+        console.error(err)
+        toast.error("Could not load wallet balance.")
         setBalance(0)
+      } finally {
         setLoading(false)
-        return
       }
-      const total = (data || []).reduce((sum, row) => sum + Number(row.earnings || 0), 0)
-      setBalance(total)
-      setLoading(false)
     }
-    load()
+    void load()
   }, [user?.id])
 
   if (loading) {
