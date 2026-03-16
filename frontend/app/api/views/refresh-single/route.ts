@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       .from("submissions")
       .select(
         `
-        id, user_id, campaign_id, content_link, baseline_views, latest_views, view_count, earnings,
+        id, user_id, campaign_id, content_link, baseline_views, latest_views, view_count, earnings, status,
         campaigns!inner ( id, rate_per_1k, min_payout, max_payout, end_date, campaign_spent, amount_paid, status )
       `,
       )
@@ -27,6 +27,13 @@ export async function POST(req: NextRequest) {
 
     if (error || !sub) {
       return NextResponse.json({ error: "Submission not found" }, { status: 404 })
+    }
+
+    if ((sub as { status?: string }).status !== "approved") {
+      return NextResponse.json(
+        { error: "Only approved submissions can have views refreshed." },
+        { status: 400 },
+      )
     }
 
     if (sub.user_id !== auth.userId) {
@@ -75,22 +82,42 @@ export async function POST(req: NextRequest) {
       .from("view_snapshots")
       .insert({ submission_id: sub.id, views: stats.views })
 
-    const viewsGained = Math.max(0, stats.views - (sub.baseline_views || 0))
-    const ratePer1k = Number(campaign.rate_per_1k) || 0
-    const minPayout = Number(campaign.min_payout) || 0
-    const maxPayout = Number(campaign.max_payout) || Infinity
-    const rawEarnings = (viewsGained / 1000) * ratePer1k
-    const clampedEarnings = Math.max(minPayout, Math.min(maxPayout, rawEarnings))
-    const finalEarnings = Math.round(clampedEarnings * 100) / 100
+    const baseline = sub.baseline_views ?? 0
+    const hasNoBaseline = baseline === 0 && stats.views > 0
 
-    await supabaseAdmin
-      .from("submissions")
-      .update({
-        latest_views: stats.views,
-        view_count: viewsGained,
-        earnings: finalEarnings,
-      })
-      .eq("id", sub.id)
+    let viewsGained: number
+    let finalEarnings: number
+
+    if (hasNoBaseline) {
+      viewsGained = 0
+      finalEarnings = 0
+      await supabaseAdmin
+        .from("submissions")
+        .update({
+          baseline_views: stats.views,
+          latest_views: stats.views,
+          view_count: 0,
+          earnings: 0,
+        })
+        .eq("id", sub.id)
+    } else {
+      viewsGained = Math.max(0, stats.views - baseline)
+      const ratePer1k = Number(campaign.rate_per_1k) || 0
+      const minPayout = Number(campaign.min_payout) || 0
+      const maxPayout = Number(campaign.max_payout) || Infinity
+      const rawEarnings = (viewsGained / 1000) * ratePer1k
+      const clampedEarnings = Math.max(minPayout, Math.min(maxPayout, rawEarnings))
+      finalEarnings = Math.round(clampedEarnings * 100) / 100
+
+      await supabaseAdmin
+        .from("submissions")
+        .update({
+          latest_views: stats.views,
+          view_count: viewsGained,
+          earnings: finalEarnings,
+        })
+        .eq("id", sub.id)
+    }
 
     const delta = finalEarnings - (Number(sub.earnings) || 0)
     if (delta > 0) {

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { DollarSign, Loader2, ExternalLink, Link, Wallet, Search } from "lucide-react"
+import { DollarSign, Loader2, ExternalLink, Wallet, Search } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/auth-context"
@@ -166,6 +166,13 @@ export default function EarningsPage() {
 
   const hasEarnings = submissions.length > 0
   const canRequestPayout = availableBalance >= 2000 && !!payoutDetails.upiId
+  const minPayoutAmount = 2000
+  const rawPayoutAmount = payoutAmount.trim()
+  const parsedPayoutInput = rawPayoutAmount ? Number(rawPayoutAmount) : NaN
+  const isPayoutAmountValid =
+    !Number.isNaN(parsedPayoutInput) &&
+    parsedPayoutInput >= minPayoutAmount &&
+    parsedPayoutInput <= availableBalance
 
   const filteredEarnings = submissions.filter((s) => {
     const term = earningsSearch.trim().toLowerCase()
@@ -189,6 +196,18 @@ export default function EarningsPage() {
   const payoutCurrentPage = Math.min(payoutPage, payoutTotalPages)
   const payoutStartIndex = (payoutCurrentPage - 1) * pageSize
   const paginatedPayouts = filteredPayouts.slice(payoutStartIndex, payoutStartIndex + pageSize)
+
+  const formatDateTime = (iso: string | null) => {
+    if (!iso) return ""
+    const d = new Date(iso)
+    return d.toLocaleString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
 
   const handleSavePayoutDetails = async () => {
     if (!user?.id) return
@@ -221,9 +240,18 @@ export default function EarningsPage() {
 
   const handleRequestPayout = async () => {
     if (!user?.id) return
-    const parsedAmount = Number(payoutAmount || availableBalance)
-    if (Number.isNaN(parsedAmount) || parsedAmount <= 0) {
+    const trimmed = payoutAmount.trim()
+    const parsedAmount = Number(trimmed)
+    if (!trimmed || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
       toast.error("Enter a valid amount.")
+      return
+    }
+    if (parsedAmount < minPayoutAmount) {
+      toast.error(`Minimum payout amount is ₹${minPayoutAmount.toLocaleString("en-IN")}.`)
+      return
+    }
+    if (parsedAmount > availableBalance) {
+      toast.error("Amount cannot be more than your available balance.")
       return
     }
     setRequesting(true)
@@ -250,8 +278,16 @@ export default function EarningsPage() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-heading-text mb-4">Wallet & Earnings</h1>
-      <p className="text-muted-label mt-1 mb-6">Track your earnings, balance, and payout requests.</p>
+      <div className="mb-8 space-y-1.5">
+        <h1 className="text-2xl font-bold text-heading-text">Wallet & Earnings</h1>
+        <p className="text-muted-label">
+          Track your balance, earnings from approved content, and payout requests.
+        </p>
+        <p className="text-xs text-muted-label">
+          Only views after a submission is approved count towards earnings. Totals update every few hours when views
+          are refreshed.
+        </p>
+      </div>
 
       {!hasEarnings ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -273,79 +309,87 @@ export default function EarningsPage() {
       ) : (
         <div className="space-y-6">
           {/* Wallet summary */}
-          <Card className="bg-main-bg border-border shadow-sm rounded-xl overflow-hidden">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-turquoise-accent/10 flex items-center justify-center">
+          <Card className="bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
+            <CardContent className="p-6 md:p-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="flex items-start gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-turquoise-accent/10 flex items-center justify-center shrink-0">
                     <Wallet className="w-7 h-7 text-turquoise-accent" />
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-label font-medium">Available balance</p>
-                    <p className="text-3xl font-bold text-heading-text">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-muted-label uppercase tracking-wide">Available balance</p>
+                    <p className="text-3xl font-bold text-heading-text mt-1">
                       ₹{availableBalance.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
-                    <p className="text-xs text-muted-label mt-1">
-                      Total earned: ₹{totalEarned.toLocaleString("en-IN", { maximumFractionDigits: 2 })} · Paid out: ₹
-                      {totalPaid.toLocaleString("en-IN", { maximumFractionDigits: 2 })} · Pending payout: ₹
+                    <p className="text-sm text-muted-label mt-2">
+                      Earned ₹{totalEarned.toLocaleString("en-IN", { maximumFractionDigits: 2 })} · Paid ₹
+                      {totalPaid.toLocaleString("en-IN", { maximumFractionDigits: 2 })} · Pending ₹
                       {pendingWithdrawal.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-col items-stretch gap-2 w-full sm:w-auto">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs text-muted-label">
-                      Payout UPI:{" "}
+                <div className="border-t border-gray-100 pt-6 lg:border-t-0 lg:pt-0 lg:border-l lg:pl-8 lg:border-gray-100 space-y-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="text-sm text-muted-label">
+                      UPI for payouts:{" "}
                       {payoutDetails.upiId ? (
                         <span className="font-medium text-heading-text">{payoutDetails.upiId}</span>
                       ) : (
-                        <span className="text-red-500 font-medium">Not set</span>
+                        <span className="text-red-600 font-medium">Not set</span>
                       )}
                     </span>
                     <Button
                       type="button"
                       size="sm"
                       variant="outline"
-                      className="border-border text-body-text"
+                      className="border-gray-200 text-heading-text hover:bg-gray-50 rounded-lg"
                       onClick={() => setUpiModalOpen(true)}
                     >
-                      {payoutDetails.upiId ? "Edit UPI" : "Add UPI"}
+                      {payoutDetails.upiId ? "Edit" : "Add UPI"}
                     </Button>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min={2000}
-                      max={availableBalance}
-                      placeholder={`Min ₹2,000`}
-                      value={payoutAmount}
-                      onChange={(e) => setPayoutAmount(e.target.value)}
-                      className="flex-1 h-9 rounded-lg border border-border bg-background px-2 text-sm text-heading-text outline-none focus-visible:ring-1 focus-visible:ring-vibrant-red-orange"
-                    />
-                    <Button
-                      type="button"
-                      disabled={!canRequestPayout || requesting}
-                      onClick={handleRequestPayout}
-                      className="shrink-0 bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-medium h-9 px-3"
-                    >
-                      {requesting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                          Requesting...
-                        </>
-                      ) : (
-                        "Request payout"
-                      )}
-                    </Button>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="flex-1 space-y-1">
+                      <Label htmlFor="payout-amount" className="text-xs text-muted-label font-medium">
+                        Amount (min ₹2,000)
+                      </Label>
+                      <Input
+                        id="payout-amount"
+                        type="number"
+                        min={2000}
+                        max={availableBalance}
+                        placeholder="2,000"
+                        value={payoutAmount}
+                        onChange={(e) => setPayoutAmount(e.target.value)}
+                        className="h-10 rounded-lg border-gray-200 text-heading-text"
+                      />
+                    </div>
+                    <div className="flex items-end">
+                      <Button
+                        type="button"
+                        disabled={!canRequestPayout || !isPayoutAmountValid || requesting}
+                        onClick={handleRequestPayout}
+                        className="w-full sm:w-auto h-10 bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-semibold px-5"
+                      >
+                        {requesting ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Requesting...
+                          </>
+                        ) : (
+                          "Request payout"
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   {!payoutDetails.upiId && (
-                    <p className="text-xs text-red-500">
+                    <p className="text-xs text-red-600">
                       Add your UPI ID to request payouts. Minimum withdrawal is ₹2,000.
                     </p>
                   )}
-                  {payoutDetails.upiId && availableBalance < 2000 && (
+                  {payoutDetails.upiId && availableBalance > 0 && availableBalance < 2000 && (
                     <p className="text-xs text-muted-label">
-                      You need at least ₹2,000 available balance to request a payout.
+                      Minimum payout is ₹2,000. Current balance: ₹{availableBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })}.
                     </p>
                   )}
                 </div>
@@ -355,42 +399,41 @@ export default function EarningsPage() {
 
           {/* Approved submissions list */}
           <div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <h2 className="text-lg font-semibold text-heading-text">Earnings from approved content</h2>
-              <div className="relative w-full sm:w-[220px]">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+              <div className="relative w-full sm:w-[240px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
                 <Input
-                  placeholder="Search by campaign or link"
+                  placeholder="Search by campaign"
                   value={earningsSearch}
                   onChange={(e) => setEarningsSearch(e.target.value)}
-                  className="pl-8 h-9 text-sm"
+                  className="pl-9 h-10 rounded-lg border-gray-200 text-sm"
                 />
               </div>
             </div>
             <div className="space-y-3">
               {paginatedEarnings.map((s) => (
-                <Card key={s.id} className="bg-main-bg border-border shadow-sm rounded-xl">
-                  <CardContent className="p-4">
+                <Card key={s.id} className="bg-white border border-gray-100 shadow-sm rounded-xl hover:shadow-md transition-shadow">
+                  <CardContent className="p-4 md:p-5">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-muted-label mb-1">{s.campaign?.title ?? "Campaign"}</p>
+                        <p className="text-sm font-medium text-heading-text mb-1">{s.campaign?.title ?? "Campaign"}</p>
                         <a
                           href={s.content_link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-body-text hover:text-turquoise-accent font-medium flex items-center gap-2 truncate"
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-turquoise-accent hover:underline"
                         >
-                          <Link className="w-4 h-4 flex-shrink-0" />
-                          <span className="truncate">{s.content_link}</span>
-                          <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          View content
                         </a>
                         <p className="text-xs text-muted-label mt-2">
-                          Approved {s.reviewed_at ? new Date(s.reviewed_at).toLocaleDateString("en-IN", { dateStyle: "medium" }) : new Date(s.submitted_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}
+                          Approved {formatDateTime(s.reviewed_at || s.submitted_at)}
                         </p>
                       </div>
-                      <div className="flex flex-col items-end gap-0.5 shrink-0">
-                        <span className="text-sm text-muted-label">{s.view_count.toLocaleString()} views gained</span>
-                        <span className="text-lg font-semibold text-turquoise-accent">
+                      <div className="flex flex-col items-end gap-1 shrink-0">
+                        <span className="text-sm text-muted-label">{s.view_count.toLocaleString()} views</span>
+                        <span className="text-lg font-bold text-turquoise-accent">
                           ₹{Number(s.earnings).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </div>
@@ -432,7 +475,7 @@ export default function EarningsPage() {
 
           {/* Payout history */}
           <div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <h2 className="text-lg font-semibold text-heading-text">Payout history</h2>
               <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
                 <Select value={payoutStatusFilter} onValueChange={(v) => setPayoutStatusFilter(v as typeof payoutStatusFilter)}>
@@ -463,10 +506,10 @@ export default function EarningsPage() {
             ) : filteredPayouts.length === 0 ? (
               <p className="text-sm text-muted-label">No payouts match your filters.</p>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {paginatedPayouts.map((payout) => (
-                  <Card key={payout.id} className="bg-main-bg border-border shadow-sm rounded-xl">
-                    <CardContent className="p-4 flex items-center justify-between gap-3">
+                  <Card key={payout.id} className="bg-white border border-gray-100 shadow-sm rounded-xl">
+                    <CardContent className="p-4 md:p-5 flex items-center justify-between gap-4">
                       <div>
                         <p className="text-sm font-medium text-heading-text">
                           ₹{Number(payout.amount).toLocaleString("en-IN", { maximumFractionDigits: 2 })}

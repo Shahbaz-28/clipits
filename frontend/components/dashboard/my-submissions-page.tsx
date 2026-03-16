@@ -118,6 +118,17 @@ export function MySubmissionsPage() {
     setPage(1)
   }, [statusFilter, searchTerm])
 
+  const formatDateTime = (iso: string) => {
+    const d = new Date(iso)
+    return d.toLocaleString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
@@ -282,16 +293,17 @@ export function MySubmissionsPage() {
                     href={s.content_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-heading-text hover:text-vibrant-red-orange transition-colors flex items-center gap-1.5 truncate"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-turquoise-accent hover:underline"
                   >
                     <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span className="truncate">{s.content_link.split("/").pop() || "View Content"}</span>
+                    <span>View content</span>
                   </a>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-muted-label">
-                    <Instagram className="w-3 h-3" />
-                    <span>{s.platform}</span>
-                    <span>·</span>
-                    <span>{new Date(s.submitted_at).toLocaleDateString()}</span>
+                  <div className="flex flex-col gap-0.5 mt-1 text-xs text-muted-label">
+                    <div className="flex items-center gap-2">
+                      <Instagram className="w-3 h-3" />
+                      <span>{s.platform}</span>
+                    </div>
+                    <span>Submitted {formatDateTime(s.submitted_at)}</span>
                   </div>
                   {s.status === "rejected" && s.rejection_reason && (
                     <p className="text-xs text-red-500 mt-1 truncate" title={s.rejection_reason}>

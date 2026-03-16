@@ -31,6 +31,7 @@ export function AdminMetricCards() {
         const { data: submissions, error: submissionsError } = await supabase
           .from("submissions")
           .select("view_count, earnings")
+          .eq("status", "approved")
 
         if (submissionsError) {
           // If submissions query fails, still show counts

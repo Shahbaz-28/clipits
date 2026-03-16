@@ -173,6 +173,18 @@ export function WalletPayoutsTable() {
   const startIndex = (currentPage - 1) * pageSize
   const paginated = filtered.slice(startIndex, startIndex + pageSize)
 
+  const formatDateTime = (iso: string | null) => {
+    if (!iso) return ""
+    const d = new Date(iso)
+    return d.toLocaleString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
+
   useEffect(() => {
     setPage(1)
   }, [statusFilter, searchTerm])
@@ -265,16 +277,8 @@ export function WalletPayoutsTable() {
                         <TableCell className="px-6 py-3">{renderStatusBadge(row.status)}</TableCell>
                         <TableCell className="text-muted-foreground px-6 py-3">
                           <div className="text-xs">
-                            <div>
-                              Requested:{" "}
-                              {new Date(row.requested_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}
-                            </div>
-                            {row.processed_at && (
-                              <div>
-                                Processed:{" "}
-                                {new Date(row.processed_at).toLocaleDateString("en-IN", { dateStyle: "medium" })}
-                              </div>
-                            )}
+                            <div>Requested: {formatDateTime(row.requested_at)}</div>
+                            {row.processed_at && <div>Processed: {formatDateTime(row.processed_at)}</div>}
                             {row.transaction_ref && <div>Ref: {row.transaction_ref}</div>}
                             {row.admin_note && <div>Note: {row.admin_note}</div>}
                           </div>

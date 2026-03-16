@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     const { data: campaign, error } = await supabaseAdmin
       .from("campaigns")
-      .select("id, title, total_budget, status, created_by")
+      .select("id, title, total_budget, status, created_by, razorpay_order_id")
       .eq("id", campaignId)
       .single()
 
@@ -44,6 +44,16 @@ export async function POST(req: NextRequest) {
     const amountInPaise = Math.round(Number(campaign.total_budget) * 100)
     if (amountInPaise <= 0) {
       return NextResponse.json({ error: "Campaign budget must be greater than 0" }, { status: 400 })
+    }
+
+    const existingOrderId = (campaign as { razorpay_order_id?: string | null }).razorpay_order_id
+    if (existingOrderId) {
+      return NextResponse.json({
+        orderId: existingOrderId,
+        amount: amountInPaise,
+        currency: "INR",
+        campaignTitle: campaign.title,
+      })
     }
 
     const shortId = campaignId.replace(/-/g, "").slice(0, 24)

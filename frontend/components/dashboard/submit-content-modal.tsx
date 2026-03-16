@@ -139,36 +139,20 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
 
     setIsSubmitting(true)
     try {
-      const ownerRes = await authFetch("/api/instagram/validate-reel-owner", {
+      const res = await authFetch("/api/submissions", {
         method: "POST",
-        body: JSON.stringify({ reelUrl: link, accountId: selectedAccountId }),
+        body: JSON.stringify({
+          campaignId,
+          contentLink: link,
+          accountId: selectedAccountId,
+        }),
       })
-      const ownerData = await ownerRes.json()
-      if (!ownerData.ok) {
-        const msg =
-          ownerData.error ||
-          "This reel does not appear to belong to your selected Instagram account. Please double-check the link."
+      const data = await res.json()
+      if (!res.ok) {
+        const msg = data.error || "Failed to submit. Please try again."
         setError(msg)
         toast.error(msg)
         setIsSubmitting(false)
-        return
-      }
-
-      const { error: insertError } = await supabase.from("submissions").insert({
-        campaign_id: campaignId,
-        user_id: user.id,
-        content_link: link,
-        platform: "instagram",
-        status: "pending",
-        instagram_account_id: selectedAccountId,
-      })
-      if (insertError) {
-        const msg =
-          insertError.message?.includes("row-level security") || insertError.message?.includes("policy")
-            ? "You can only submit after joining this campaign. Make sure you joined from Explore first."
-            : insertError.message
-        setError(msg)
-        toast.error(msg)
         return
       }
       toast.success("Content submitted for review. The creator will review it soon.")

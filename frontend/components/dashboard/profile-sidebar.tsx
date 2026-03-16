@@ -36,9 +36,7 @@ export function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
     { id: "balance", icon: Wallet, label: "Balance" },
   ]
 
-  const navItems = isCreator
-    ? baseNavItems.filter((item) => item.id !== "connected-accounts")
-    : baseNavItems
+  const navItems = isCreator ? baseNavItems.filter((item) => item.id === "general") : baseNavItems
 
   return (
     <div className="w-full lg:w-72 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col">

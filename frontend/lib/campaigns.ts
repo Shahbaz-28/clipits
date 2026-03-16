@@ -51,15 +51,18 @@ export interface CampaignCard {
   assets: { name: string; link: string }[]
   disclaimer: string
   createdAt: string
+  status: string
 }
 
 /**
  * Map DB campaign row to the card/modal shape.
  * Pass in platform icon components so we don't import Lucide in lib.
+ * Optional totalViews: sum of view_count from submissions for this campaign (for card display).
  */
 export function mapCampaignRowToCard(
   row: CampaignRow,
-  platformIcons: { instagram: React.ComponentType<{ className?: string }> }
+  platformIcons: { instagram: React.ComponentType<{ className?: string }> },
+  options?: { totalViews?: number }
 ): CampaignCard {
   const platforms = (row.platforms?.length ? row.platforms : ["instagram"]).includes("instagram")
     ? [platformIcons.instagram]
@@ -69,6 +72,7 @@ export function mapCampaignRowToCard(
   const daysLeft = endDate
     ? Math.max(0, Math.ceil((endDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     : 0
+  const totalViews = options?.totalViews ?? 0
   return {
     id: row.id,
     title: row.title,
@@ -80,18 +84,19 @@ export function mapCampaignRowToCard(
     rate: `₹${Number(row.rate_per_1k).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / 1K`,
     type: typeLabel,
     platforms,
-    views: "0",
+    views: totalViews.toLocaleString("en-IN"),
     color: "bg-vibrant-red-orange",
     progressPaidOut: 0,
     totalBudgetDetail: Number(row.total_budget),
     progressPercentage: 0,
     daysLeft,
-    minPayout: Number(row.min_payout),
-    maxPayout: Number(row.max_payout),
+    minPayout: Number(row.min_payout ?? 0),
+    maxPayout: Number(row.max_payout ?? 0),
     category: row.category ?? "",
     requirements: Array.isArray(row.requirements) ? row.requirements : [],
     assets: Array.isArray(row.assets) ? row.assets : [],
     disclaimer: row.disclaimer ?? "",
     createdAt: row.created_at,
+    status: row.status ?? "live",
   }
 }

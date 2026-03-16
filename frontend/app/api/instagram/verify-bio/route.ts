@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
 
     const { data: account, error: accErr } = await supabaseAdmin
       .from("user_instagram_accounts")
-      .select("verification_code, user_id")
+      .select("verification_code, user_id, username")
       .eq("id", accountId)
       .single()
 
@@ -49,7 +49,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const profileUrl = `https://www.instagram.com/${username}/`
+    const usernameToFetch = (account.username || username).trim().replace(/^@/, "")
+    if (!usernameToFetch) {
+      return NextResponse.json(
+        { verified: false, error: "Account username missing. Please restart verification." },
+        { status: 400 }
+      )
+    }
+    const profileUrl = `https://www.instagram.com/${usernameToFetch}/`
     const profile = await fetchInstagramProfile(profileUrl)
 
     if (!profile) {

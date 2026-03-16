@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { Edit, Trash, Eye, Loader2, CheckCircle2, Clock, XCircle } from "lucide-react"
+import { Loader2, CheckCircle2, Clock, XCircle } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -38,7 +38,7 @@ export function CampaignsTable() {
               .from("campaigns")
               .select("id, title, status, total_budget, created_at, end_date")
               .order("created_at", { ascending: false }),
-            supabase.from("submissions").select("campaign_id, view_count"),
+            supabase.from("submissions").select("campaign_id, view_count").eq("status", "approved"),
           ])
 
         if (campaignsError) {
@@ -247,19 +247,8 @@ export function CampaignsTable() {
                         <TableCell className="text-muted-foreground px-6 py-3">
                           ₹{campaign.total_budget.toLocaleString("en-IN")}
                         </TableCell>
-                        <TableCell className="text-right px-6 py-3">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md">
-                            <Eye className="h-4 w-4 text-muted-foreground" />
-                            <span className="sr-only">View</span>
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md">
-                            <Edit className="h-4 w-4 text-muted-foreground" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md">
-                            <Trash className="h-4 w-4 text-destructive" />
-                            <span className="sr-only">Delete</span>
-                          </Button>
+                        <TableCell className="text-right px-6 py-3 text-xs text-muted-foreground">
+                          —
                         </TableCell>
                       </TableRow>
                     ))

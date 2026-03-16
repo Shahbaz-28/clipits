@@ -6,8 +6,10 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Instagram, Eye, Search } from "lucide-react"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CampaignDetailsModal } from "./campaign-details-modal"
 import { supabase } from "@/lib/supabase"
+import { authFetch } from "@/lib/api-client"
 import { useAuth } from "@/lib/auth-context"
 import type { CampaignRow, CampaignCard } from "@/lib/campaigns"
 import { mapCampaignRowToCard } from "@/lib/campaigns"
@@ -28,6 +30,8 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false)
   const [joiningId, setJoiningId] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState<"all" | "live" | "completed">("all")
+  const [categoryFilter, setCategoryFilter] = useState<string>("all")
   const [page, setPage] = useState(1)
   const pageSize = 12
 
@@ -38,11 +42,15 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
       try {
         // eslint-disable-next-line no-console
         console.log("[campaign-grid] loading campaigns for user", user?.id)
-        const { data: rows, error: campaignsError } = await supabase
-          .from("campaigns")
-          .select("*")
-          .eq("status", "live")
-          .order("created_at", { ascending: false })
+        const [{ data: rows, error: campaignsError }, { data: submissions, error: submissionsError }] =
+          await Promise.all([
+            supabase
+              .from("campaigns")
+              .select("*")
+              .in("status", ["live", "completed"])
+              .order("created_at", { ascending: false }),
+            supabase.from("submissions").select("campaign_id, view_count").eq("status", "approved"),
+          ])
 
         if (campaignsError) {
           setError(campaignsError.message)
@@ -51,8 +59,19 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
           return
         }
 
+        const viewsByCampaign: Record<string, number> = {}
+        if (!submissionsError && submissions) {
+          for (const s of submissions) {
+            const cid = (s as { campaign_id?: string }).campaign_id
+            const v = Number((s as { view_count?: number }).view_count ?? 0)
+            if (cid) viewsByCampaign[cid] = (viewsByCampaign[cid] ?? 0) + v
+          }
+        }
+
         const mapped = (rows || []).map((row: CampaignRow) =>
-          mapCampaignRowToCard(row, { instagram: Instagram })
+          mapCampaignRowToCard(row, { instagram: Instagram }, {
+            totalViews: viewsByCampaign[(row as { id: string }).id] ?? 0,
+          })
         )
         setCampaigns(mapped)
 
@@ -72,7 +91,7 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
 
   useEffect(() => {
     setPage(1)
-  }, [searchTerm])
+  }, [searchTerm, statusFilter, categoryFilter])
 
   const handleCardClick = (campaign: CampaignCard) => {
     setSelectedCampaign(campaign)
@@ -83,27 +102,16 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
     if (!user?.id) return
     setJoiningId(campaign.id)
     setError(null)
-    const TIMEOUT_MS = 15000
-    const insertPromise = supabase.from("user_campaigns").insert({
-      user_id: user.id,
-      campaign_id: campaign.id,
-    })
-    const timeoutPromise = new Promise<{ error: { message: string } }>((_, reject) =>
-      setTimeout(() => reject(new Error("Request timed out. Check your network and try again.")), TIMEOUT_MS)
-    )
     try {
-      const result = await Promise.race([insertPromise, timeoutPromise])
-      const insertError = result?.error
-      if (insertError) {
-        const code = "code" in insertError ? insertError.code : null
-        if (code === "23505") {
-          setJoinedIds((prev) => new Set(prev).add(campaign.id))
-          setIsDetailsModalOpen(false)
-          onNavigate("joined-campaign", campaign)
-        } else {
-          setError(insertError.message)
-          toast.error(insertError.message)
-        }
+      const res = await authFetch("/api/campaigns/join", {
+        method: "POST",
+        body: JSON.stringify({ campaignId: campaign.id }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        const msg = data.error || "Failed to join campaign."
+        setError(msg)
+        toast.error(msg)
         return
       }
       setJoinedIds((prev) => new Set(prev).add(campaign.id))
@@ -138,18 +146,23 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
   if (campaigns.length === 0) {
     return (
       <div className="text-center py-12 text-muted-label">
-        No live campaigns yet. Check back later.
+        No campaigns yet. Check back later.
       </div>
     )
   }
 
+  const categories = Array.from(
+    new Set(campaigns.map((c) => c.category).filter(Boolean))
+  ).sort((a, b) => (a as string).localeCompare(b as string)) as string[]
+
   const filtered = campaigns.filter((c) => {
     const term = searchTerm.trim().toLowerCase()
-    if (!term) return true
-    return (
-      c.title.toLowerCase().includes(term) ||
-      (c.description ?? "").toLowerCase().includes(term)
-    )
+    if (term && !c.title.toLowerCase().includes(term) && !(c.description ?? "").toLowerCase().includes(term)) {
+      return false
+    }
+    if (statusFilter !== "all" && c.status !== statusFilter) return false
+    if (categoryFilter !== "all" && (c.category || "") !== categoryFilter) return false
+    return true
   })
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
   const currentPage = Math.min(page, totalPages)
@@ -166,26 +179,62 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
 
   return (
     <>
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
-          <Input
-            placeholder="Search campaigns by title or description"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-8 h-9"
-          />
+      <div className="flex flex-col gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center flex-wrap">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+            <Input
+              placeholder="Search campaigns by title or description"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8 h-9"
+            />
+          </div>
+          <div className="flex gap-2 flex-wrap items-center">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">Status</span>
+              <Select
+                value={statusFilter}
+                onValueChange={(v) => setStatusFilter(v as "all" | "live" | "completed")}
+              >
+                <SelectTrigger className="h-9 w-[130px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="live">Live</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">Category</span>
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="h-9 w-[140px]">
+                  <SelectValue placeholder="Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {paginated.map((campaign) => (
           <Card
             key={campaign.id}
-            className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer group rounded-2xl overflow-hidden"
+            className="bg-main-bg border border-border shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-xl overflow-hidden"
             onClick={() => handleCardClick(campaign)}
           >
             {campaign.thumbnailUrl && (
-              <div className="w-full h-32 bg-gray-100 overflow-hidden">
+              <div className="w-full h-28 bg-gray-100 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={campaign.thumbnailUrl}
@@ -195,59 +244,57 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
               </div>
             )}
             <CardContent className="p-6">
-              {/* Header */}
-              <div className="mb-5">
-                <h3 className="font-bold text-lg text-heading-text mb-3 group-hover:text-vibrant-red-orange transition-colors line-clamp-2 leading-tight">
-                  {campaign.title}
-                </h3>
-                <Badge
-                  className={`${campaign.color} text-white hover:${campaign.color}/90 text-xs font-semibold px-3 py-1 rounded-full shadow-sm`}
-                >
-                  {campaign.rate}
-                </Badge>
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-heading-text mb-1 group-hover:text-turquoise-accent transition-colors">
+                    {campaign.title}
+                  </h3>
+                  <Badge
+                    className={`${campaign.color} text-white hover:${campaign.color}/90 text-xs shadow-sm rounded-md`}
+                  >
+                    {campaign.rate}
+                  </Badge>
+                </div>
               </div>
 
-              {/* Description */}
-              <p className="text-sm text-muted-label mb-5 line-clamp-2 leading-relaxed">
-                {campaign.description}
+              <p className="text-sm text-body-text mb-4">
+                {campaign.description.length > 50
+                  ? `${campaign.description.substring(0, 50)}...`
+                  : campaign.description || "—"}
               </p>
 
-              {/* Earnings Progress */}
-              <div className="mb-5 p-4 bg-gray-50 rounded-xl">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-xl font-bold text-turquoise-accent">{campaign.earnings}</span>
-                    <span className="text-xs text-muted-label">of {campaign.total}</span>
-                  </div>
-                  <span className="text-sm font-bold text-heading-text">{campaign.percentage}</span>
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-lg font-bold text-turquoise-accent">{campaign.earnings}</span>
+                  <span className="text-sm text-muted-label">of {campaign.total} paid out</span>
+                  <span className="text-sm font-semibold text-body-text">{campaign.percentage}</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                <div className="w-full bg-border rounded-full h-2">
                   <div
-                    className="bg-gradient-to-r from-turquoise-accent to-secondary h-2.5 rounded-full transition-all duration-500"
+                    className="bg-turquoise-accent h-2 rounded-full transition-all duration-300 shadow-sm"
                     style={{ width: campaign.percentage }}
                   />
                 </div>
               </div>
 
-              {/* Details Grid */}
-              <div className="grid grid-cols-3 gap-3">
-                <div className="text-center p-3 bg-gray-50 rounded-xl">
-                  <p className="text-xs text-muted-label mb-1">Type</p>
-                  <p className="text-sm font-semibold text-heading-text">{campaign.type}</p>
+              <div className="grid grid-cols-3 gap-4 text-xs">
+                <div>
+                  <p className="text-muted-label mb-1">Type</p>
+                  <p className="font-semibold text-body-text">{campaign.type}</p>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-xl">
-                  <p className="text-xs text-muted-label mb-1">Platform</p>
-                  <div className="flex justify-center">
+                <div>
+                  <p className="text-muted-label mb-1">Platforms</p>
+                  <div className="flex space-x-1">
                     {campaign.platforms.map((Platform, idx) => (
-                      <Platform key={`platform-${idx}`} className="w-5 h-5 text-heading-text" />
+                      <Platform key={`platform-${idx}`} className="w-4 h-4 text-muted-label" />
                     ))}
                   </div>
                 </div>
-                <div className="text-center p-3 bg-gray-50 rounded-xl">
-                  <p className="text-xs text-muted-label mb-1">Views</p>
-                  <div className="flex items-center justify-center gap-1">
-                    <Eye className="w-3.5 h-3.5 text-muted-label" />
-                    <span className="text-sm font-semibold text-heading-text">{campaign.views}</span>
+                <div>
+                  <p className="text-muted-label mb-1">Views</p>
+                  <div className="flex items-center space-x-1">
+                    <Eye className="w-3 h-3 text-muted-label" />
+                    <span className="font-semibold text-body-text">{campaign.views}</span>
                   </div>
                 </div>
               </div>
@@ -256,7 +303,7 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
         ))}
       </div>
       {filtered.length > pageSize && (
-        <div className="flex items-center justify-between mt-6 pt-4 border-t border-gray-100 text-sm text-muted-label">
+        <div className="flex items-center justify-between mt-6 pt-4 border-t border-border text-sm text-muted-label">
           <span>
             Showing {startIndex + 1}–{Math.min(startIndex + pageSize, filtered.length)} of {filtered.length}
           </span>

@@ -88,6 +88,29 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const { data: payoutRowsRecheck, error: payoutRecheckError } = await supabaseAdmin
+      .from("payout_requests")
+      .select("amount, status")
+      .eq("user_id", userId)
+
+    if (!payoutRecheckError && payoutRowsRecheck) {
+      let totalPaidRecheck = 0
+      let pendingRecheck = 0
+      for (const row of payoutRowsRecheck) {
+        const amt = Number((row as { amount?: number }).amount ?? 0)
+        const st = (row as { status?: string }).status
+        if (st === "paid") totalPaidRecheck += amt
+        else if (st === "pending" || st === "processing") pendingRecheck += amt
+      }
+      const availableRecheck = Math.max(0, totalEarned - totalPaidRecheck - pendingRecheck)
+      if (requestedAmount > availableRecheck) {
+        return NextResponse.json(
+          { error: `Balance changed. You can request up to ₹${availableRecheck.toLocaleString("en-IN")}.` },
+          { status: 400 },
+        )
+      }
+    }
+
     const { data: inserted, error: insertError } = await supabaseAdmin
       .from("payout_requests")
       .insert({

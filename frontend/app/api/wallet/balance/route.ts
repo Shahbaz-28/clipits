@@ -16,9 +16,11 @@ export async function POST(req: NextRequest) {
 
     if (earningsError) {
       console.error("[wallet/balance] earnings error:", earningsError)
+      return NextResponse.json({ error: "Could not load earnings" }, { status: 500 })
     }
     if (payoutError) {
       console.error("[wallet/balance] payout error:", payoutError)
+      return NextResponse.json({ error: "Could not load payout history" }, { status: 500 })
     }
 
     const totalEarned =

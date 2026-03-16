@@ -190,6 +190,17 @@ export function ClipperSubmissionsTable() {
     setPage(1)
   }, [statusFilter, searchTerm])
 
+  const formatDateTime = (iso: string) => {
+    const d = new Date(iso)
+    return d.toLocaleString("en-IN", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  }
+
   return (
     <Card className="shadow-sm border border-border rounded-xl">
       <CardHeader className="px-6 py-4">
@@ -262,15 +273,20 @@ export function ClipperSubmissionsTable() {
                         {submission.clipper_name}
                       </TableCell>
                       <TableCell className="px-6 py-3 max-w-[220px]">
-                        <a
-                          href={submission.content_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-primary hover:underline text-xs break-all"
-                        >
-                          <ExternalLink className="w-3 h-3" />
-                          {submission.content_link}
-                        </a>
+                        <div className="flex flex-col gap-1">
+                          <a
+                            href={submission.content_link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-primary hover:underline text-xs"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            <span>View content</span>
+                          </a>
+                          <span className="text-[11px] text-muted-foreground">
+                            Submitted {formatDateTime(submission.submitted_at)}
+                          </span>
+                        </div>
                       </TableCell>
                       <TableCell className="px-6 py-3">
                         {renderStatusBadge(submission.status)}

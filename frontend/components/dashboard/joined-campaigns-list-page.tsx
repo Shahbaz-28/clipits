@@ -51,11 +51,15 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
         return
       }
 
-      const { data: rows, error: campaignsError } = await supabase
-        .from("campaigns")
-        .select("*")
-        .in("id", campaignIds)
-        .order("created_at", { ascending: false })
+      const [{ data: rows, error: campaignsError }, { data: submissions, error: submissionsError }] =
+        await Promise.all([
+          supabase
+            .from("campaigns")
+            .select("*")
+            .in("id", campaignIds)
+            .order("created_at", { ascending: false }),
+          supabase.from("submissions").select("campaign_id, view_count").eq("status", "approved"),
+        ])
 
       if (campaignsError) {
         toast.error(campaignsError.message)
@@ -64,9 +68,21 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
         return
       }
 
-      const list = (rows || []).map((row) =>
-        mapCampaignRowToCard(row as CampaignRow, { instagram: Instagram })
-      )
+      const viewsByCampaign: Record<string, number> = {}
+      if (!submissionsError && submissions) {
+        for (const s of submissions) {
+          const cid = (s as { campaign_id?: string }).campaign_id
+          const v = Number((s as { view_count?: number }).view_count ?? 0)
+          if (cid) viewsByCampaign[cid] = (viewsByCampaign[cid] ?? 0) + v
+        }
+      }
+
+      const list = (rows || []).map((row) => {
+        const r = row as CampaignRow & { id: string }
+        return mapCampaignRowToCard(r, { instagram: Instagram }, {
+          totalViews: viewsByCampaign[r.id] ?? 0,
+        })
+      })
       setCampaigns(list)
       setLoading(false)
     }

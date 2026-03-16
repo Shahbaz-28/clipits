@@ -6,11 +6,15 @@ import { PaymentMethodsSettings } from "./profile-settings/payment-methods-setti
 import { BalanceSettings } from "./profile-settings/balance-settings"
 import { ConnectedAccountsSettings } from "./profile-settings/connected-accounts-settings"
 import { Settings } from "lucide-react"
+import { useAuth } from "@/lib/auth-context"
 
 const VALID_TABS = ["general", "connected-accounts", "payment-methods", "balance"] as const
 
 export function ProfilePage({ initialTab = "general" }: { initialTab?: string }) {
-  const activeTab = VALID_TABS.includes(initialTab as (typeof VALID_TABS)[number]) ? initialTab : "general"
+  const { profile } = useAuth()
+  const isCreator = profile?.role === "creator"
+  const allowedTabs = (isCreator ? ["general"] : VALID_TABS) as typeof VALID_TABS
+  const activeTab = allowedTabs.includes(initialTab as (typeof VALID_TABS)[number]) ? initialTab : "general"
 
   const renderContent = () => {
     switch (activeTab) {

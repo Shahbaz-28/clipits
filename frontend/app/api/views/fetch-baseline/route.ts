@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
     const { data: sub, error: subError } = await supabaseAdmin
       .from("submissions")
-      .select("id, user_id")
+      .select("id, user_id, content_link")
       .eq("id", submissionId)
       .single()
 
@@ -34,7 +34,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const stats = await fetchReelViews(reelUrl)
+    const normalizeLink = (raw: string) =>
+      (raw.trim().startsWith("http") ? raw.trim() : `https://${raw.trim()}`).replace(/\/+$/, "")
+    const submissionLink = normalizeLink((sub as { content_link?: string }).content_link ?? "")
+    const requestedLink = normalizeLink(String(reelUrl))
+    if (submissionLink !== requestedLink) {
+      return NextResponse.json(
+        { error: "Reel URL must match the submission's content link." },
+        { status: 400 }
+      )
+    }
+
+    const stats = await fetchReelViews(requestedLink)
     const baselineViews = stats?.views ?? 0
 
     const { error: snapError } = await supabaseAdmin

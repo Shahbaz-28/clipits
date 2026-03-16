@@ -320,10 +320,10 @@ export function CreatorSubmissionsPage() {
                     href={s.content_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-heading-text hover:text-vibrant-red-orange transition-colors flex items-center gap-1.5 truncate"
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-turquoise-accent hover:underline"
                   >
                     <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span className="truncate">{s.content_link.split("/").pop() || "View Content"}</span>
+                    <span>View content</span>
                   </a>
                   <p className="text-xs text-muted-label mt-1">
                     {s.platform} · {new Date(s.submitted_at).toLocaleDateString()}

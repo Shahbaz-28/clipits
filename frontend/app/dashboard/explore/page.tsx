@@ -25,7 +25,9 @@ export default function ExplorePage() {
       <div className="border-b border-gray-100 pb-6">
         <h1 className="text-3xl font-bold text-heading-text mb-2">Explore Campaigns</h1>
         <p className="text-muted-label text-base">
-          {isCreator ? "Browse campaigns on the platform" : "Discover new opportunities to earn rewards"}
+          {isCreator
+            ? "Browse campaigns on the platform."
+            : "Browse live campaigns, join the ones you like, and earn per view."}
         </p>
       </div>
 

@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import crypto from "crypto"
+import Razorpay from "razorpay"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { getAuthUser, isAuthError } from "@/lib/api-auth"
+
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID!,
+  key_secret: process.env.RAZORPAY_KEY_SECRET!,
+})
 
 export async function POST(req: NextRequest) {
   const auth = await getAuthUser(req)
@@ -53,6 +59,16 @@ export async function POST(req: NextRequest) {
     if (expectedSignature !== signature) {
       console.error("[verify-payment] Signature mismatch for campaign:", campaignId)
       return NextResponse.json({ error: "Payment signature verification failed" }, { status: 400 })
+    }
+
+    const orderFromRazorpay = await razorpay.orders.fetch(orderId)
+    const expectedAmountPaise = Math.round(Number(campaign.total_budget) * 100)
+    if (orderFromRazorpay.amount !== expectedAmountPaise) {
+      console.error("[verify-payment] Order amount mismatch for campaign:", campaignId)
+      return NextResponse.json(
+        { error: "Payment amount does not match campaign budget." },
+        { status: 400 },
+      )
     }
 
     const { error: updateErr } = await supabaseAdmin

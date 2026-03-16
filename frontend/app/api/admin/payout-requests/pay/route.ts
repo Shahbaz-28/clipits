@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     const { data: existing, error: fetchError } = await supabaseAdmin
       .from("payout_requests")
-      .select("id, amount, status")
+      .select("id, user_id, amount, status")
       .eq("id", requestId)
       .single()
 
@@ -28,6 +28,35 @@ export async function POST(req: NextRequest) {
 
     if (existing.status === "paid") {
       return NextResponse.json({ error: "Payout request is already marked as paid" }, { status: 400 })
+    }
+    if (existing.status === "rejected") {
+      return NextResponse.json({ error: "Cannot mark a rejected request as paid." }, { status: 400 })
+    }
+
+    const userId = (existing as { user_id: string }).user_id
+    const requestAmount = Number((existing as { amount: number }).amount ?? 0)
+
+    const [{ data: earnedRows }, { data: paidRows }] = await Promise.all([
+      supabaseAdmin.from("submissions").select("earnings").eq("user_id", userId).eq("status", "approved"),
+      supabaseAdmin.from("payout_requests").select("amount, status").eq("user_id", userId),
+    ])
+
+    const totalEarned =
+      earnedRows?.reduce((sum, row) => sum + Number((row as { earnings?: number }).earnings ?? 0), 0) ?? 0
+    let totalPaid = 0
+    for (const row of paidRows ?? []) {
+      const amt = Number((row as { amount?: number }).amount ?? 0)
+      if ((row as { status?: string }).status === "paid") totalPaid += amt
+    }
+
+    if (totalEarned < totalPaid + requestAmount) {
+      return NextResponse.json(
+        {
+          error:
+            "User earnings do not cover this payout amount. Do not mark as paid if the clipper was not actually paid.",
+        },
+        { status: 400 },
+      )
     }
 
     const { error: updateError } = await supabaseAdmin

@@ -25,6 +25,9 @@ interface MyCampaign extends EditingCampaign {
   disclaimer: string | null
   status: "draft" | "pending_review" | "rejected" | "awaiting_payment" | "live" | "paused" | "completed"
   created_at: string
+  thumbnail_url?: string | null
+  campaign_spent?: number | null
+  totalViews?: number
 }
 
 function normalizeCampaigns(rows: unknown[]): MyCampaign[] {
@@ -37,7 +40,7 @@ function normalizeCampaigns(rows: unknown[]): MyCampaign[] {
   }))
 }
 
-function myCampaignToCard(campaign: MyCampaign): CampaignCard {
+function myCampaignToCard(campaign: MyCampaign, totalViews = 0): CampaignCard {
   const row = {
     ...campaign,
     type: (campaign.type === "clipping" ? "clipping" : "ugc") as "ugc" | "clipping",
@@ -45,7 +48,19 @@ function myCampaignToCard(campaign: MyCampaign): CampaignCard {
     created_by: null,
     updated_at: campaign.created_at,
   } satisfies CampaignRow
-  return mapCampaignRowToCard(row, { instagram: Instagram })
+  const card = mapCampaignRowToCard(row, { instagram: Instagram }, { totalViews })
+  const spent = Number(campaign.campaign_spent ?? 0)
+  const total = Number(campaign.total_budget) || 1
+  const pct = Math.min(100, Math.round((spent / total) * 100))
+  return {
+    ...card,
+    thumbnailUrl: campaign.thumbnail_url ?? null,
+    earnings: `₹${spent.toLocaleString("en-IN")}`,
+    percentage: `${pct}%`,
+    progressPaidOut: spent,
+    progressPercentage: pct,
+    views: totalViews.toLocaleString("en-IN"),
+  }
 }
 
 interface MyCampaignsPageProps {
@@ -80,19 +95,30 @@ export function MyCampaignsPage({
     }
     setLoading(true)
     try {
-      const { data, error } = await supabase
-        .from("campaigns")
-        .select("id, title, description, rate_per_1k, total_budget, min_payout, max_payout, category, type, status, created_at, requirements, assets, platforms, end_date, disclaimer, thumbnail_url")
-        .eq("created_by", user.id)
-        .order("created_at", { ascending: false })
+      const [{ data: campaignData, error }, { data: submissions }] = await Promise.all([
+        supabase
+          .from("campaigns")
+          .select("id, title, description, rate_per_1k, total_budget, min_payout, max_payout, category, type, status, created_at, requirements, assets, platforms, end_date, disclaimer, thumbnail_url, campaign_spent")
+          .eq("created_by", user.id)
+          .order("created_at", { ascending: false }),
+        supabase.from("submissions").select("campaign_id, view_count").eq("status", "approved"),
+      ])
 
       if (error) {
         toast.error(error.message)
         setCampaigns([])
         return
       }
-      const rows = (data || []) as (MyCampaign & { requirements?: unknown; assets?: unknown; platforms?: unknown })[]
-      setCampaigns(normalizeCampaigns(rows))
+      const rows = (campaignData || []) as (MyCampaign & { requirements?: unknown; assets?: unknown; platforms?: unknown })[]
+      const viewsByCampaign: Record<string, number> = {}
+      for (const s of submissions ?? []) {
+        const cid = (s as { campaign_id?: string }).campaign_id
+        const v = Number((s as { view_count?: number }).view_count ?? 0)
+        if (cid) viewsByCampaign[cid] = (viewsByCampaign[cid] ?? 0) + v
+      }
+      setCampaigns(
+        normalizeCampaigns(rows).map((r) => ({ ...r, totalViews: viewsByCampaign[r.id] ?? 0 }))
+      )
     } finally {
       setLoading(false)
     }
@@ -277,7 +303,7 @@ export function MyCampaignsPage({
           <div>
             <h1 className="text-3xl font-bold text-heading-text mb-2">My Campaigns</h1>
             <p className="text-muted-label text-base">
-              Manage your campaigns. Publish drafts to send them for admin review and activate them with payment.
+              Your central hub for creating and managing creator campaigns.
             </p>
           </div>
           <Button
@@ -330,116 +356,124 @@ export function MyCampaignsPage({
           </div>
         </div>
       ) : campaigns.length > 0 ? (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {campaigns.map((campaign) => {
-              const rateLabel = `₹${Number(campaign.rate_per_1k).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} / 1K`
-              const totalLabel = `₹${Number(campaign.total_budget).toLocaleString("en-IN")}`
-              const typeLabel = campaign.type === "ugc" ? "UGC" : "Clipping"
-              return (
-                <Card
-                  key={campaign.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => {
-                    setDetailsCampaign(myCampaignToCard(campaign))
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {campaigns.map((campaign) => {
+            const card = myCampaignToCard(campaign, campaign.totalViews ?? 0)
+            return (
+              <Card
+                key={campaign.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => {
+                  setDetailsCampaign(card)
+                  setIsDetailsModalOpen(true)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault()
+                    setDetailsCampaign(card)
                     setIsDetailsModalOpen(true)
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault()
-                      setDetailsCampaign(myCampaignToCard(campaign))
-                      setIsDetailsModalOpen(true)
-                    }
-                  }}
-                  className="bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow duration-200 rounded-2xl cursor-pointer group overflow-hidden"
-                >
-                  <CardContent className="p-6">
-                    {/* Header — title + rate badge */}
-                    <div className="mb-5">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="font-bold text-lg text-heading-text group-hover:text-vibrant-red-orange transition-colors line-clamp-2 leading-tight">
-                          {campaign.title}
-                        </h3>
-                        <div className="flex-shrink-0 ml-2">{getStatusBadge(campaign.status)}</div>
-                      </div>
-                      <Badge className="bg-vibrant-red-orange text-white text-xs font-semibold px-3 py-1 rounded-full shadow-sm">
-                        {rateLabel}
-                      </Badge>
-                    </div>
-
-                    {/* Description */}
-                    <p className="text-sm text-muted-label mb-5 line-clamp-2 leading-relaxed">
-                      {campaign.description ?? "No description provided"}
-                    </p>
-
-                    {/* Earnings Progress */}
-                    <div className="mb-5 p-4 bg-gray-50 rounded-xl">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-xl font-bold text-turquoise-accent">₹0</span>
-                          <span className="text-xs text-muted-label">of {totalLabel}</span>
-                        </div>
-                        <span className="text-sm font-bold text-heading-text">0%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-                        <div
-                          className="bg-gradient-to-r from-turquoise-accent to-secondary h-2.5 rounded-full transition-all duration-500"
-                          style={{ width: "0%" }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Details Grid */}
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="text-center p-3 bg-gray-50 rounded-xl">
-                        <p className="text-xs text-muted-label mb-1">Type</p>
-                        <p className="text-sm font-semibold text-heading-text">{typeLabel}</p>
-                      </div>
-                      <div className="text-center p-3 bg-gray-50 rounded-xl">
-                        <p className="text-xs text-muted-label mb-1">Platform</p>
-                        <div className="flex justify-center">
-                          <Instagram className="w-5 h-5 text-heading-text" />
-                        </div>
-                      </div>
-                      <div className="text-center p-3 bg-gray-50 rounded-xl">
-                        <p className="text-xs text-muted-label mb-1">Views</p>
-                        <div className="flex items-center justify-center gap-1">
-                          <Eye className="w-3.5 h-3.5 text-muted-label" />
-                          <span className="text-sm font-semibold text-heading-text">0</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {campaign.status === "awaiting_payment" && (
-                      <div className="mt-4 flex justify-end">
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            void handleActivateCampaign(campaign)
-                          }}
-                          disabled={activatingId === campaign.id}
-                          className="bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-medium"
+                  }
+                }}
+                className="bg-main-bg border border-border shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-xl overflow-hidden"
+              >
+                {card.thumbnailUrl && (
+                  <div className="w-full h-28 bg-gray-100 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={card.thumbnailUrl}
+                      alt={card.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                )}
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-heading-text mb-1 group-hover:text-turquoise-accent transition-colors">
+                        {card.title}
+                      </h3>
+                      <div className="flex flex-wrap items-center gap-2 mt-1">
+                        <Badge
+                          className={`${card.color} text-white hover:${card.color}/90 text-xs shadow-sm rounded-md`}
                         >
-                          {activatingId === campaign.id ? (
-                            <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Processing...
-                            </>
-                          ) : (
-                            "Activate & Pay"
-                          )}
-                        </Button>
+                          {card.rate}
+                        </Badge>
+                        {getStatusBadge(campaign.status)}
                       </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )
-            })}
-          </div>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-body-text mb-4">
+                    {card.description.length > 50
+                      ? `${card.description.substring(0, 50)}...`
+                      : card.description || "—"}
+                  </p>
+
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-lg font-bold text-turquoise-accent">{card.earnings}</span>
+                      <span className="text-sm text-muted-label">of {card.total} paid out</span>
+                      <span className="text-sm font-semibold text-body-text">{card.percentage}</span>
+                    </div>
+                    <div className="w-full bg-border rounded-full h-2">
+                      <div
+                        className="bg-turquoise-accent h-2 rounded-full transition-all duration-300 shadow-sm"
+                        style={{ width: card.percentage }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4 text-xs">
+                    <div>
+                      <p className="text-muted-label mb-1">Type</p>
+                      <p className="font-semibold text-body-text">{card.type}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-label mb-1">Platforms</p>
+                      <div className="flex space-x-1">
+                        {card.platforms.map((Platform, idx) => (
+                          <Platform key={`platform-${idx}`} className="w-4 h-4 text-muted-label" />
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-muted-label mb-1">Views</p>
+                      <div className="flex items-center space-x-1">
+                        <Eye className="w-3 h-3 text-muted-label" />
+                        <span className="font-semibold text-body-text">{card.views}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {campaign.status === "awaiting_payment" && (
+                    <div className="mt-4 flex justify-end">
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          void handleActivateCampaign(campaign)
+                        }}
+                        disabled={activatingId === campaign.id}
+                        className="bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-medium"
+                      >
+                        {activatingId === campaign.id ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          "Activate & Pay"
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       ) : (
         /* No Campaigns Yet Card */

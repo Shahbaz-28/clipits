@@ -122,51 +122,60 @@ export default function HomePage() {
             <div className="inline-flex items-center gap-1.5 md:gap-2 px-3 py-1.5 rounded-full bg-[#FF4B4B]/10 text-[#FF4B4B] text-[10px] md:text-xs font-semibold mb-3 uppercase tracking-wide">
               Platform Benefits
             </div>
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-heading-text mb-2">Why Creators Choose Clixyo</h2>
-            <p className="text-muted-label max-w-lg mx-auto text-xs md:text-sm">Built for creators who want to monetize their content professionally</p>
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-heading-text mb-2">Why Creators Use Clixyo</h2>
+            <p className="text-muted-label max-w-lg mx-auto text-xs md:text-sm">
+              Built around real per‑view payouts, clear tracking, and safe Instagram verification.
+            </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
             <div className="bg-white border border-gray-200 rounded-2xl p-4 md:p-6 text-center hover:shadow-lg hover:border-gray-300 transition-all duration-200">
               <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center mx-auto mb-3 md:mb-4 shadow-md">
                 <IndianRupee className="w-6 h-6 md:w-7 md:h-7 text-white" />
               </div>
-              <h3 className="text-sm md:text-base font-semibold text-heading-text mb-1.5 md:mb-2">Industry-Leading Rates</h3>
-              <p className="text-xs md:text-sm text-muted-label leading-relaxed">Earn up to ₹3 per 1K views with competitive compensation.</p>
+              <h3 className="text-sm md:text-base font-semibold text-heading-text mb-1.5 md:mb-2">Earn per real view</h3>
+              <p className="text-xs md:text-sm text-muted-label leading-relaxed">
+                Get paid for approved content based on verified view counts, not guesses.
+              </p>
             </div>
             <div className="bg-white border border-gray-200 rounded-2xl p-4 md:p-6 text-center hover:shadow-lg hover:border-gray-300 transition-all duration-200">
               <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 md:mb-4 shadow-md">
                 <Eye className="w-6 h-6 md:w-7 md:h-7 text-white" />
               </div>
-              <h3 className="text-sm md:text-base font-semibold text-heading-text mb-1.5 md:mb-2">Live Analytics</h3>
-              <p className="text-xs md:text-sm text-muted-label leading-relaxed">Monitor performance, earnings, and engagement in real-time.</p>
+              <h3 className="text-sm md:text-base font-semibold text-heading-text mb-1.5 md:mb-2">Automatic view tracking</h3>
+              <p className="text-xs md:text-sm text-muted-label leading-relaxed">
+                We regularly fetch Instagram views for approved submissions and update your earnings for you.
+              </p>
             </div>
             <div className="bg-white border border-gray-200 rounded-2xl p-4 md:p-6 text-center hover:shadow-lg hover:border-gray-300 transition-all duration-200">
               <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-violet-400 to-violet-600 rounded-xl flex items-center justify-center mx-auto mb-3 md:mb-4 shadow-md">
                 <Clock className="w-6 h-6 md:w-7 md:h-7 text-white" />
               </div>
-              <h3 className="text-sm md:text-base font-semibold text-heading-text mb-1.5 md:mb-2">Instant UPI Payouts</h3>
-              <p className="text-xs md:text-sm text-muted-label leading-relaxed">Access your earnings instantly with no withdrawal delays.</p>
+              <h3 className="text-sm md:text-base font-semibold text-heading-text mb-1.5 md:mb-2">Clear payouts</h3>
+              <p className="text-xs md:text-sm text-muted-label leading-relaxed">
+                Request payouts to your UPI and track pending vs paid amounts with transparent history.
+              </p>
             </div>
             <div className="bg-white border border-gray-200 rounded-2xl p-4 md:p-6 text-center hover:shadow-lg hover:border-gray-300 transition-all duration-200">
               <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center mx-auto mb-3 md:mb-4 shadow-md">
                 <TrendingUp className="w-6 h-6 md:w-7 md:h-7 text-white" />
               </div>
-              <h3 className="text-sm md:text-base font-semibold text-heading-text mb-1.5 md:mb-2">Audience Growth</h3>
-              <p className="text-xs md:text-sm text-muted-label leading-relaxed">Expand your reach and attract brand partnerships.</p>
+              <h3 className="text-sm md:text-base font-semibold text-heading-text mb-1.5 md:mb-2">
+                Campaign performance at a glance
+              </h3>
+              <p className="text-xs md:text-sm text-muted-label leading-relaxed">
+                Creators see spend and views per campaign; clippers see views and earnings per submission.
+              </p>
             </div>
             <div className="bg-white border border-gray-200 rounded-2xl p-4 md:p-6 text-center hover:shadow-lg hover:border-gray-300 transition-all duration-200">
               <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-pink-400 to-rose-500 rounded-xl flex items-center justify-center mx-auto mb-3 md:mb-4 shadow-md">
                 <Users className="w-6 h-6 md:w-7 md:h-7 text-white" />
               </div>
-              <h3 className="text-sm md:text-base font-semibold text-heading-text mb-1.5 md:mb-2">Premium Brands</h3>
-              <p className="text-xs md:text-sm text-muted-label leading-relaxed">Collaborate with leading Indian brands and startups.</p>
-            </div>
-            <div className="bg-white border border-gray-200 rounded-2xl p-4 md:p-6 text-center hover:shadow-lg hover:border-gray-300 transition-all duration-200">
-              <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-teal-400 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-3 md:mb-4 shadow-md">
-                <CheckCircle className="w-6 h-6 md:w-7 md:h-7 text-white" />
-              </div>
-              <h3 className="text-sm md:text-base font-semibold text-heading-text mb-1.5 md:mb-2">Zero Barriers</h3>
-              <p className="text-xs md:text-sm text-muted-label leading-relaxed">Start monetizing immediately with no follower threshold.</p>
+              <h3 className="text-sm md:text-base font-semibold text-heading-text mb-1.5 md:mb-2">
+                Built for creators & clippers
+              </h3>
+              <p className="text-xs md:text-sm text-muted-label leading-relaxed">
+                Separate dashboards for running campaigns and joining them, with role‑based access and controls.
+              </p>
             </div>
           </div>
         </div>
