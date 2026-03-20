@@ -34,7 +34,12 @@ export default function HomePage() {
               <Zap className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-lg md:text-xl font-bold text-heading-text">Clixyo</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg md:text-xl font-bold text-heading-text">Clixyo</h1>
+                <span className="inline-flex items-center rounded-full border border-[#FF4B4B]/30 bg-[#FF4B4B]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FF4B4B]">
+                  Beta
+                </span>
+              </div>
               <p className="text-[10px] md:text-xs text-muted-label hidden sm:block">Creator Platform</p>
             </div>
           </div>
