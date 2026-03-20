@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { getAuthUser, isAuthError } from "@/lib/api-auth"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 const MIN_WITHDRAWAL = 2000
 
@@ -8,6 +9,11 @@ export async function POST(req: NextRequest) {
   const auth = await getAuthUser(req)
   if (isAuthError(auth)) return auth
   const userId = auth.userId
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+  const allowed = checkRateLimit(`wallet-request-payout:${userId}:${ip}`, 3, 60_000)
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many payout requests. Please wait a minute and try again." }, { status: 429 })
+  }
 
   try {
     const { amount } = (await req.json()) as { amount: number }
@@ -26,16 +32,19 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const [{ data: earnedRows, error: earningsError }, { data: payoutRows, error: payoutError }, { data: payoutDetails, error: detailsError }] =
-      await Promise.all([
-        supabaseAdmin.from("submissions").select("earnings").eq("user_id", userId).eq("status", "approved"),
-        supabaseAdmin.from("payout_requests").select("amount, status").eq("user_id", userId),
-        supabaseAdmin
-          .from("payout_details")
-          .select("id, is_default")
-          .eq("user_id", userId)
-          .order("created_at", { ascending: true }),
-      ])
+    const [
+      { data: earnedRows, error: earningsError },
+      { data: payoutRows, error: payoutError },
+      { data: payoutDetails, error: detailsError },
+    ] = await Promise.all([
+      supabaseAdmin.from("submissions").select("earnings").eq("user_id", userId).eq("status", "approved"),
+      supabaseAdmin.from("payout_requests").select("amount, status").eq("user_id", userId),
+      supabaseAdmin
+        .from("payout_details")
+        .select("id, is_default")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: true }),
+    ])
 
     if (earningsError) {
       console.error("[wallet/request-payout] earnings error:", earningsError)
@@ -63,6 +72,13 @@ export async function POST(req: NextRequest) {
       } else if (status === "pending" || status === "processing") {
         pendingWithdrawal += amt
       }
+    }
+
+    if (pendingWithdrawal > 0) {
+      return NextResponse.json(
+        { error: "You already have a pending payout request. Please wait until it is processed." },
+        { status: 400 },
+      )
     }
 
     const availableBalance = Math.max(0, totalEarned - totalPaid - pendingWithdrawal)
@@ -101,6 +117,12 @@ export async function POST(req: NextRequest) {
         const st = (row as { status?: string }).status
         if (st === "paid") totalPaidRecheck += amt
         else if (st === "pending" || st === "processing") pendingRecheck += amt
+      }
+      if (pendingRecheck > 0) {
+        return NextResponse.json(
+          { error: "You already have a pending payout request. Please wait until it is processed." },
+          { status: 400 },
+        )
       }
       const availableRecheck = Math.max(0, totalEarned - totalPaidRecheck - pendingRecheck)
       if (requestedAmount > availableRecheck) {

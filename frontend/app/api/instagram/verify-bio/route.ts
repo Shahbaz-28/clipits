@@ -2,11 +2,20 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { fetchInstagramProfile } from "@/lib/socialkit"
 import { getAuthUser, isAuthError } from "@/lib/api-auth"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(req: NextRequest) {
   const auth = await getAuthUser(req)
   if (isAuthError(auth)) return auth
   const userId = auth.userId
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+  const allowed = checkRateLimit(`instagram-verify-bio:${userId}:${ip}`, 8, 60_000)
+  if (!allowed) {
+    return NextResponse.json(
+      { verified: false, error: "Too many verification attempts. Please wait a minute and try again." },
+      { status: 429 },
+    )
+  }
 
   try {
     const { username, code, accountId } = (await req.json()) as {

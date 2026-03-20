@@ -2,10 +2,16 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { fetchReelViews } from "@/lib/socialkit"
 import { getAuthUser, isAuthError } from "@/lib/api-auth"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(req: NextRequest) {
   const auth = await getAuthUser(req)
   if (isAuthError(auth)) return auth
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+  const allowed = checkRateLimit(`views-fetch-baseline:${auth.userId}:${ip}`, 8, 60_000)
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many baseline requests. Please wait and try again." }, { status: 429 })
+  }
 
   try {
     const { submissionId, reelUrl } = await req.json()
@@ -15,7 +21,7 @@ export async function POST(req: NextRequest) {
 
     const { data: sub, error: subError } = await supabaseAdmin
       .from("submissions")
-      .select("id, user_id, content_link")
+      .select("id, user_id, content_link, baseline_views, latest_views")
       .eq("id", submissionId)
       .single()
 
@@ -43,6 +49,45 @@ export async function POST(req: NextRequest) {
         { error: "Reel URL must match the submission's content link." },
         { status: 400 }
       )
+    }
+
+    const baselineExists = sub.baseline_views !== null && sub.baseline_views !== undefined
+    if (baselineExists) {
+      const baselineViews = Number(sub.baseline_views ?? 0)
+
+      // Ensure we have at least one snapshot for interval gating.
+      const { data: existingSnapshot } = await supabaseAdmin
+        .from("view_snapshots")
+        .select("id")
+        .eq("submission_id", submissionId)
+        .order("captured_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      if (!existingSnapshot) {
+        const { error: snapError } = await supabaseAdmin.from("view_snapshots").insert({
+          submission_id: submissionId,
+          views: baselineViews,
+        })
+        if (snapError) {
+          console.error("[fetch-baseline] snapshot insert error:", snapError)
+        }
+      }
+
+      // Baseline was already captured during submission; keep DB values.
+      const { error: updateError } = await supabaseAdmin
+        .from("submissions")
+        .update({ baseline_views: baselineViews, latest_views: baselineViews, view_count: 0, earnings: 0 })
+        .eq("id", submissionId)
+      if (updateError) {
+        console.error("[fetch-baseline] submission update error:", updateError)
+      }
+
+      return NextResponse.json({
+        success: true,
+        views: baselineViews,
+        fromApi: false,
+      })
     }
 
     const stats = await fetchReelViews(requestedLink)

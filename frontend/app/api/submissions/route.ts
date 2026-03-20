@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { fetchReelMeta } from "@/lib/socialkit"
 import { getAuthUser, isAuthError } from "@/lib/api-auth"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(req: NextRequest) {
   const auth = await getAuthUser(req)
   if (isAuthError(auth)) return auth
   const userId = auth.userId
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+  const allowed = checkRateLimit(`submissions-create:${userId}:${ip}`, 8, 60_000)
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many submission attempts. Please wait a minute and try again." }, { status: 429 })
+  }
 
   try {
     const { campaignId, contentLink, accountId } = (await req.json()) as {
@@ -23,7 +29,17 @@ export async function POST(req: NextRequest) {
     }
 
     const link = contentLink.trim()
-    const normalizedLink = (link.startsWith("http") ? link : `https://${link}`).replace(/\/+$/, "")
+    const withProto = link.startsWith("http") ? link : `https://${link}`
+    let normalizedLink = withProto.replace(/\/+$/, "")
+    try {
+      const u = new URL(withProto)
+      u.hash = ""
+      u.search = ""
+      u.hostname = u.hostname.toLowerCase()
+      normalizedLink = u.toString().replace(/\/+$/, "")
+    } catch {
+      // If URL parsing fails, fall back to trimmed input with protocol and no trailing slashes.
+    }
 
     const { data: campaignRow, error: campaignErr } = await supabaseAdmin
       .from("campaigns")
@@ -44,14 +60,13 @@ export async function POST(req: NextRequest) {
     const { data: existing } = await supabaseAdmin
       .from("submissions")
       .select("id")
-      .eq("user_id", userId)
       .eq("campaign_id", campaignId)
       .eq("content_link", normalizedLink)
       .limit(1)
 
     if (existing && existing.length > 0) {
       return NextResponse.json(
-        { error: "You have already submitted this link for this campaign." },
+        { error: "This link has already been submitted for this campaign." },
         { status: 400 },
       )
     }
@@ -120,6 +135,12 @@ export async function POST(req: NextRequest) {
       platform: "instagram",
       status: "pending",
       instagram_account_id: accountId,
+      // Capture baseline views at submission time so we don't have to call SocialKit again on approval.
+      // This makes payouts consistent even if admin reviews later.
+      baseline_views: meta.views,
+      latest_views: meta.views,
+      view_count: 0,
+      earnings: 0,
     })
 
     if (insertError) {

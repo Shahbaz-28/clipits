@@ -2,11 +2,20 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { fetchReelMeta } from "@/lib/socialkit"
 import { getAuthUser, isAuthError } from "@/lib/api-auth"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(req: NextRequest) {
   const auth = await getAuthUser(req)
   if (isAuthError(auth)) return auth
   const userId = auth.userId
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+  const allowed = checkRateLimit(`instagram-validate-owner:${userId}:${ip}`, 15, 60_000)
+  if (!allowed) {
+    return NextResponse.json(
+      { ok: false, error: "Too many validation attempts. Please wait a minute and try again." },
+      { status: 429 },
+    )
+  }
 
   try {
     const { reelUrl, accountId } = (await req.json()) as {

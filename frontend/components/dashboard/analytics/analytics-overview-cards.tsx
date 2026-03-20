@@ -1,38 +1,45 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { LayoutGrid, Eye, IndianRupee, CheckCircle } from "lucide-react"
 
-const overviewStats = [
-  {
-    title: "Total Campaigns",
-    value: "0",
-    icon: LayoutGrid,
-    color: "text-vibrant-red-orange",
-    bgColor: "bg-vibrant-red-orange/10",
-  },
-  {
-    title: "Total Views Generated",
-    value: "0",
-    icon: Eye,
-    color: "text-turquoise-accent",
-    bgColor: "bg-turquoise-accent/10",
-  },
-  {
-    title: "Total Amount Spent",
-    value: "₹0",
-    icon: IndianRupee,
-    color: "text-vibrant-red-orange",
-    bgColor: "bg-vibrant-red-orange/10",
-  },
-  {
-    title: "Total Approved Posts",
-    value: "0",
-    icon: CheckCircle,
-    color: "text-sunny-yellow",
-    bgColor: "bg-sunny-yellow/10",
-  },
-]
+export interface AnalyticsOverviewStats {
+  totalCampaigns: number
+  totalViewsGenerated: number
+  totalAmountSpent: number
+  totalApprovedPosts: number
+}
 
-export function AnalyticsOverviewCards() {
+export function AnalyticsOverviewCards({ stats }: { stats: AnalyticsOverviewStats }) {
+  const overviewStats = [
+    {
+      title: "Total Campaigns",
+      value: stats.totalCampaigns.toLocaleString("en-IN"),
+      icon: LayoutGrid,
+      color: "text-vibrant-red-orange",
+      bgColor: "bg-vibrant-red-orange/10",
+    },
+    {
+      title: "Total Views Generated",
+      value: stats.totalViewsGenerated.toLocaleString("en-IN"),
+      icon: Eye,
+      color: "text-turquoise-accent",
+      bgColor: "bg-turquoise-accent/10",
+    },
+    {
+      title: "Total Amount Spent",
+      value: `₹${Math.round(stats.totalAmountSpent).toLocaleString("en-IN")}`,
+      icon: IndianRupee,
+      color: "text-vibrant-red-orange",
+      bgColor: "bg-vibrant-red-orange/10",
+    },
+    {
+      title: "Total Approved Posts",
+      value: stats.totalApprovedPosts.toLocaleString("en-IN"),
+      icon: CheckCircle,
+      color: "text-sunny-yellow",
+      bgColor: "bg-sunny-yellow/10",
+    },
+  ]
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {overviewStats.map((stat) => (

@@ -2,10 +2,16 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { fetchReelViews } from "@/lib/socialkit"
 import { getAuthUser, isAuthError } from "@/lib/api-auth"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(req: NextRequest) {
   const auth = await getAuthUser(req)
   if (isAuthError(auth)) return auth
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown"
+  const allowed = checkRateLimit(`views-refresh-single:${auth.userId}:${ip}`, 10, 60_000)
+  if (!allowed) {
+    return NextResponse.json({ error: "Too many refresh requests. Please wait and try again." }, { status: 429 })
+  }
 
   try {
     const { submissionId } = (await req.json()) as { submissionId: string }
@@ -83,15 +89,21 @@ export async function POST(req: NextRequest) {
       .insert({ submission_id: sub.id, views: stats.views })
 
     const baseline = sub.baseline_views ?? 0
-    const hasNoBaseline = baseline === 0 && stats.views > 0
+    // Treat "missing baseline" as NULL/undefined, not as numeric 0.
+    // Otherwise a real baseline of 0 views can incorrectly be overwritten.
+    const hasNoBaseline = sub.baseline_views === null || sub.baseline_views === undefined
+      ? stats.views > 0
+      : false
 
     let viewsGained: number
     let finalEarnings: number
+    let submissionUpdated = false
+    const currentEarnings = Number(sub.earnings) || 0
 
     if (hasNoBaseline) {
       viewsGained = 0
       finalEarnings = 0
-      await supabaseAdmin
+      let updateQuery = supabaseAdmin
         .from("submissions")
         .update({
           baseline_views: stats.views,
@@ -100,6 +112,20 @@ export async function POST(req: NextRequest) {
           earnings: 0,
         })
         .eq("id", sub.id)
+        .eq("earnings", currentEarnings)
+
+      if (sub.latest_views === null || sub.latest_views === undefined) {
+        updateQuery = updateQuery.is("latest_views", null)
+      } else {
+        updateQuery = updateQuery.eq("latest_views", Number(sub.latest_views) || 0)
+      }
+
+      const { data: updatedRows, error: subUpdateError } = await updateQuery.select("id").limit(1)
+      if (subUpdateError) {
+        console.error("[refresh-single] submission update error:", subUpdateError)
+        return NextResponse.json({ error: "Could not update submission views." }, { status: 500 })
+      }
+      submissionUpdated = (updatedRows?.length ?? 0) > 0
     } else {
       viewsGained = Math.max(0, stats.views - baseline)
       const ratePer1k = Number(campaign.rate_per_1k) || 0
@@ -109,7 +135,7 @@ export async function POST(req: NextRequest) {
       const clampedEarnings = Math.max(minPayout, Math.min(maxPayout, rawEarnings))
       finalEarnings = Math.round(clampedEarnings * 100) / 100
 
-      await supabaseAdmin
+      let updateQuery = supabaseAdmin
         .from("submissions")
         .update({
           latest_views: stats.views,
@@ -117,9 +143,31 @@ export async function POST(req: NextRequest) {
           earnings: finalEarnings,
         })
         .eq("id", sub.id)
+        .eq("earnings", currentEarnings)
+
+      if (sub.latest_views === null || sub.latest_views === undefined) {
+        updateQuery = updateQuery.is("latest_views", null)
+      } else {
+        updateQuery = updateQuery.eq("latest_views", Number(sub.latest_views) || 0)
+      }
+
+      const { data: updatedRows, error: subUpdateError } = await updateQuery.select("id").limit(1)
+      if (subUpdateError) {
+        console.error("[refresh-single] submission update error:", subUpdateError)
+        return NextResponse.json({ error: "Could not update submission views." }, { status: 500 })
+      }
+      submissionUpdated = (updatedRows?.length ?? 0) > 0
     }
 
-    const delta = finalEarnings - (Number(sub.earnings) || 0)
+    if (!submissionUpdated) {
+      return NextResponse.json({
+        success: true,
+        skipped: true,
+        reason: "Submission was updated by another request. Try again in a moment.",
+      })
+    }
+
+    const delta = finalEarnings - currentEarnings
     if (delta > 0) {
       const newCampaignSpent = Number(campaign.campaign_spent || 0) + delta
       const updates: Record<string, unknown> = {

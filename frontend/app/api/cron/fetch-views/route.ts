@@ -85,16 +85,21 @@ export async function GET(req: NextRequest) {
       .from("view_snapshots")
       .insert({ submission_id: sub.id, views: stats.views })
 
-    const baseline = sub.baseline_views || 0
-    const hasNoBaseline = baseline === 0 && stats.views > 0
+    const baseline = sub.baseline_views ?? 0
+    // Treat "missing baseline" as NULL/undefined, not as numeric 0.
+    const hasNoBaseline = sub.baseline_views === null || sub.baseline_views === undefined
+      ? stats.views > 0
+      : false
 
     let viewsGained: number
     let finalEarnings: number
 
+    let submissionUpdated = false
+
     if (hasNoBaseline) {
       viewsGained = 0
       finalEarnings = 0
-      await supabaseAdmin
+      let updateQuery = supabaseAdmin
         .from("submissions")
         .update({
           baseline_views: stats.views,
@@ -103,6 +108,21 @@ export async function GET(req: NextRequest) {
           earnings: 0,
         })
         .eq("id", sub.id)
+        .eq("earnings", currentEarnings)
+
+      if (sub.latest_views === null || sub.latest_views === undefined) {
+        updateQuery = updateQuery.is("latest_views", null)
+      } else {
+        updateQuery = updateQuery.eq("latest_views", Number(sub.latest_views) || 0)
+      }
+
+      const { data: updatedRows, error: subUpdateError } = await updateQuery.select("id").limit(1)
+      if (subUpdateError) {
+        console.error("[cron] submission update error:", subUpdateError)
+        skipped++
+        continue
+      }
+      submissionUpdated = (updatedRows?.length ?? 0) > 0
     } else {
       viewsGained = Math.max(0, stats.views - baseline)
       const ratePer1k = Number(campaign.rate_per_1k) || 0
@@ -111,7 +131,7 @@ export async function GET(req: NextRequest) {
       const clampedEarnings = Math.max(minPayout, Math.min(maxPayout, rawEarnings))
       finalEarnings = Math.round(clampedEarnings * 100) / 100
 
-      await supabaseAdmin
+      let updateQuery = supabaseAdmin
         .from("submissions")
         .update({
           latest_views: stats.views,
@@ -119,6 +139,27 @@ export async function GET(req: NextRequest) {
           earnings: finalEarnings,
         })
         .eq("id", sub.id)
+        .eq("earnings", currentEarnings)
+
+      if (sub.latest_views === null || sub.latest_views === undefined) {
+        updateQuery = updateQuery.is("latest_views", null)
+      } else {
+        updateQuery = updateQuery.eq("latest_views", Number(sub.latest_views) || 0)
+      }
+
+      const { data: updatedRows, error: subUpdateError } = await updateQuery.select("id").limit(1)
+      if (subUpdateError) {
+        console.error("[cron] submission update error:", subUpdateError)
+        skipped++
+        continue
+      }
+      submissionUpdated = (updatedRows?.length ?? 0) > 0
+    }
+
+    if (!submissionUpdated) {
+      // Another worker/request already updated this row; avoid double-counting campaign_spent.
+      skipped++
+      continue
     }
 
     const delta = finalEarnings - currentEarnings
