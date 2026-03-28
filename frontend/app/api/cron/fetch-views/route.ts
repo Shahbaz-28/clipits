@@ -4,14 +4,8 @@ import { fetchReelViews } from "@/lib/socialkit"
 
 const CRON_SECRET = process.env.CRON_SECRET ?? ""
 
-function getCheckIntervalHours(approvedAt: string): number {
-  const ageMs = Date.now() - new Date(approvedAt).getTime()
-  const ageDays = ageMs / (1000 * 60 * 60 * 24)
-  if (ageDays <= 3) return 6
-  if (ageDays <= 14) return 12
-  if (ageDays <= 30) return 24
-  return 72
-}
+/** Minimum hours between view fetches per submission (cron compares to last view_snapshots row). */
+const CHECK_INTERVAL_HOURS = 12
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization")
@@ -56,8 +50,6 @@ export async function GET(req: NextRequest) {
       continue
     }
 
-    const intervalHours = getCheckIntervalHours(sub.reviewed_at || now.toISOString())
-
     const { data: lastSnapshot } = await supabaseAdmin
       .from("view_snapshots")
       .select("captured_at")
@@ -68,7 +60,7 @@ export async function GET(req: NextRequest) {
 
     if (lastSnapshot?.captured_at) {
       const hoursSinceLast = (now.getTime() - new Date(lastSnapshot.captured_at).getTime()) / (1000 * 60 * 60)
-      if (hoursSinceLast < intervalHours) {
+      if (hoursSinceLast < CHECK_INTERVAL_HOURS) {
         skipped++
         continue
       }
