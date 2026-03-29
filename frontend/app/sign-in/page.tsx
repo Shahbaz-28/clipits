@@ -72,7 +72,7 @@ export default function SignInPage() {
           </div>
           <CardTitle className="text-2xl font-bold text-heading-text">Welcome Back</CardTitle>
           <CardDescription className="text-muted-label">
-            Sign in to your Clixyo  account
+            Sign in to your Rippl  account
           </CardDescription>
         </CardHeader>
         <CardContent>

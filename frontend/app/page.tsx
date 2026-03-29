@@ -35,7 +35,7 @@ export default function HomePage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-lg md:text-xl font-bold text-heading-text">Clixyo</h1>
+                <h1 className="text-lg md:text-xl font-bold text-heading-text">Rippl</h1>
                 <span className="inline-flex items-center rounded-full border border-[#FF4B4B]/30 bg-[#FF4B4B]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FF4B4B]">
                   Beta
                 </span>
@@ -120,14 +120,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Why Clixyo Section */}
+      {/* Why Rippl Section */}
       <section className="bg-gradient-to-b from-gray-50 to-white py-8 md:py-12 lg:py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-6 md:mb-10">
             <div className="inline-flex items-center gap-1.5 md:gap-2 px-3 py-1.5 rounded-full bg-[#FF4B4B]/10 text-[#FF4B4B] text-[10px] md:text-xs font-semibold mb-3 uppercase tracking-wide">
               Platform Benefits
             </div>
-            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-heading-text mb-2">Why Creators Use Clixyo</h2>
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-heading-text mb-2">Why Creators Use Rippl</h2>
             <p className="text-muted-label max-w-lg mx-auto text-xs md:text-sm">
               Built around real per‑view payouts, clear tracking, and safe Instagram verification.
             </p>
@@ -212,10 +212,10 @@ export default function HomePage() {
               <div className="w-7 h-7 md:w-8 md:h-8 bg-[#FF4B4B] rounded-lg flex items-center justify-center">
                 <Zap className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
               </div>
-              <span className="font-semibold text-heading-text text-sm md:text-base">Clixyo</span>
+              <span className="font-semibold text-heading-text text-sm md:text-base">Rippl</span>
             </div>
             <p className="text-xs md:text-sm text-muted-label">
-              © 2026 Clixyo. All rights reserved.
+              © 2026 Rippl. All rights reserved.
             </p>
           </div>
         </div>

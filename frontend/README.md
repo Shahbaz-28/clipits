@@ -1,4 +1,4 @@
-# Clixyo  - Content Creator Platform
+# Rippl  - Content Creator Platform
 
 A modern platform connecting content creators with brands, enabling creators to earn money from their content through campaigns and submissions.
 
@@ -51,7 +51,7 @@ Before you begin, ensure you have the following installed:
 
 ```bash
 git clone <repository-url>
-cd Clixyo 
+cd Rippl 
 ```
 
 ### 2. Set Up Supabase
@@ -186,7 +186,7 @@ The application will be available at:
 ## 📁 Project Structure
 
 ```
-Clixyo /
+Rippl /
 ├── frontend/                 # Next.js frontend application
 │   ├── app/                 # App Router pages
 │   │   ├── dashboard/       # Protected dashboard routes

@@ -89,7 +89,7 @@ export function Sidebar({ sidebarOpen, setSidebarOpen, currentPath }: SidebarPro
               <div className="w-8 h-8 bg-vibrant-red-orange rounded-lg flex items-center justify-center">
                 <Home className="w-5 h-5 text-white" />
               </div>
-              <span className="text-lg font-semibold text-heading-text">Clixyo </span>
+              <span className="text-lg font-semibold text-heading-text">Rippl </span>
             </div>
             <Button
               variant="ghost"

@@ -1,4 +1,4 @@
-# Clixyo s – Next steps & timeline
+# Rippl s – Next steps & timeline
 
 Migration is done. Here’s a **recommended order** of what to build next and **rough time** for each.
 

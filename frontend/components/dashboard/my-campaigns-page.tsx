@@ -251,7 +251,7 @@ export function MyCampaignsPage({
         key: keyId,
         amount: data.amount,
         currency: data.currency,
-        name: "Clixyo s",
+        name: "Rippl s",
         description: campaign.title,
         order_id: data.orderId,
         prefill: {

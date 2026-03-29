@@ -82,7 +82,7 @@ export default function SignUpPage() {
           </div>
           <CardTitle className="text-2xl font-bold text-heading-text">Create Account</CardTitle>
           <CardDescription className="text-muted-label">
-            Join Clixyo  and start earning from your content
+            Join Rippl  and start earning from your content
           </CardDescription>
         </CardHeader>
         <CardContent>

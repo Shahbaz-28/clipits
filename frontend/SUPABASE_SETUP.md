@@ -1,6 +1,6 @@
-# Supabase Setup Guide for Clixyo 
+# Supabase Setup Guide for Rippl 
 
-This guide will help you set up Supabase (PostgreSQL database) for your Clixyo  platform.
+This guide will help you set up Supabase (PostgreSQL database) for your Rippl  platform.
 
 ## Step 1: Create Supabase Account
 
@@ -14,7 +14,7 @@ This guide will help you set up Supabase (PostgreSQL database) for your Clixyo  
 1. Click "New Project"
 2. Choose your organization
 3. Enter project details:
-   - **Name**: `Clixyo -platform`
+   - **Name**: `Rippl -platform`
    - **Database Password**: Create a strong password
    - **Region**: Choose closest to your users
 4. Click "Create new project"
