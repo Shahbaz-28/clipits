@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { fetchReelViews } from "@/lib/socialkit"
+import { effectiveViewsGainedForPayout } from "@/lib/views-payout-test"
 
 const CRON_SECRET = process.env.CRON_SECRET ?? ""
 
@@ -119,7 +120,8 @@ export async function GET(req: NextRequest) {
       viewsGained = Math.max(0, stats.views - baseline)
       const ratePer1k = Number(campaign.rate_per_1k) || 0
       const minPayout = Number(campaign.min_payout) || 0
-      const rawEarnings = (viewsGained / 1000) * ratePer1k
+      const viewsForPay = effectiveViewsGainedForPayout(viewsGained)
+      const rawEarnings = (viewsForPay / 1000) * ratePer1k
       const clampedEarnings = Math.max(minPayout, Math.min(maxPayout, rawEarnings))
       finalEarnings = Math.round(clampedEarnings * 100) / 100
 

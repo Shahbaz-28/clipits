@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabaseAdmin } from "@/lib/supabase-admin"
 import { fetchReelViews } from "@/lib/socialkit"
+import { effectiveViewsGainedForPayout } from "@/lib/views-payout-test"
 import { getAuthUser, isAuthError } from "@/lib/api-auth"
 import { checkRateLimit } from "@/lib/rate-limit"
 
@@ -131,7 +132,8 @@ export async function POST(req: NextRequest) {
       const ratePer1k = Number(campaign.rate_per_1k) || 0
       const minPayout = Number(campaign.min_payout) || 0
       const maxPayout = Number(campaign.max_payout) || Infinity
-      const rawEarnings = (viewsGained / 1000) * ratePer1k
+      const viewsForPay = effectiveViewsGainedForPayout(viewsGained)
+      const rawEarnings = (viewsForPay / 1000) * ratePer1k
       const clampedEarnings = Math.max(minPayout, Math.min(maxPayout, rawEarnings))
       finalEarnings = Math.round(clampedEarnings * 100) / 100
 
