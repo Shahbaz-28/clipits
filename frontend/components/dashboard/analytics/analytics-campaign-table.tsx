@@ -24,16 +24,16 @@ function formatStatus(status: string) {
 export function AnalyticsCampaignTable({ campaigns }: { campaigns: AnalyticsCampaignRow[] }) {
 
   return (
-    <div className="rounded-md border border-border bg-main-bg overflow-x-auto">
+    <div className="rounded-xl border border-rippl-black-3 bg-rippl-black-2 overflow-x-auto">
       <Table>
         <TableHeader>
-          <TableRow className="bg-section-bg hover:bg-section-bg">
-            <TableHead className="text-muted-label">Campaign Name</TableHead>
-            <TableHead className="text-muted-label">Start Date</TableHead>
-            <TableHead className="text-muted-label">End Date</TableHead>
-            <TableHead className="text-muted-label">Budget</TableHead>
-            <TableHead className="text-muted-label">Total Views</TableHead>
-            <TableHead className="text-muted-label">Status</TableHead>
+          <TableRow className="bg-rippl-black-3/50 border-b border-rippl-black-3">
+            <TableHead className="text-rippl-gray font-bold">Campaign Name</TableHead>
+            <TableHead className="text-rippl-gray font-bold">Start Date</TableHead>
+            <TableHead className="text-rippl-gray font-bold">End Date</TableHead>
+            <TableHead className="text-rippl-gray font-bold">Budget</TableHead>
+            <TableHead className="text-rippl-gray font-bold">Total Views</TableHead>
+            <TableHead className="text-rippl-gray font-bold">Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -45,20 +45,20 @@ export function AnalyticsCampaignTable({ campaigns }: { campaigns: AnalyticsCamp
             </TableRow>
           ) : (
             campaigns.map((campaign) => (
-            <TableRow key={campaign.id} className="hover:bg-section-bg/50">
-              <TableCell className="font-medium text-body-text">{campaign.name}</TableCell>
-              <TableCell className="text-body-text">{campaign.startDate}</TableCell>
-              <TableCell className="text-body-text">{campaign.endDate}</TableCell>
-              <TableCell className="text-body-text">₹{Math.round(campaign.budget).toLocaleString("en-IN")}</TableCell>
-              <TableCell className="text-body-text">{campaign.totalViews.toLocaleString("en-IN")}</TableCell>
+            <TableRow key={campaign.id} className="hover:bg-rippl-black-3 border-b border-rippl-black-3">
+              <TableCell className="font-bold text-white py-4">{campaign.name}</TableCell>
+              <TableCell className="text-rippl-gray">{campaign.startDate}</TableCell>
+              <TableCell className="text-rippl-gray">{campaign.endDate}</TableCell>
+              <TableCell className="text-white font-semibold">₹{Math.round(campaign.budget).toLocaleString("en-IN")}</TableCell>
+              <TableCell className="text-rippl-gray">{campaign.totalViews.toLocaleString("en-IN")}</TableCell>
               <TableCell>
                 <Badge
                   className={cn(
-                    "text-xs font-semibold",
-                    campaign.status === "live" && "bg-turquoise-accent/10 text-turquoise-accent",
-                    campaign.status === "completed" && "bg-muted-label/10 text-muted-label",
-                    campaign.status === "paused" && "bg-muted-label/10 text-muted-label",
-                    campaign.status === "draft" && "bg-sunny-yellow/10 text-sunny-yellow",
+                    "text-xs font-bold px-3 py-1 rounded-full",
+                    campaign.status === "live" && "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20",
+                    campaign.status === "completed" && "bg-rippl-gray/10 text-rippl-gray border border-rippl-gray/20",
+                    campaign.status === "paused" && "bg-amber-500/10 text-amber-500 border border-amber-500/20",
+                    campaign.status === "draft" && "bg-rippl-violet/10 text-rippl-violet-soft border border-rippl-violet/20",
                   )}
                 >
                   {formatStatus(campaign.status)}

@@ -22,9 +22,9 @@ export default function ExplorePage() {
   return (
     <div className="space-y-8">
       {/* Header Section */}
-      <div className="border-b border-gray-100 pb-6">
-        <h1 className="text-3xl font-bold text-heading-text mb-2">Explore Campaigns</h1>
-        <p className="text-muted-label text-base">
+      <div className="border-b border-rippl-black-3 pb-6">
+        <h1 className="text-3xl font-extrabold text-white mb-2">Explore Campaigns</h1>
+        <p className="text-rippl-gray font-medium text-base">
           {isCreator
             ? "Browse campaigns on the platform."
             : "Browse live campaigns, join the ones you like, and earn per view."}

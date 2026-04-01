@@ -230,10 +230,10 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
-      <DialogContent className="sm:max-w-[500px] w-[95%] bg-white text-heading-text border border-gray-100 p-0 flex flex-col max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
-          <DialogTitle className="text-xl font-bold text-heading-text text-center flex items-center justify-center gap-2">
-            <Instagram className="w-5 h-5 text-pink-500" />
+      <DialogContent className="sm:max-w-[500px] w-[95%] bg-rippl-black-2 text-white border border-rippl-black-3 p-0 flex flex-col max-h-[90vh] rounded-[32px] shadow-2xl overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-rippl-black-3">
+          <DialogTitle className="text-2xl font-extrabold text-white text-center flex items-center justify-center gap-3">
+            <Instagram className="w-6 h-6 text-pink-500" />
             Connect Instagram Account
           </DialogTitle>
         </DialogHeader>
@@ -241,12 +241,12 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
         {step === "enter-url" && (
           <>
             <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
-              <p className="text-sm text-muted-label">
+              <p className="text-sm font-medium text-rippl-gray">
                 Enter your Instagram profile link to verify account ownership.
               </p>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-heading-text">Profile Link</label>
+                <label className="text-sm font-bold text-white/90">Profile Link</label>
                 <Input
                   placeholder="https://www.instagram.com/yourusername"
                   value={profileUrl}
@@ -255,7 +255,7 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
                     setUrlError("")
                   }}
                   className={cn(
-                    "h-11 bg-gray-50 border-gray-200 rounded-lg text-heading-text placeholder:text-muted-label",
+                    "h-11 bg-rippl-black-3 border-rippl-black-3 rounded-xl text-white placeholder:text-rippl-gray/50 focus-visible:ring-rippl-violet focus-visible:border-rippl-violet transition-all",
                     urlError && "border-red-400 focus-visible:ring-red-400"
                   )}
                 />
@@ -268,19 +268,19 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
               </div>
             </div>
 
-            <div className="px-6 py-4 border-t border-gray-100 flex gap-3">
+            <div className="px-6 py-4 border-t border-rippl-black-3 flex gap-3">
               <Button
                 type="button"
                 variant="outline"
                 onClick={onClose}
-                className="flex-1 h-10 border border-gray-200 text-heading-text hover:bg-gray-50 bg-white rounded-lg font-medium"
+                className="flex-1 h-11 border border-rippl-black-3 text-white hover:bg-rippl-black-3 bg-rippl-black-2 rounded-xl font-bold transition-all"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleStartVerification}
                 disabled={!profileUrl.trim()}
-                className="flex-1 h-10 bg-[#FF4B4B] text-white hover:bg-[#FF4B4B]/90 rounded-lg font-semibold shadow-lg shadow-[#FF4B4B]/25"
+                className="flex-1 h-11 bg-rippl-violet text-white hover:bg-rippl-violet/90 rounded-xl font-bold shadow-lg shadow-rippl-violet/25 transition-all w-full"
               >
                 Start Verification
               </Button>
@@ -290,35 +290,35 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
 
         {step === "verify-code" && (
           <>
-            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
               <div>
-                <h3 className="font-semibold text-heading-text text-base mb-1">
+                <h3 className="text-xl font-extrabold text-white mb-1">
                   Verify @{username}
                 </h3>
-                <p className="text-sm text-muted-label">
+                <p className="text-sm font-medium text-rippl-gray">
                   Follow these steps to verify your account:
                 </p>
               </div>
 
-              <div className="flex gap-3">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FF4B4B] text-white text-xs font-bold">
+              <div className="flex gap-4">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rippl-violet text-white text-sm font-bold">
                   1
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-heading-text text-sm">Go to your Instagram profile</p>
-                  <p className="text-xs text-muted-label mt-0.5">Open the Instagram app or website and edit your bio.</p>
+                  <p className="font-bold text-white text-sm">Go to your Instagram profile</p>
+                  <p className="text-xs font-medium text-rippl-gray mt-1">Open the Instagram app or website and edit your bio.</p>
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FF4B4B] text-white text-xs font-bold">
+              <div className="flex gap-4">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rippl-violet text-white text-sm font-bold">
                   2
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-heading-text text-sm mb-2">Add this verification code to your bio:</p>
+                  <p className="font-bold text-white text-sm mb-3">Add this verification code to your bio:</p>
 
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 rounded-xl bg-red-50 border border-red-200 px-4 py-3 font-mono text-lg tracking-wider text-[#FF4B4B] font-bold text-center">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 rounded-xl bg-rippl-violet/10 border border-rippl-violet/20 px-4 py-3 font-mono text-lg tracking-wider text-white font-bold text-center">
                       {code}
                     </div>
                     <Button
@@ -327,35 +327,35 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
                       size="icon"
                       onClick={handleCopy}
                       className={cn(
-                        "shrink-0 h-11 w-11 rounded-lg",
-                        copied ? "text-emerald-600 border-emerald-300 bg-emerald-50" : "border-gray-200"
+                        "shrink-0 h-12 w-12 rounded-xl transition-all",
+                        copied ? "text-emerald-400 border-emerald-400/30 bg-emerald-400/10" : "border-rippl-black-3 bg-rippl-black-3 text-white hover:bg-rippl-black-2 hover:border-rippl-violet"
                       )}
                     >
-                      {copied ? <CheckCircle className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {copied ? <CheckCircle className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
                     </Button>
                   </div>
                 </div>
               </div>
 
-              <div className="flex gap-3">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FF4B4B] text-white text-xs font-bold">
+              <div className="flex gap-4">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-rippl-violet text-white text-sm font-bold">
                   3
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-heading-text text-sm">Click verify below</p>
-                  <p className="text-xs text-muted-label mt-0.5">
+                  <p className="font-bold text-white text-sm">Click verify below</p>
+                  <p className="text-xs font-medium text-rippl-gray mt-1">
                     We&apos;ll check your bio for the code. You can remove it after verification.
                   </p>
                 </div>
               </div>
 
               <div className={cn(
-                "p-3 rounded-xl text-xs flex items-center gap-2",
+                "p-4 rounded-xl text-xs flex items-center gap-3 font-bold",
                 isExpired
-                  ? "bg-red-50 border border-red-200 text-red-600"
-                  : "bg-amber-50 border border-amber-200 text-amber-700"
+                  ? "bg-red-500/10 border border-red-500/20 text-red-500"
+                  : "bg-amber-500/10 border border-amber-500/20 text-amber-500"
               )}>
-                <AlertCircle className="w-4 h-4 shrink-0" />
+                <AlertCircle className="w-5 h-5 shrink-0" />
                 {isExpired ? (
                   <span>Code expired. Please go back and start again.</span>
                 ) : (
@@ -366,21 +366,21 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
               </div>
 
               {verifyError && (
-                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-600 flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-500 font-bold flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
                   <span>{verifyError}</span>
                 </div>
               )}
             </div>
 
-            <div className="px-6 py-4 border-t border-gray-100 flex gap-3">
+            <div className="px-6 py-4 border-t border-rippl-black-3 flex gap-3">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => {
                   resetState()
                 }}
-                className="h-10 px-4 border border-gray-200 text-heading-text hover:bg-gray-50 bg-white rounded-lg font-medium"
+                className="h-11 px-4 border border-rippl-black-3 text-white hover:bg-rippl-black-3 bg-rippl-black-2 rounded-xl font-bold transition-all"
               >
                 <ArrowLeft className="w-4 h-4 mr-1" />
                 Back
@@ -388,7 +388,7 @@ export function VerifyInstagramModal({ isOpen, onClose, onVerified }: VerifyInst
               <Button
                 onClick={handleVerify}
                 disabled={verifying || isExpired}
-                className="flex-1 h-10 bg-[#FF4B4B] text-white hover:bg-[#FF4B4B]/90 rounded-lg font-semibold shadow-lg shadow-[#FF4B4B]/25"
+                className="flex-1 h-11 bg-rippl-violet text-white hover:bg-rippl-violet/90 rounded-xl font-bold shadow-lg shadow-rippl-violet/25 transition-all"
               >
                 {verifying ? (
                   <>

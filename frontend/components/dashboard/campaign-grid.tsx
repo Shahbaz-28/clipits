@@ -130,7 +130,7 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin rounded-full h-10 w-10 border-2 border-vibrant-red-orange border-t-transparent" />
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-rippl-violet border-t-transparent" />
       </div>
     )
   }
@@ -182,22 +182,22 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
       <div className="flex flex-col gap-3 mb-6">
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center flex-wrap">
           <div className="relative flex-1 min-w-[200px] max-w-sm">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-rippl-gray" />
             <Input
               placeholder="Search campaigns by title or description"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-8 h-9"
+              className="pl-9 h-11 bg-rippl-black-2/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl"
             />
           </div>
-          <div className="flex gap-2 flex-wrap items-center">
+          <div className="flex gap-4 flex-wrap items-center">
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground whitespace-nowrap">Status</span>
+              <span className="text-xs font-bold text-rippl-gray whitespace-nowrap">Status</span>
               <Select
                 value={statusFilter}
                 onValueChange={(v) => setStatusFilter(v as "all" | "live" | "completed")}
               >
-                <SelectTrigger className="h-9 w-[130px]">
+                <SelectTrigger className="h-11 w-[130px] bg-rippl-black-2/50 border-rippl-black-3 text-white rounded-xl focus:border-rippl-violet focus:ring-rippl-violet">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -208,9 +208,9 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
               </Select>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground whitespace-nowrap">Category</span>
+              <span className="text-xs font-bold text-rippl-gray whitespace-nowrap">Category</span>
               <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="h-9 w-[140px]">
+                <SelectTrigger className="h-11 w-[140px] bg-rippl-black-2/50 border-rippl-black-3 text-white rounded-xl focus:border-rippl-violet focus:ring-rippl-violet">
                   <SelectValue placeholder="Category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -226,75 +226,73 @@ export function CampaignGrid({ onNavigate, refreshKey = 0 }: CampaignGridProps) 
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {paginated.map((campaign) => (
           <Card
             key={campaign.id}
-            className="bg-main-bg border border-border shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-xl overflow-hidden"
+            className="bg-rippl-black-2/50 border border-rippl-black-3 shadow-md hover:border-rippl-violet transition-all duration-300 cursor-pointer group rounded-[32px] overflow-hidden"
             onClick={() => handleCardClick(campaign)}
           >
             {campaign.thumbnailUrl && (
-              <div className="w-full h-28 bg-gray-100 overflow-hidden">
+              <div className="w-full h-32 bg-rippl-black-3 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={campaign.thumbnailUrl}
                   alt={campaign.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 />
               </div>
             )}
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-heading-text mb-1 group-hover:text-turquoise-accent transition-colors">
+                  <h3 className="font-extrabold text-white mb-2 group-hover:text-rippl-violet transition-colors text-lg line-clamp-2">
                     {campaign.title}
                   </h3>
                   <Badge
-                    className={`${campaign.color} text-white hover:${campaign.color}/90 text-xs shadow-sm rounded-md`}
+                    className="bg-rippl-violet text-white hover:bg-rippl-violet/90 text-xs shadow-sm shadow-rippl-violet/20 rounded-lg px-2 py-0.5 font-bold"
                   >
                     {campaign.rate}
                   </Badge>
                 </div>
               </div>
 
-              <p className="text-sm text-body-text mb-4">
-                {campaign.description.length > 50
-                  ? `${campaign.description.substring(0, 50)}...`
-                  : campaign.description || "—"}
+              <p className="text-sm text-rippl-gray font-medium mb-5 h-10 line-clamp-2">
+                {campaign.description || "—"}
               </p>
 
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-lg font-bold text-turquoise-accent">{campaign.earnings}</span>
-                  <span className="text-sm text-muted-label">of {campaign.total} paid out</span>
-                  <span className="text-sm font-semibold text-body-text">{campaign.percentage}</span>
+              <div className="mb-6">
+                <div className="flex items-end justify-between mb-2">
+                  <span className="text-xl font-extrabold text-rippl-violet">{campaign.earnings}</span>
+                  <span className="text-xs font-bold text-rippl-gray/70">of {campaign.total} paid out</span>
+                  <span className="text-sm font-extrabold text-white">{campaign.percentage}</span>
                 </div>
-                <div className="w-full bg-border rounded-full h-2">
+                <div className="w-full bg-rippl-black-3 rounded-full h-2 overflow-hidden">
                   <div
-                    className="bg-turquoise-accent h-2 rounded-full transition-all duration-300 shadow-sm"
+                    className="bg-rippl-violet h-2 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(139,92,246,0.5)]"
                     style={{ width: campaign.percentage }}
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-4 text-xs">
+              <div className="grid grid-cols-3 gap-4 text-xs mt-4 pt-4 border-t border-rippl-black-3/50">
                 <div>
-                  <p className="text-muted-label mb-1">Type</p>
-                  <p className="font-semibold text-body-text">{campaign.type}</p>
+                  <p className="text-rippl-gray font-bold mb-1">Type</p>
+                  <p className="font-extrabold text-white capitalize">{campaign.type}</p>
                 </div>
                 <div>
-                  <p className="text-muted-label mb-1">Platforms</p>
-                  <div className="flex space-x-1">
+                  <p className="text-rippl-gray font-bold mb-1">Platforms</p>
+                  <div className="flex space-x-1.5">
                     {campaign.platforms.map((Platform, idx) => (
-                      <Platform key={`platform-${idx}`} className="w-4 h-4 text-muted-label" />
+                      <Platform key={`platform-${idx}`} className="w-4 h-4 text-white" />
                     ))}
                   </div>
                 </div>
                 <div>
-                  <p className="text-muted-label mb-1">Views</p>
-                  <div className="flex items-center space-x-1">
-                    <Eye className="w-3 h-3 text-muted-label" />
-                    <span className="font-semibold text-body-text">{campaign.views}</span>
+                  <p className="text-rippl-gray font-bold mb-1">Views</p>
+                  <div className="flex items-center space-x-1.5">
+                    <Eye className="w-4 h-4 text-white opacity-80" />
+                    <span className="font-extrabold text-white">{campaign.views}</span>
                   </div>
                 </div>
               </div>

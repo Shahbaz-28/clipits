@@ -117,13 +117,13 @@ export function GeneralSettings() {
     return (
       <div className="space-y-6">
         <div className="grid gap-6 sm:grid-cols-2">
-          <div className="h-12 rounded-xl bg-gray-100 animate-pulse" />
-          <div className="h-12 rounded-xl bg-gray-100 animate-pulse" />
+          <div className="h-12 rounded-xl bg-rippl-black-3 animate-pulse" />
+          <div className="h-12 rounded-xl bg-rippl-black-3 animate-pulse" />
         </div>
-        <div className="h-24 rounded-xl bg-gray-100 animate-pulse" />
-        <div className="h-12 rounded-xl bg-gray-100 animate-pulse" />
-        <div className="h-12 rounded-xl bg-gray-100 animate-pulse" />
-        <div className="h-12 rounded-xl bg-gray-100 animate-pulse" />
+        <div className="h-24 rounded-xl bg-rippl-black-3 animate-pulse" />
+        <div className="h-12 rounded-xl bg-rippl-black-3 animate-pulse" />
+        <div className="h-12 rounded-xl bg-rippl-black-3 animate-pulse" />
+        <div className="h-12 rounded-xl bg-rippl-black-3 animate-pulse" />
       </div>
     )
   }
@@ -157,11 +157,10 @@ export function GeneralSettings() {
             name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-heading-text">First name</FormLabel>
+                <FormLabel className="text-sm font-bold text-white/90">First name</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    className="h-10 bg-gray-50 border border-gray-200 text-heading-text placeholder:text-muted-label rounded-lg focus:border-vibrant-red-orange focus:ring-vibrant-red-orange"
                     placeholder="First name"
                   />
                 </FormControl>
@@ -174,11 +173,10 @@ export function GeneralSettings() {
             name="lastName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-heading-text">Last name</FormLabel>
+                <FormLabel className="text-sm font-bold text-white/90">Last name</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    className="h-10 bg-gray-50 border border-gray-200 text-heading-text placeholder:text-muted-label rounded-lg focus:border-vibrant-red-orange focus:ring-vibrant-red-orange"
                     placeholder="Last name"
                   />
                 </FormControl>
@@ -193,17 +191,16 @@ export function GeneralSettings() {
           name="bio"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-sm font-medium text-heading-text">Bio</FormLabel>
+              <FormLabel className="text-sm font-bold text-white/90">Bio</FormLabel>
               <FormControl>
                 <Textarea
                   {...field}
                   value={field.value ?? ""}
                   placeholder="Tell us a bit about yourself"
-                  className="bg-gray-50 border border-gray-200 text-heading-text placeholder:text-muted-label min-h-[80px] rounded-lg focus:border-vibrant-red-orange focus:ring-vibrant-red-orange"
                 />
               </FormControl>
               <FormMessage />
-              <p className="text-xs text-muted-label text-right">
+              <p className="text-xs font-bold text-rippl-gray text-right">
                 {((field.value ?? "").length || 0)}/500
               </p>
             </FormItem>
@@ -216,12 +213,11 @@ export function GeneralSettings() {
             name="username"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-heading-text">Username</FormLabel>
+                <FormLabel className="text-sm font-bold text-white/90">Username</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     value={field.value ?? ""}
-                    className="h-10 bg-gray-50 border border-gray-200 text-heading-text placeholder:text-muted-label rounded-lg focus:border-vibrant-red-orange focus:ring-vibrant-red-orange"
                     placeholder="username"
                   />
                 </FormControl>
@@ -235,13 +231,12 @@ export function GeneralSettings() {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-medium text-heading-text">Phone number</FormLabel>
+                <FormLabel className="text-sm font-bold text-white/90">Phone number</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     value={field.value ?? ""}
-                    className="h-10 bg-gray-50 border border-gray-200 text-heading-text placeholder:text-muted-label rounded-lg focus:border-vibrant-red-orange focus:ring-vibrant-red-orange"
-                    placeholder="e.g. +91 98765 43210"
+                    placeholder="Phone number"
                   />
                 </FormControl>
                 <FormMessage />
@@ -251,13 +246,13 @@ export function GeneralSettings() {
         </div>
 
         <div>
-          <FormLabel className="text-sm font-medium text-heading-text">Email</FormLabel>
+          <FormLabel className="text-sm font-bold text-white/90">Email</FormLabel>
           <Input
             value={user?.email ?? ""}
             readOnly
-            className="h-10 mt-1.5 bg-gray-100 border border-gray-200 text-muted-label cursor-not-allowed rounded-lg"
+            className="h-11 mt-1.5 bg-rippl-black-3/50 border border-rippl-black-3 text-rippl-gray cursor-not-allowed rounded-xl"
           />
-          <p className="text-xs text-muted-label mt-1">
+          <p className="text-xs font-bold text-rippl-gray mt-2">
             Email is managed by your account sign-in.
           </p>
         </div>
@@ -266,7 +261,7 @@ export function GeneralSettings() {
           <Button
             type="submit"
             disabled={form.formState.isSubmitting}
-            className="h-10 px-6 bg-vibrant-red-orange hover:bg-vibrant-red-orange/90 text-white font-semibold rounded-lg shadow-lg shadow-vibrant-red-orange/25"
+            className="h-11 px-8 bg-rippl-violet hover:bg-rippl-violet/90 text-white font-bold rounded-xl shadow-lg shadow-rippl-violet/25 transition-all w-full sm:w-auto"
           >
             {form.formState.isSubmitting ? "Saving..." : "Save Changes"}
           </Button>

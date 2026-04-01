@@ -158,50 +158,50 @@ export function MyCampaignsPage({
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { className: string; icon: typeof Clock; label: string }> = {
       draft: {
-        className: "bg-amber-50 text-amber-600 border border-amber-200",
+        className: "bg-amber-500/10 text-amber-500 border-amber-500/20",
         icon: Clock,
         label: "Draft",
       },
       pending_review: {
-        className: "bg-orange-50 text-orange-600 border border-orange-200",
+        className: "bg-orange-500/10 text-orange-400 border-orange-500/20",
         icon: Clock,
         label: "Under review",
       },
       rejected: {
-        className: "bg-red-50 text-red-600 border border-red-200",
+        className: "bg-red-500/10 text-red-500 border-red-500/20",
         icon: XCircle,
         label: "Rejected",
       },
       awaiting_payment: {
-        className: "bg-blue-50 text-blue-600 border border-blue-200",
+        className: "bg-blue-500/10 text-blue-400 border-blue-500/20",
         icon: Clock,
         label: "Awaiting payment",
       },
       live: {
-        className: "bg-emerald-50 text-emerald-600 border border-emerald-200",
+        className: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
         icon: CheckCircle,
         label: "Live",
       },
       paused: {
-        className: "bg-gray-50 text-gray-500 border border-gray-200",
+        className: "bg-rippl-black-3/50 text-rippl-gray border-rippl-black-3",
         icon: Clock,
         label: "Paused",
       },
       completed: {
-        className: "bg-gray-50 text-gray-500 border border-gray-200",
+        className: "bg-rippl-black-3/50 text-rippl-gray border-rippl-black-3",
         icon: CheckCircle,
         label: "Completed",
       },
     }
     const v =
       variants[status] || ({
-        className: "bg-gray-50 text-gray-500 border border-gray-200",
+        className: "bg-rippl-black-3/50 text-rippl-gray border-rippl-black-3",
         icon: Clock,
         label: status,
       } as const)
     const Icon = v.icon
     return (
-      <Badge className={`${v.className} rounded-lg flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1`}>
+      <Badge className={`${v.className} rounded-lg flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 border shadow-none`}>
         <Icon className="w-3 h-3" />
         {v.label}
       </Badge>
@@ -298,16 +298,16 @@ export function MyCampaignsPage({
   return (
     <div className="flex-1 flex flex-col space-y-8">
       {/* Header Section */}
-      <div className="border-b border-gray-100 pb-6">
+      <div className="border-b border-rippl-black-3 pb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-heading-text mb-2">My Campaigns</h1>
-            <p className="text-muted-label text-base">
+            <h1 className="text-3xl font-extrabold text-white mb-2">My Campaigns</h1>
+            <p className="text-rippl-gray font-medium text-base">
               Your central hub for creating and managing creator campaigns.
             </p>
           </div>
           <Button
-            className="w-full sm:w-auto bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 shadow-lg shadow-vibrant-red-orange/25 rounded-xl font-semibold px-6"
+            className="w-full sm:w-auto bg-rippl-violet text-white hover:bg-rippl-violet/90 shadow-lg shadow-rippl-violet/25 rounded-xl font-bold px-6 h-11 transition-all"
             onClick={() => { setEditingCampaign(null); setIsModalOpen(true); }}
           >
             <Plus className="w-5 h-5 mr-2" />
@@ -323,32 +323,21 @@ export function MyCampaignsPage({
             {[1, 2, 3, 4].map((i) => (
               <Card
                 key={i}
-                className="bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden"
+                className="bg-rippl-black-2/50 border border-rippl-black-3 shadow-sm rounded-[32px] overflow-hidden"
               >
                 <CardContent className="p-6">
                   <div className="mb-5 space-y-3">
-                    <div className="h-6 w-3/4 bg-gray-100 rounded-lg animate-pulse" />
-                    <div className="h-6 w-20 bg-gray-100 rounded-full animate-pulse" />
+                    <div className="h-6 w-3/4 bg-rippl-black-3 rounded-lg animate-pulse" />
+                    <div className="h-6 w-20 bg-rippl-black-3 rounded-full animate-pulse" />
                   </div>
                   <div className="space-y-2 mb-5">
-                    <div className="h-4 w-full bg-gray-100 rounded animate-pulse" />
-                    <div className="h-4 w-2/3 bg-gray-100 rounded animate-pulse" />
+                    <div className="h-4 w-full bg-rippl-black-3 rounded animate-pulse" />
+                    <div className="h-4 w-2/3 bg-rippl-black-3 rounded animate-pulse" />
                   </div>
-                  <div className="mb-5 p-4 bg-gray-50 rounded-xl">
-                    <div className="flex justify-between mb-3">
-                      <div className="h-5 w-16 bg-gray-100 rounded animate-pulse" />
-                      <div className="h-4 w-12 bg-gray-100 rounded animate-pulse" />
-                    </div>
-                    <div className="h-2.5 w-full bg-gray-200 rounded-full animate-pulse" />
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 mb-5">
+                  <div className="grid grid-cols-3 gap-3 mb-5 mt-8">
                     {[1, 2, 3].map((j) => (
-                      <div key={j} className="h-16 bg-gray-50 rounded-xl animate-pulse" />
+                      <div key={j} className="h-16 bg-rippl-black-3 rounded-xl animate-pulse" />
                     ))}
-                  </div>
-                  <div className="flex justify-between pt-4 border-t border-gray-100">
-                    <div className="h-4 w-24 bg-gray-100 rounded animate-pulse" />
-                    <div className="h-8 w-16 bg-gray-100 rounded-lg animate-pulse" />
                   </div>
                 </CardContent>
               </Card>
@@ -360,91 +349,89 @@ export function MyCampaignsPage({
           {campaigns.map((campaign) => {
             const card = myCampaignToCard(campaign, campaign.totalViews ?? 0)
             return (
-              <Card
-                key={campaign.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => {
-                  setDetailsCampaign(card)
-                  setIsDetailsModalOpen(true)
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault()
+                <Card
+                  key={campaign.id}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => {
                     setDetailsCampaign(card)
                     setIsDetailsModalOpen(true)
-                  }
-                }}
-                className="bg-main-bg border border-border shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-xl overflow-hidden"
-              >
-                {card.thumbnailUrl && (
-                  <div className="w-full h-28 bg-gray-100 overflow-hidden">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={card.thumbnailUrl}
-                      alt={card.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                )}
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-heading-text mb-1 group-hover:text-turquoise-accent transition-colors">
-                        {card.title}
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-2 mt-1">
-                        <Badge
-                          className={`${card.color} text-white hover:${card.color}/90 text-xs shadow-sm rounded-md`}
-                        >
-                          {card.rate}
-                        </Badge>
-                        {getStatusBadge(campaign.status)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-body-text mb-4">
-                    {card.description.length > 50
-                      ? `${card.description.substring(0, 50)}...`
-                      : card.description || "—"}
-                  </p>
-
-                  <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-lg font-bold text-turquoise-accent">{card.earnings}</span>
-                      <span className="text-sm text-muted-label">of {card.total} paid out</span>
-                      <span className="text-sm font-semibold text-body-text">{card.percentage}</span>
-                    </div>
-                    <div className="w-full bg-border rounded-full h-2">
-                      <div
-                        className="bg-turquoise-accent h-2 rounded-full transition-all duration-300 shadow-sm"
-                        style={{ width: card.percentage }}
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault()
+                      setDetailsCampaign(card)
+                      setIsDetailsModalOpen(true)
+                    }
+                  }}
+                  className="bg-rippl-black-2/50 border border-rippl-black-3 shadow-md hover:border-rippl-violet transition-all duration-300 cursor-pointer group rounded-[32px] overflow-hidden"
+                >
+                  {card.thumbnailUrl && (
+                    <div className="w-full h-32 bg-rippl-black-3 overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={card.thumbnailUrl}
+                        alt={card.title}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     </div>
-                  </div>
+                  )}
+                  <CardContent className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-extrabold text-white mb-2 group-hover:text-rippl-violet transition-colors text-lg line-clamp-2">
+                          {card.title}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                          <Badge
+                            className="bg-rippl-violet text-white hover:bg-rippl-violet/90 text-xs shadow-sm shadow-rippl-violet/20 rounded-lg px-2 py-0.5 font-bold"
+                          >
+                            {card.rate}
+                          </Badge>
+                          {getStatusBadge(campaign.status)}
+                        </div>
+                      </div>
+                    </div>
 
-                  <div className="grid grid-cols-3 gap-4 text-xs">
-                    <div>
-                      <p className="text-muted-label mb-1">Type</p>
-                      <p className="font-semibold text-body-text">{card.type}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-label mb-1">Platforms</p>
-                      <div className="flex space-x-1">
-                        {card.platforms.map((Platform, idx) => (
-                          <Platform key={`platform-${idx}`} className="w-4 h-4 text-muted-label" />
-                        ))}
+                    <p className="text-sm text-rippl-gray font-medium mb-5 h-10 line-clamp-2">
+                      {card.description || "—"}
+                    </p>
+
+                    <div className="mb-6">
+                      <div className="flex items-end justify-between mb-2">
+                        <span className="text-xl font-extrabold text-rippl-violet">{card.earnings}</span>
+                        <span className="text-xs font-bold text-rippl-gray/70">of {card.total} paid out</span>
+                        <span className="text-sm font-extrabold text-white">{card.percentage}</span>
+                      </div>
+                      <div className="w-full bg-rippl-black-3 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-rippl-violet h-2 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(139,92,246,0.5)]"
+                          style={{ width: card.percentage }}
+                        />
                       </div>
                     </div>
-                    <div>
-                      <p className="text-muted-label mb-1">Views</p>
-                      <div className="flex items-center space-x-1">
-                        <Eye className="w-3 h-3 text-muted-label" />
-                        <span className="font-semibold text-body-text">{card.views}</span>
+
+                    <div className="grid grid-cols-3 gap-4 text-xs mt-4 pt-4 border-t border-rippl-black-3/50">
+                      <div>
+                        <p className="text-rippl-gray font-bold mb-1">Type</p>
+                        <p className="font-extrabold text-white capitalize">{card.type}</p>
+                      </div>
+                      <div>
+                        <p className="text-rippl-gray font-bold mb-1">Platforms</p>
+                        <div className="flex space-x-1.5">
+                          {card.platforms.map((Platform, idx) => (
+                            <Platform key={`platform-${idx}`} className="w-4 h-4 text-white" />
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-rippl-gray font-bold mb-1">Views</p>
+                        <div className="flex items-center space-x-1.5">
+                          <Eye className="w-4 h-4 text-white opacity-80" />
+                          <span className="font-extrabold text-white">{card.views}</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
 
                   {campaign.status === "awaiting_payment" && (
                     <div className="mt-4 flex justify-end">
@@ -457,7 +444,7 @@ export function MyCampaignsPage({
                           void handleActivateCampaign(campaign)
                         }}
                         disabled={activatingId === campaign.id}
-                        className="bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-medium"
+                        className="bg-rippl-violet text-white hover:bg-rippl-violet/90 rounded-xl font-bold transition-all px-4"
                       >
                         {activatingId === campaign.id ? (
                           <>
@@ -478,17 +465,17 @@ export function MyCampaignsPage({
       ) : (
         /* No Campaigns Yet Card */
         <div className="flex-1 flex items-center justify-center p-4">
-          <Card className="bg-white border border-gray-100 w-full max-w-md p-8 text-center shadow-lg rounded-2xl">
+          <Card className="bg-rippl-black-2 border border-rippl-black-3 w-full max-w-md p-8 text-center shadow-2xl rounded-[32px]">
             <CardContent className="flex flex-col items-center justify-center p-0">
-              <div className="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center mb-6">
-                <Grid3X3 className="w-10 h-10 text-muted-label" />
+              <div className="w-20 h-20 bg-rippl-black-3 rounded-2xl flex items-center justify-center mb-6">
+                <Grid3X3 className="w-10 h-10 text-rippl-gray" />
               </div>
-              <h2 className="text-2xl font-bold text-heading-text mb-3">No campaigns yet</h2>
-              <p className="text-base text-muted-label mb-8 max-w-sm">
+              <h2 className="text-2xl font-extrabold text-white mb-3">No campaigns yet</h2>
+              <p className="text-base font-medium text-rippl-gray mb-8 max-w-sm">
                 Create your first campaign to start earning and engaging with creators
               </p>
               <Button
-                className="w-full sm:w-auto bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 shadow-lg shadow-vibrant-red-orange/25 rounded-xl font-semibold px-6"
+                className="w-full sm:w-auto bg-rippl-violet text-white hover:bg-rippl-violet/90 shadow-lg shadow-rippl-violet/25 rounded-xl font-bold px-6 h-11 transition-all"
                 onClick={() => { setEditingCampaign(null); setIsModalOpen(true); }}
               >
                 <Plus className="w-5 h-5 mr-2" />

@@ -49,11 +49,11 @@ export function ProfilePage({ initialTab = "general" }: { initialTab?: string })
   return (
     <div className="flex flex-col lg:flex-row flex-1 gap-8">
       <ProfileSidebar activeTab={activeTab} />
-      <div className="flex-1 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="flex-1 bg-rippl-black-2 rounded-[32px] border border-rippl-black-3 shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="border-b border-gray-100 px-8 py-6">
-          <h1 className="text-2xl font-bold text-heading-text flex items-center gap-3">
-            <Settings className="w-6 h-6 text-muted-label" />
+        <div className="border-b border-rippl-black-3 px-8 py-6">
+          <h1 className="text-2xl font-extrabold text-white flex items-center gap-4">
+            <Settings className="w-6 h-6 text-rippl-violet" />
             {getTitle()}
           </h1>
         </div>

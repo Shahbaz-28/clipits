@@ -179,30 +179,30 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="sm:max-w-[480px] w-[95%] bg-white text-heading-text border border-gray-100 p-0 flex flex-col max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
-          <DialogTitle className="text-xl font-bold text-heading-text">
+      <DialogContent className="sm:max-w-[480px] w-[95%] bg-rippl-black-2 text-white border border-rippl-black-3 p-0 flex flex-col max-h-[90vh] rounded-[32px] shadow-2xl overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-rippl-black-3">
+          <DialogTitle className="text-2xl font-extrabold text-white">
             Create Submission
           </DialogTitle>
         </DialogHeader>
 
         {/* Info banner */}
-        <div className="mx-6 mt-4 flex gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-700 text-sm">
+        <div className="mx-6 mt-4 flex gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm">
           <Info className="w-4 h-4 shrink-0 mt-0.5" />
-          <p className="text-xs">
+          <p className="text-xs font-medium text-amber-400">
             Only views after you submit count towards payout. Submit as soon as you post to get paid for all views.
           </p>
         </div>
 
         {error && (
-          <div className="mx-6 mt-4 rounded-xl bg-red-50 border border-red-200 p-3 text-red-600 text-sm">
+          <div className="mx-6 mt-4 rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-red-500 text-sm">
             {error ===
             "You must verify at least one Instagram account in Profile \u2192 Connected accounts before submitting content." ? (
               <span>
                 You must verify at least one Instagram account in{" "}
                 <button
                   type="button"
-                  className="underline font-semibold"
+                  className="underline font-bold text-red-400"
                   onClick={() => {
                     onClose()
                     router.push("/dashboard/profile/connected-accounts")
@@ -221,18 +221,18 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
         <form id="submit-content-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {/* Instagram account selector */}
           <div className="space-y-1.5">
-            <Label className="text-sm font-medium text-heading-text flex items-center gap-2">
+            <Label className="text-sm font-bold text-white/90 flex items-center gap-2">
               <Instagram className="w-3.5 h-3.5 text-pink-500" />
-              Instagram Account <span className="text-red-500">*</span>
+              Instagram Account <span className="text-rippl-violet">*</span>
             </Label>
             {loadingAccounts ? (
-              <div className="h-10 rounded-lg bg-gray-100 animate-pulse" />
+              <div className="h-11 rounded-xl bg-rippl-black-3 animate-pulse" />
             ) : igAccounts.length === 0 ? (
-              <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-600">
+              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-500">
                 No verified Instagram accounts.{" "}
                 <button
                   type="button"
-                  className="underline font-semibold"
+                  className="underline font-bold text-red-400"
                   onClick={() => {
                     onClose()
                     router.push("/dashboard/profile/connected-accounts")
@@ -242,20 +242,20 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
                 </button>
               </div>
             ) : igAccounts.length === 1 ? (
-              <div className="flex items-center gap-2 h-10 px-3 rounded-lg bg-gray-50 border border-gray-200 text-sm text-heading-text">
+              <div className="flex items-center gap-2 h-11 px-3 rounded-xl bg-rippl-black-3/50 border border-rippl-black-3 text-sm text-white font-medium">
                 <Instagram className="w-4 h-4 text-pink-500" />
                 @{igAccounts[0].username}
               </div>
             ) : (
               <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-                <SelectTrigger className="h-10 bg-gray-50 border-gray-200 rounded-lg text-heading-text">
+                <SelectTrigger className="h-11 bg-rippl-black-3/50 border-rippl-black-3 rounded-xl text-white font-medium hover:bg-rippl-black-3 transition-colors">
                   <SelectValue placeholder="Select account">
                     {selectedAccount ? `@${selectedAccount.username}` : "Select account"}
                   </SelectValue>
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-rippl-black-3 border-rippl-black-3 text-white rounded-xl">
                   {igAccounts.map((acc) => (
-                    <SelectItem key={acc.id} value={acc.id}>
+                    <SelectItem key={acc.id} value={acc.id} className="hover:bg-rippl-black-2 cursor-pointer">
                       @{acc.username} {acc.is_default ? "(default)" : ""}
                     </SelectItem>
                   ))}
@@ -266,9 +266,9 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
 
           {/* Post link */}
           <div className="space-y-1.5">
-            <Label htmlFor="postLink" className="text-sm font-medium text-heading-text flex items-center gap-2">
-              <Link className="w-3.5 h-3.5 text-muted-label" />
-              Post Link <span className="text-red-500">*</span>
+            <Label htmlFor="postLink" className="text-sm font-bold text-white/90 flex items-center gap-2">
+              <Link className="w-3.5 h-3.5 text-rippl-gray" />
+              Post Link <span className="text-rippl-violet">*</span>
             </Label>
             <Input
               id="postLink"
@@ -278,7 +278,7 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
               value={postLink}
               onChange={(e) => setPostLink(e.target.value)}
               className={cn(
-                "h-10 w-full bg-gray-50 border border-gray-200 text-heading-text placeholder:text-muted-label rounded-lg focus:border-vibrant-red-orange focus:ring-1 focus:ring-vibrant-red-orange",
+                "h-11 w-full bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet",
                 error && !postLink.trim() && "border-red-400"
               )}
             />
@@ -287,13 +287,13 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
           {/* Media upload removed: we only require the reel link now */}
         </form>
 
-        <DialogFooter className="px-6 py-4 border-t border-gray-100 flex gap-3">
+        <DialogFooter className="px-6 py-4 border-t border-rippl-black-3 flex gap-3">
           <Button
             type="button"
             variant="outline"
             onClick={onClose}
             disabled={isSubmitting}
-            className="flex-1 h-10 border border-gray-200 text-heading-text hover:bg-gray-50 bg-white rounded-lg font-medium"
+            className="flex-1 h-11 border border-rippl-black-3 text-white hover:bg-rippl-black-3 bg-rippl-black-2 rounded-xl font-bold transition-all"
           >
             Cancel
           </Button>
@@ -301,7 +301,7 @@ export function SubmitContentModal({ isOpen, onClose, campaignId, onSuccess }: S
             type="submit"
             form="submit-content-form"
             disabled={isSubmitting}
-            className="flex-1 h-10 bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-semibold shadow-lg shadow-vibrant-red-orange/25"
+            className="flex-1 h-11 bg-rippl-violet text-white hover:bg-rippl-violet/90 rounded-xl font-bold shadow-lg shadow-rippl-violet/25 transition-all"
           >
             {isSubmitting ? (
               <>

@@ -208,7 +208,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
   }
 
   const handleClose = () => {
-    ;(async () => {
+    ; (async () => {
       if (
         !justSubmittedRef.current &&
         !editingCampaign &&
@@ -343,16 +343,16 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
       justSubmittedRef.current = true
       toast.success("Campaign created and submitted for admin review.")
       onSuccess?.()
-        onClose()
+      onClose()
       setFormData({ title: "", type: "", category: "" })
-        setBudget(0)
-        setRewardRate(0)
-        setMinPayout(0)
-        setMaxPayout(0)
-        setSelectedPlatforms([])
+      setBudget(0)
+      setRewardRate(0)
+      setMinPayout(0)
+      setMaxPayout(0)
+      setSelectedPlatforms([])
       setRequirementsList([])
       setAssetsList([])
-        setEndDate(undefined)
+      setEndDate(undefined)
     } catch (err) {
       console.error("Error creating campaign:", err)
       const message = err instanceof Error ? err.message : "Something went wrong. Please try again."
@@ -365,15 +365,15 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
-      <DialogContent className="sm:max-w-[720px] w-[95%] bg-white text-heading-text border border-gray-100 p-0 flex flex-col max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-gray-100">
-          <DialogTitle className="text-xl font-bold text-heading-text">
+      <DialogContent className="sm:max-w-[720px] w-[95%] bg-rippl-black-2 text-white border border-rippl-black-3 p-0 flex flex-col max-h-[90vh] rounded-[32px] shadow-2xl shadow-rippl-violet/10 overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-4 border-b border-rippl-black-3">
+          <DialogTitle className="text-2xl font-extrabold text-white">
             {editingCampaign ? "Edit Campaign" : "Create New Campaign"}
           </DialogTitle>
-          <DialogDescription className="text-sm text-muted-label mt-1">
+          <DialogDescription className="text-base font-medium text-rippl-gray mt-1">
             {editingCampaign
               ? "Update your draft. Publish to submit for admin review."
-              : "Create a campaign; it will go to admin review first. Close without submitting to save as draft."}
+              : "Create a campaign it will go to admin review first. Close without submitting to save as draft."}
           </DialogDescription>
         </DialogHeader>
 
@@ -394,15 +394,15 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
             <div className="space-y-4">
               {/* Campaign Title */}
               <div className="space-y-1.5">
-                <Label htmlFor="title" className="text-sm font-medium text-heading-text">
-                  Campaign Title <span className="text-red-500">*</span>
+                <Label htmlFor="title" className="text-sm font-bold text-white/90">
+                  Campaign Title <span className="text-rippl-violet">*</span>
                 </Label>
                 <Input
                   id="title"
                   placeholder="Enter an engaging campaign title"
                   value={formData.title}
                   onChange={(e) => handleInputChange("title", e.target.value)}
-                  className={cn(errors.title && "border-red-400")}
+                  className={cn("h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet", errors.title && "border-red-400 focus:border-red-400 focus:ring-red-400")}
                 />
                 {errors.title && <p className="text-red-500 text-xs">{errors.title}</p>}
               </div>
@@ -410,41 +410,41 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
               {/* Campaign Type & Category */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="type" className="text-sm font-medium text-heading-text">
-                    Type <span className="text-red-500">*</span>
+                  <Label htmlFor="type" className="text-sm font-bold text-white/90">
+                    Type <span className="text-rippl-violet">*</span>
                   </Label>
                   <Select
                     value={formData.type || undefined}
                     onValueChange={(value) => handleInputChange("type", value)}
                   >
-                    <SelectTrigger className={cn(errors.type && "border-red-400")}>
+                    <SelectTrigger className={cn("h-11 bg-rippl-black-3/50 border-rippl-black-3 text-white rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet", errors.type && "border-red-400 focus:border-red-400 focus:ring-red-400")}>
                       <SelectValue placeholder="Select type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 text-heading-text rounded-lg">
-                      <SelectItem value="ugc">UGC</SelectItem>
-                      <SelectItem value="clipping">Clipping</SelectItem>
+                    <SelectContent className="bg-rippl-black-3 border border-rippl-black-3 text-white rounded-xl">
+                      <SelectItem value="ugc" className="focus:bg-rippl-black-2 cursor-pointer rounded-lg">UGC</SelectItem>
+                      <SelectItem value="clipping" className="focus:bg-rippl-black-2 cursor-pointer rounded-lg">Clipping</SelectItem>
                     </SelectContent>
                   </Select>
                   {errors.type && <p className="text-red-500 text-xs">{errors.type}</p>}
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="category" className="text-sm font-medium text-heading-text">Category</Label>
+                  <Label htmlFor="category" className="text-sm font-bold text-white/90">Category</Label>
                   <Select
                     value={formData.category || undefined}
                     onValueChange={(value) => handleInputChange("category", value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11 bg-rippl-black-3/50 border-rippl-black-3 text-white rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet">
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border border-gray-200 text-heading-text rounded-lg">
-                      <SelectItem value="creator">Creator</SelectItem>
-                      <SelectItem value="e-commerce">E-commerce</SelectItem>
-                      <SelectItem value="logo">Logo</SelectItem>
-                      <SelectItem value="music">Music</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                      <SelectItem value="podcast">Podcast</SelectItem>
-                      <SelectItem value="software">Software</SelectItem>
-                      <SelectItem value="stream">Stream</SelectItem>
+                    <SelectContent className="bg-rippl-black-3 border border-rippl-black-3 text-white rounded-xl">
+                      <SelectItem value="creator" className="focus:bg-rippl-black-2 cursor-pointer rounded-lg">Creator</SelectItem>
+                      <SelectItem value="e-commerce" className="focus:bg-rippl-black-2 cursor-pointer rounded-lg">E-commerce</SelectItem>
+                      <SelectItem value="logo" className="focus:bg-rippl-black-2 cursor-pointer rounded-lg">Logo</SelectItem>
+                      <SelectItem value="music" className="focus:bg-rippl-black-2 cursor-pointer rounded-lg">Music</SelectItem>
+                      <SelectItem value="other" className="focus:bg-rippl-black-2 cursor-pointer rounded-lg">Other</SelectItem>
+                      <SelectItem value="podcast" className="focus:bg-rippl-black-2 cursor-pointer rounded-lg">Podcast</SelectItem>
+                      <SelectItem value="software" className="focus:bg-rippl-black-2 cursor-pointer rounded-lg">Software</SelectItem>
+                      <SelectItem value="stream" className="focus:bg-rippl-black-2 cursor-pointer rounded-lg">Stream</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -452,7 +452,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
 
               {/* Target Platforms */}
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium text-heading-text">Target Platforms</Label>
+                <Label className="text-sm font-bold text-white/90">Target Platforms</Label>
                 <div className="flex flex-wrap gap-2">
                   {[{ id: "instagram", icon: Instagram, label: "Instagram" }].map((platform) => (
                     <Button
@@ -461,10 +461,10 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                       variant="outline"
                       onClick={() => handlePlatformToggle(platform.id)}
                       className={cn(
-                        "h-9 px-4 border border-gray-200 rounded-lg text-sm font-medium transition-colors",
+                        "h-10 px-4 border rounded-xl text-sm font-bold transition-colors",
                         selectedPlatforms.includes(platform.id)
-                          ? "bg-[#FF4B4B] text-white border-[#FF4B4B] hover:bg-[#FF4B4B]/90"
-                          : "bg-gray-50 text-heading-text hover:bg-gray-100"
+                          ? "bg-rippl-violet text-white border-rippl-violet hover:bg-rippl-violet/90 hover:text-white"
+                          : "bg-rippl-black-2 border-rippl-black-3 text-rippl-gray hover:bg-rippl-black-3 hover:text-white"
                       )}
                     >
                       <platform.icon className="w-4 h-4 mr-2" />
@@ -477,10 +477,10 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
 
               {/* Campaign Thumbnail */}
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium text-heading-text">Campaign Thumbnail</Label>
+                <Label className="text-sm font-bold text-white/90">Campaign Thumbnail</Label>
                 <button
                   type="button"
-                  className="flex flex-col items-center justify-center py-4 px-3 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 text-center cursor-pointer hover:border-[#FF4B4B] hover:bg-gray-100 transition-colors relative overflow-hidden"
+                  className="flex flex-col items-center justify-center py-4 px-3 border border-dashed border-rippl-black-3 rounded-xl bg-rippl-black-2/50 text-center cursor-pointer hover:border-rippl-violet hover:bg-rippl-black-3 transition-all relative overflow-hidden"
                   onClick={() => document.getElementById("campaignThumbnailInput")?.click()}
                 >
                   {thumbnailPreview ? (
@@ -494,9 +494,9 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                     </div>
                   ) : (
                     <>
-                      <Upload className="w-5 h-5 text-muted-label mb-1" />
-                      <p className="text-sm font-medium text-heading-text">Click to upload</p>
-                      <p className="text-xs text-muted-label">PNG, JPG up to 10MB</p>
+                      <Upload className="w-6 h-6 text-rippl-violet mb-2 opacity-80" />
+                      <p className="text-sm font-bold text-white">Click to upload</p>
+                      <p className="text-xs font-medium text-rippl-gray mt-1">PNG, JPG up to 10MB</p>
                     </>
                   )}
                   <Input
@@ -515,39 +515,39 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
               {/* Total Budget & End Date */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="totalBudget" className="text-sm font-medium text-heading-text">
-                    Total Budget (₹) <span className="text-red-500">*</span>
+                  <Label htmlFor="totalBudget" className="text-sm font-bold text-white/90">
+                    Total Budget (₹) <span className="text-rippl-violet">*</span>
                   </Label>
                   <Input
                     id="totalBudget"
                     type="number"
                     min={1}
-                    placeholder="50000"
+                    placeholder="50,000"
                     value={!Number.isFinite(budget) || budget === 0 ? "" : budget}
                     onChange={(e) => {
                       setBudget(Number(e.target.value))
                       if (errors.total_budget) setErrors((prev) => ({ ...prev, total_budget: undefined }))
                     }}
-                    className={cn(errors.total_budget && "border-red-400")}
+                    className={cn("h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet", errors.total_budget && "border-red-400 focus:border-red-400 focus:ring-red-400")}
                   />
                   {errors.total_budget && <p className="text-red-500 text-xs">{errors.total_budget}</p>}
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="endDate" className="text-sm font-medium text-heading-text">End Date</Label>
+                  <Label htmlFor="endDate" className="text-sm font-bold text-white/90">End Date</Label>
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         className={cn(
-                          "h-10 w-full justify-start text-left font-normal",
-                          !endDate && "text-muted-label"
+                          "flex h-11 w-full justify-start text-left font-medium rounded-xl border border-rippl-black-3 bg-rippl-black-2/50 hover:bg-rippl-black-3 hover:text-white transition-all px-4",
+                          !endDate ? "text-rippl-gray/50" : "text-white"
                         )}
                       >
                         <CalendarIcon className="mr-2 h-4 w-4" />
                         {endDate ? format(endDate, "dd-MM-yyyy") : <span>dd-mm-yyyy</span>}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0 bg-white border border-gray-200 shadow-lg rounded-xl" align="start">
+                    <PopoverContent className="w-auto p-0 bg-rippl-black-2 border border-rippl-black-3 shadow-2xl rounded-xl text-white" align="start">
                       <Calendar mode="single" selected={endDate} onSelect={setEndDate} initialFocus />
                     </PopoverContent>
                   </Popover>
@@ -556,7 +556,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
 
               {/* Reward Rate */}
               <div className="space-y-1.5">
-                <Label htmlFor="rewardRate" className="text-sm font-medium text-heading-text">
+                <Label htmlFor="rewardRate" className="text-sm font-bold text-white/90">
                   Reward Rate per 1,000 views (₹)
                 </Label>
                 <Input
@@ -565,7 +565,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                   min={1}
                   step={1}
                   inputMode="numeric"
-                  placeholder="3"
+                  placeholder="1,000"
                   value={rewardRate === 0 ? "" : rewardRate}
                   onChange={(e) => {
                     const val = e.target.value
@@ -577,7 +577,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                     }
                     if (errors.rate_per_1k) setErrors((prev) => ({ ...prev, rate_per_1k: undefined }))
                   }}
-                  className={cn(errors.rate_per_1k && "border-red-400")}
+                  className={cn("h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet", errors.rate_per_1k && "border-red-400 focus:border-red-400 focus:ring-red-400")}
                 />
                 {errors.rate_per_1k && <p className="text-red-500 text-xs">{errors.rate_per_1k}</p>}
               </div>
@@ -585,7 +585,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
               {/* Min & Max Payout */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="minPayout" className="text-sm font-medium text-heading-text">Min Payout (₹)</Label>
+                  <Label htmlFor="minPayout" className="text-sm font-bold text-white/90">Min Payout (₹)</Label>
                   <Input
                     id="minPayout"
                     type="number"
@@ -596,23 +596,23 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                       setMinPayout(Number(e.target.value))
                       if (errors.min_payout) setErrors((prev) => ({ ...prev, min_payout: undefined }))
                     }}
-                    className={cn(errors.min_payout && "border-red-400")}
+                    className={cn("h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet", errors.min_payout && "border-red-400 focus:border-red-400 focus:ring-red-400")}
                   />
                   {errors.min_payout && <p className="text-red-500 text-xs">{errors.min_payout}</p>}
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="maxPayout" className="text-sm font-medium text-heading-text">Max Payout (₹)</Label>
+                  <Label htmlFor="maxPayout" className="text-sm font-bold text-white/90">Max Payout (₹)</Label>
                   <Input
                     id="maxPayout"
                     type="number"
                     min={0}
-                    placeholder="2000"
+                    placeholder="10,000"
                     value={!Number.isFinite(maxPayout) || maxPayout === 0 ? "" : maxPayout}
                     onChange={(e) => {
                       setMaxPayout(Number(e.target.value))
                       if (errors.max_payout) setErrors((prev) => ({ ...prev, max_payout: undefined }))
                     }}
-                    className={cn(errors.max_payout && "border-red-400")}
+                    className={cn("h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet", errors.max_payout && "border-red-400 focus:border-red-400 focus:ring-red-400")}
                   />
                   {errors.max_payout && <p className="text-red-500 text-xs">{errors.max_payout}</p>}
                 </div>
@@ -620,7 +620,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
 
               {/* Requirements */}
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium text-heading-text">Requirements</Label>
+                <Label className="text-sm font-bold text-white/90">Requirements</Label>
                 <div className="flex gap-2">
                   <Input
                     placeholder="e.g. Video must be longer than 15 seconds"
@@ -636,13 +636,14 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                         }
                       }
                     }}
-                    className="h-9 flex-1"
+                    className="h-11 flex-1 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet"
                   />
                   <Button
                     type="button"
                     size="icon"
                     variant="outline"
-                    className="shrink-0 h-9 w-9"
+                    className="shrink-0 h-11 w-11 border-rippl-black-3 text-white bg-rippl-black-3/50 hover:bg-rippl-black-3 rounded-xl transition-colors"
+
                     onClick={() => {
                       const v = requirementInput.trim()
                       if (v) {
@@ -659,17 +660,17 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                     {requirementsList.map((req, i) => (
                       <li
                         key={i}
-                        className="flex items-center justify-between gap-2 py-2 px-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-heading-text"
+                        className="flex items-center justify-between gap-2 py-2 px-3 bg-rippl-black-2 border border-rippl-black-3 rounded-xl text-sm text-white"
                       >
                         <span className="truncate">{req}</span>
                         <Button
                           type="button"
                           size="icon"
                           variant="ghost"
-                          className="shrink-0 h-6 w-6 text-muted-label hover:text-red-600 hover:bg-red-50"
+                          className="shrink-0 h-8 w-8 text-rippl-gray hover:text-red-400 hover:bg-red-400/10 rounded-lg"
                           onClick={() => setRequirementsList((prev) => prev.filter((_, j) => j !== i))}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </li>
                     ))}
@@ -679,8 +680,8 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
 
               {/* Asset Links */}
               <div className="space-y-1.5">
-                <Label className="text-sm font-medium text-heading-text">
-                  Asset Links <span className="text-red-500">*</span>
+                <Label className="text-sm font-bold text-white/90">
+                  Asset Links <span className="text-rippl-violet">*</span>
                 </Label>
                 <div className="flex gap-2">
                   <Input
@@ -698,13 +699,14 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                         }
                       }
                     }}
-                    className="h-9 flex-1"
+                    className="h-11 flex-1 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet"
                   />
                   <Button
                     type="button"
                     size="icon"
                     variant="outline"
-                    className="shrink-0 h-9 w-9"
+                    className="shrink-0 h-11 w-11 border-rippl-black-3 text-white bg-rippl-black-3/50 hover:bg-rippl-black-3 rounded-xl transition-colors"
+
                     onClick={() => {
                       const v = assetLinkInput.trim()
                       if (v) {
@@ -721,13 +723,13 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                     {assetsList.map((asset, i) => (
                       <li
                         key={i}
-                        className="flex items-center justify-between gap-2 py-2 px-3 bg-gray-50 border border-gray-200 rounded-lg text-sm"
+                        className="flex items-center justify-between gap-2 py-2 px-3 bg-rippl-black-2 border border-rippl-black-3 rounded-xl text-sm"
                       >
                         <a
                           href={asset.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-turquoise-accent hover:underline truncate flex-1 min-w-0"
+                          className="text-rippl-violet hover:text-white hover:underline truncate flex-1 min-w-0 transition-colors"
                         >
                           {asset.link}
                         </a>
@@ -735,10 +737,10 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                           type="button"
                           size="icon"
                           variant="ghost"
-                          className="shrink-0 h-6 w-6 text-muted-label hover:text-red-600 hover:bg-red-50"
+                          className="shrink-0 h-8 w-8 text-rippl-gray hover:text-red-400 hover:bg-red-400/10 rounded-lg"
                           onClick={() => setAssetsList((prev) => prev.filter((_, j) => j !== i))}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </li>
                     ))}
@@ -750,12 +752,12 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
           </div>
         </form>
 
-        <DialogFooter className="px-6 py-4 border-t border-gray-100 flex gap-3">
+        <DialogFooter className="px-6 py-4 border-t border-rippl-black-3 flex gap-3">
           <Button
             type="button"
             variant="outline"
             onClick={handleClose}
-            className="flex-1 h-10 border border-gray-200 text-heading-text hover:bg-gray-50 bg-white rounded-lg font-medium"
+            className="flex-1 h-11 border border-rippl-black-3 text-white hover:bg-rippl-black-3 bg-rippl-black-2 rounded-xl font-bold transition-all"
             disabled={isSubmitting}
           >
             Cancel
@@ -767,7 +769,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                 form="create-campaign-form"
                 disabled={isSubmitting}
                 variant="outline"
-                className="flex-1 h-10 border border-gray-200 text-heading-text rounded-lg font-medium"
+                className="flex-1 h-11 border border-rippl-black-3 text-white hover:bg-rippl-black-3 bg-rippl-black-2 rounded-xl font-bold transition-all"
               >
                 {isSubmitting ? (
                   <>
@@ -783,7 +785,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
                   e.preventDefault()
                   handleSubmit(e as unknown as React.FormEvent, true)
                 }}
-                className="flex-1 h-10 bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-semibold shadow-lg shadow-vibrant-red-orange/25"
+                className="flex-1 h-11 bg-rippl-violet text-white hover:bg-rippl-violet/90 rounded-xl font-bold shadow-lg shadow-rippl-violet/25 transition-all w-full"
               >
                 {isSubmitting ? (
                   <>
@@ -798,7 +800,7 @@ export function CreateCampaignModal({ isOpen, onClose, onSuccess, editingCampaig
               type="submit"
               form="create-campaign-form"
               disabled={isSubmitting}
-              className="flex-1 h-10 bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-semibold shadow-lg shadow-vibrant-red-orange/25"
+              className="flex-1 h-11 bg-rippl-violet text-white hover:bg-rippl-violet/90 rounded-xl font-bold shadow-lg shadow-rippl-violet/25 transition-all w-full"
             >
               {isSubmitting ? (
                 <>

@@ -126,7 +126,7 @@ export function AnalyticsPage() {
   if (loading) {
     return (
       <div className="min-h-[320px] flex items-center justify-center">
-        <Loader2 className="w-7 h-7 animate-spin text-vibrant-red-orange" />
+        <Loader2 className="w-8 h-8 animate-spin text-rippl-violet" />
       </div>
     )
   }
@@ -135,12 +135,10 @@ export function AnalyticsPage() {
     <div className="flex flex-col flex-1 gap-6">
       {" "}
       {/* Removed bg-section-bg and padding */}
-      <Card className="bg-main-bg border-border shadow-sm p-6 lg:p-6 rounded-xl">
-        {" "}
-        {/* Added rounded-xl */}
-        <CardHeader className="p-0 mb-6">
-          <CardTitle className="text-3xl font-bold text-heading-text flex items-center gap-3">
-            <BarChart className="w-8 h-8 text-muted-label" />
+      <Card className="p-8">
+        <CardHeader className="p-0 mb-10">
+          <CardTitle className="text-4xl font-extrabold flex items-center gap-4">
+            <BarChart className="w-10 h-10 text-rippl-violet shadow-lg shadow-rippl-violet/20" />
             Analytics Dashboard
           </CardTitle>
           <p className="text-muted-label text-lg mt-2">
@@ -149,16 +147,16 @@ export function AnalyticsPage() {
         </CardHeader>
         {/* Overview Section */}
         <section className="mb-8">
-          <h3 className="text-xl font-bold text-heading-text mb-4 flex items-center gap-2">
-            <LayoutGrid className="w-5 h-5 text-muted-label" />
+          <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+            <LayoutGrid className="w-6 h-6 text-rippl-violet" />
             Overview
           </h3>
           <AnalyticsOverviewCards stats={overviewStats} />
         </section>
         {/* Campaign Management Section */}
         <section>
-          <h3 className="text-xl font-bold text-heading-text mb-4 flex items-center gap-2">
-            <ListChecks className="w-5 h-5 text-muted-label" />
+          <h3 className="text-2xl font-bold text-white mt-10 mb-6 flex items-center gap-2">
+            <ListChecks className="w-6 h-6 text-rippl-violet" />
             Campaign Management
           </h3>
           <AnalyticsCampaignTable campaigns={campaignRows} />

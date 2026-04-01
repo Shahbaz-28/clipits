@@ -14,29 +14,29 @@ export function AnalyticsOverviewCards({ stats }: { stats: AnalyticsOverviewStat
       title: "Total Campaigns",
       value: stats.totalCampaigns.toLocaleString("en-IN"),
       icon: LayoutGrid,
-      color: "text-vibrant-red-orange",
-      bgColor: "bg-vibrant-red-orange/10",
+      color: "text-rippl-violet",
+      bgColor: "bg-rippl-violet/10",
     },
     {
       title: "Total Views Generated",
       value: stats.totalViewsGenerated.toLocaleString("en-IN"),
       icon: Eye,
-      color: "text-turquoise-accent",
-      bgColor: "bg-turquoise-accent/10",
+      color: "text-emerald-400",
+      bgColor: "bg-emerald-400/10",
     },
     {
       title: "Total Amount Spent",
       value: `₹${Math.round(stats.totalAmountSpent).toLocaleString("en-IN")}`,
       icon: IndianRupee,
-      color: "text-vibrant-red-orange",
-      bgColor: "bg-vibrant-red-orange/10",
+      color: "text-purple-400",
+      bgColor: "bg-purple-400/10",
     },
     {
       title: "Total Approved Posts",
       value: stats.totalApprovedPosts.toLocaleString("en-IN"),
       icon: CheckCircle,
-      color: "text-sunny-yellow",
-      bgColor: "bg-sunny-yellow/10",
+      color: "text-amber-400",
+      bgColor: "bg-amber-400/10",
     },
   ]
 
@@ -47,8 +47,8 @@ export function AnalyticsOverviewCards({ stats }: { stats: AnalyticsOverviewStat
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-label mb-1">{stat.title}</p>
-                <p className="text-2xl font-bold text-heading-text">{stat.value}</p>
+                <p className="text-xs font-bold text-rippl-gray uppercase tracking-wider mb-1">{stat.title}</p>
+                <p className="text-3xl font-extrabold text-white">{stat.value}</p>
               </div>
               <div className={`p-3 rounded-lg ${stat.bgColor} shadow-sm`}>
                 <stat.icon className={`w-6 h-6 ${stat.color}`} />

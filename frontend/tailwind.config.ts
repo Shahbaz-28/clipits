@@ -25,16 +25,16 @@ const config: Config = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#FF6B6B", // Vibrant Red-Orange
+          DEFAULT: "#8B5CF6", // Rippl Violet
           foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "#4ECDC4", // Turquoise
-          foreground: "#FFFFFF",
+          DEFAULT: "#C4B5FD", // Rippl Violet Soft
+          foreground: "#08050F",
         },
         accent: {
-          DEFAULT: "#FFE66D", // Sunny Yellow
-          foreground: "#222222",
+          DEFAULT: "#3B2A6E", // Rippl Violet Dim
+          foreground: "#FFFFFF",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -52,15 +52,26 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Custom theme colors
-        "main-bg": "#FFFFFF",
-        "section-bg": "#F7F7F7",
+        // Rippl Luxury Premium Theme
+        rippl: {
+          black: "#08050F",
+          "black-2": "#0F0A1A",
+          "black-3": "#1A1230",
+          violet: "#8B5CF6",
+          "violet-soft": "#C4B5FD",
+          "violet-dim": "#3B2A6E",
+          white: "#FFFFFF",
+          gray: "#6B7280",
+        },
         "vibrant-red-orange": "#FF6B6B",
         "turquoise-accent": "#4ECDC4",
         "sunny-yellow": "#FFE66D",
         "heading-text": "#222222",
         "body-text": "#444444",
         "muted-label": "#6B7280",
+      },
+      fontFamily: {
+        manrope: ["var(--font-manrope)", "sans-serif"],
       },
       borderRadius: {
         lg: "0.75rem", // Increased from 0.5rem for more rounding

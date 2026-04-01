@@ -109,9 +109,9 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
   if (loading) {
     return (
       <div className="flex flex-col flex-1">
-        <h1 className="text-2xl font-bold text-heading-text mb-4">Joined Campaigns</h1>
-        <p className="text-muted-label mb-6">Campaigns you&apos;ve joined</p>
-        <div className="flex items-center gap-2 py-12 text-muted-label">
+        <h1 className="text-3xl font-extrabold text-white mb-4">Joined Campaigns</h1>
+        <p className="text-rippl-gray font-medium text-base mb-6">Campaigns you&apos;ve joined</p>
+        <div className="flex items-center gap-2 py-12 text-rippl-gray">
           <Loader2 className="w-6 h-6 animate-spin" />
           <span>Loading joined campaigns...</span>
         </div>
@@ -122,14 +122,14 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
   if (campaigns.length === 0) {
     return (
       <div className="flex flex-col flex-1">
-        <h1 className="text-2xl font-bold text-heading-text mb-4">Joined Campaigns</h1>
-        <p className="text-muted-label mb-6">Campaigns you&apos;ve joined</p>
+        <h1 className="text-3xl font-extrabold text-white mb-4">Joined Campaigns</h1>
+        <p className="text-rippl-gray font-medium text-base mb-6">Campaigns you&apos;ve joined</p>
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="p-4 rounded-full bg-section-bg mb-4">
-            <FolderOpen className="w-12 h-12 text-muted-label" />
+          <div className="p-5 rounded-full bg-rippl-black-3/50 mb-4 border border-rippl-black-3">
+            <FolderOpen className="w-10 h-10 text-rippl-gray" />
           </div>
-          <h2 className="text-xl font-semibold text-heading-text mb-2">No campaigns yet</h2>
-          <p className="text-muted-label max-w-sm">Join campaigns from Explore to see them here.</p>
+          <h2 className="text-2xl font-extrabold text-white mb-2">No campaigns yet</h2>
+          <p className="text-sm font-medium text-rippl-gray max-w-sm">Join campaigns from Explore to see them here.</p>
         </div>
       </div>
     )
@@ -138,18 +138,18 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
   if (filtered.length === 0) {
     return (
       <div className="flex flex-col flex-1">
-        <h1 className="text-2xl font-bold text-heading-text mb-4">Joined Campaigns</h1>
-        <p className="text-muted-label mb-6">Campaigns you&apos;ve joined. Click to view details and submit content.</p>
+        <h1 className="text-3xl font-extrabold text-white mb-4">Joined Campaigns</h1>
+        <p className="text-rippl-gray font-medium text-base mb-6">Campaigns you&apos;ve joined. Click to view details and submit content.</p>
         <div className="relative max-w-sm mb-6">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-rippl-gray/50" />
           <Input
             placeholder="Search campaigns"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-8 h-9"
+            className="pl-10 h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet transition-all"
           />
         </div>
-        <div className="text-center py-12 text-muted-label">
+        <div className="text-center py-12 text-rippl-gray font-medium">
           No campaigns match your search.
         </div>
       </div>
@@ -158,16 +158,16 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
 
   return (
     <div className="flex flex-col flex-1">
-      <h1 className="text-2xl font-bold text-heading-text mb-4">Joined Campaigns</h1>
-      <p className="text-muted-label mb-6">Campaigns you&apos;ve joined. Click to view details and submit content.</p>
+      <h1 className="text-3xl font-extrabold text-white mb-4">Joined Campaigns</h1>
+      <p className="text-rippl-gray font-medium text-base mb-6">Campaigns you&apos;ve joined. Click to view details and submit content.</p>
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-rippl-gray/50" />
           <Input
             placeholder="Search campaigns by title or description"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-8 h-9"
+            className="pl-10 h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet transition-all"
           />
         </div>
       </div>
@@ -175,48 +175,46 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
         {paginated.map((campaign) => (
           <Card
             key={campaign.id}
-            className="bg-main-bg border border-border shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer group rounded-xl overflow-hidden"
+            className="bg-rippl-black-2/50 border border-rippl-black-3 shadow-md hover:border-rippl-violet transition-all duration-300 cursor-pointer group rounded-[24px] overflow-hidden"
             onClick={() => onNavigate("joined-campaign", campaign)}
           >
             {campaign.thumbnailUrl && (
-              <div className="w-full h-28 bg-gray-100 overflow-hidden">
+              <div className="w-full h-32 bg-rippl-black-3 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={campaign.thumbnailUrl}
                   alt={campaign.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90 group-hover:opacity-100"
                 />
               </div>
             )}
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-heading-text mb-1 group-hover:text-turquoise-accent transition-colors">
+                  <h3 className="text-lg font-extrabold text-white mb-1.5 group-hover:text-rippl-violet transition-colors">
                     {campaign.title}
                   </h3>
                   <Badge
-                    className={`${campaign.color} text-white hover:${campaign.color}/90 text-xs shadow-sm rounded-md`}
+                    className={`${campaign.color} text-white hover:${campaign.color}/90 text-xs shadow-sm rounded-lg font-bold px-2.5 py-0.5`}
                   >
                     {campaign.rate}
                   </Badge>
                 </div>
               </div>
 
-              <p className="text-sm text-body-text mb-4">
-                {campaign.description.length > 50
-                  ? `${campaign.description.substring(0, 50)}...`
-                  : campaign.description || "—"}
+              <p className="text-sm font-medium text-rippl-gray mb-5 h-10 overflow-hidden text-ellipsis line-clamp-2">
+                {campaign.description || "—"}
               </p>
 
-              <div className="mb-4">
+              <div className="mb-5">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-lg font-bold text-turquoise-accent">{campaign.earnings}</span>
-                  <span className="text-sm text-muted-label">of {campaign.total} paid out</span>
-                  <span className="text-sm font-semibold text-body-text">{campaign.percentage}</span>
+                  <span className="text-lg font-extrabold text-emerald-400">{campaign.earnings}</span>
+                  <span className="text-xs font-bold text-rippl-gray">of {campaign.total} paid out</span>
+                  <span className="text-sm font-extrabold text-white">{campaign.percentage}</span>
                 </div>
-                <div className="w-full bg-border rounded-full h-2">
+                <div className="w-full bg-rippl-black-3 rounded-full h-2">
                   <div
-                    className="bg-turquoise-accent h-2 rounded-full transition-all duration-300 shadow-sm"
+                    className="bg-emerald-400 h-2 rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(52,211,153,0.5)]"
                     style={{ width: campaign.percentage }}
                   />
                 </div>
@@ -224,22 +222,22 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
 
               <div className="grid grid-cols-3 gap-4 text-xs">
                 <div>
-                  <p className="text-muted-label mb-1">Type</p>
-                  <p className="font-semibold text-body-text">{campaign.type}</p>
+                  <p className="font-bold text-rippl-gray mb-1">Type</p>
+                  <p className="font-extrabold text-white capitalize">{campaign.type}</p>
                 </div>
                 <div>
-                  <p className="text-muted-label mb-1">Platforms</p>
+                  <p className="font-bold text-rippl-gray mb-1">Platforms</p>
                   <div className="flex space-x-1">
                     {campaign.platforms.map((Platform, idx) => (
-                      <Platform key={`platform-${idx}`} className="w-4 h-4 text-muted-label" />
+                      <Platform key={`platform-${idx}`} className="w-4 h-4 text-white" />
                     ))}
                   </div>
                 </div>
                 <div>
-                  <p className="text-muted-label mb-1">Views</p>
+                  <p className="font-bold text-rippl-gray mb-1">Views</p>
                   <div className="flex items-center space-x-1">
-                    <Eye className="w-3 h-3 text-muted-label" />
-                    <span className="font-semibold text-body-text">{campaign.views}</span>
+                    <Eye className="w-3.5 h-3.5 text-white" />
+                    <span className="font-extrabold text-white">{campaign.views}</span>
                   </div>
                 </div>
               </div>
@@ -248,7 +246,7 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
         ))}
       </div>
       {filtered.length > pageSize && (
-        <div className="flex items-center justify-between mt-6 pt-4 border-t border-border text-sm text-muted-label">
+        <div className="flex items-center justify-between mt-6 pt-5 border-t border-rippl-black-3 text-sm font-medium text-rippl-gray">
           <span>
             Showing {startIndex + 1}–{Math.min(startIndex + pageSize, filtered.length)} of {filtered.length}
           </span>
@@ -257,7 +255,7 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
               type="button"
               size="sm"
               variant="outline"
-              className="h-8 px-3 text-xs"
+              className="h-9 px-4 text-xs font-bold border-rippl-black-3 text-white bg-rippl-black-2/50 hover:bg-rippl-black-3 transition-colors rounded-xl"
               disabled={currentPage === 1}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
             >
@@ -267,7 +265,7 @@ export function JoinedCampaignsListPage({ onNavigate }: JoinedCampaignsListPageP
               type="button"
               size="sm"
               variant="outline"
-              className="h-8 px-3 text-xs"
+              className="h-9 px-4 text-xs font-bold border-rippl-black-3 text-white bg-rippl-black-2/50 hover:bg-rippl-black-3 transition-colors rounded-xl"
               disabled={currentPage === totalPages}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             >

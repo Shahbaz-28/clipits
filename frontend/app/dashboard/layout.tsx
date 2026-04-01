@@ -27,7 +27,7 @@ export default function DashboardLayout({
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-vibrant-red-orange" />
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-rippl-violet" />
       </div>
     )
   }
@@ -39,7 +39,7 @@ export default function DashboardLayout({
   if (!profileLoading && (!profile || !profile.onboarding_done)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-vibrant-red-orange" />
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-rippl-violet" />
       </div>
     )
   }

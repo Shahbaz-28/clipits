@@ -32,46 +32,46 @@ export default function AdminProfilePage() {
     .toUpperCase()
 
   return (
-    <div className="flex flex-col gap-6 max-w-xl">
+    <div className="flex flex-col gap-8 max-w-xl">
       <div>
-        <h1 className="text-3xl font-bold text-heading-text mb-2">Admin Profile</h1>
-        <p className="text-muted-label">
+        <h1 className="text-4xl font-extrabold text-white tracking-tight mb-3">Admin Profile</h1>
+        <p className="text-base font-medium text-rippl-gray italic">
           Basic information for this admin account. These details are read-only and come from your login/profile.
         </p>
       </div>
 
-      <Card className="border border-border shadow-sm rounded-xl">
-        <CardHeader className="px-6 pt-6 pb-3 flex flex-row items-center gap-4">
-          <Avatar className="w-12 h-12">
+      <Card className="bg-rippl-black-2 border border-rippl-black-3 shadow-2xl rounded-[32px] overflow-hidden">
+        <CardHeader className="px-8 pt-8 pb-4 flex flex-row items-center gap-6">
+          <Avatar className="w-16 h-16 border-2 border-rippl-black-3 shadow-xl">
             <AvatarImage
               src={user.user_metadata?.avatar_url}
               alt={displayName}
             />
-            <AvatarFallback className="bg-vibrant-red-orange text-white font-semibold">
+            <AvatarFallback className="bg-rippl-violet text-white font-black text-xl">
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div>
-            <CardTitle className="text-lg font-semibold text-heading-text">Account Details</CardTitle>
-            <p className="text-xs text-muted-label mt-1">
-              {displayName} &middot; {role}
+          <div className="flex-1">
+            <CardTitle className="text-2xl font-black text-white tracking-tight">Account Details</CardTitle>
+            <p className="text-xs font-bold text-rippl-violet uppercase tracking-widest mt-1 bg-rippl-violet/10 px-3 py-1 rounded-full border border-rippl-violet/20 inline-block">
+              {role}
             </p>
           </div>
         </CardHeader>
-        <CardContent className="px-6 pb-6 space-y-4">
-          <div className="space-y-1">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" value={email} disabled readOnly />
+        <CardContent className="px-8 pb-10 space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm font-bold text-rippl-gray ml-1">Email Address</Label>
+            <Input id="email" value={email} disabled readOnly className="h-12 bg-rippl-black-3/50 border-rippl-black-3 text-white rounded-xl font-medium cursor-not-allowed opacity-80" />
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="username">Username</Label>
-            <Input id="username" value={username} disabled readOnly />
+          <div className="space-y-2">
+            <Label htmlFor="username" className="text-sm font-bold text-rippl-gray ml-1">Username</Label>
+            <Input id="username" value={username} disabled readOnly className="h-12 bg-rippl-black-3/50 border-rippl-black-3 text-white rounded-xl font-medium cursor-not-allowed opacity-80" />
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="role">Role</Label>
-            <Input id="role" value={role} disabled readOnly />
+          <div className="space-y-2">
+            <Label htmlFor="role" className="text-sm font-bold text-rippl-gray ml-1">Account Role</Label>
+            <Input id="role" value={role} disabled readOnly className="h-12 bg-rippl-black-3/50 border-rippl-black-3 text-white rounded-xl font-medium cursor-not-allowed opacity-80" />
           </div>
         </CardContent>
       </Card>

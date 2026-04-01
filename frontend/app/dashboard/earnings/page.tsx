@@ -154,9 +154,9 @@ export default function EarningsPage() {
   if (loading) {
     return (
       <>
-        <h1 className="text-2xl font-bold text-heading-text mb-4">Earnings</h1>
-        <p className="text-muted-label mt-1 mb-6">Balance and payout history</p>
-        <div className="flex items-center gap-2 py-12 text-muted-label">
+        <h1 className="text-3xl font-extrabold text-white mb-4">Earnings</h1>
+        <p className="text-rippl-gray font-medium mt-1 mb-6">Balance and payout history</p>
+        <div className="flex items-center gap-2 py-12 text-rippl-gray">
           <Loader2 className="w-6 h-6 animate-spin" />
           <span>Loading earnings...</span>
         </div>
@@ -279,11 +279,11 @@ export default function EarningsPage() {
   return (
     <>
       <div className="mb-8 space-y-1.5">
-        <h1 className="text-2xl font-bold text-heading-text">Wallet & Earnings</h1>
-        <p className="text-muted-label">
+        <h1 className="text-3xl font-extrabold text-white">Wallet & Earnings</h1>
+        <p className="text-rippl-gray font-medium text-base">
           Track your balance, earnings from approved content, and payout requests.
         </p>
-        <p className="text-xs text-muted-label">
+        <p className="text-xs font-bold text-rippl-violet">
           Only views after a submission is approved count towards earnings. Totals update every few hours when views
           are refreshed.
         </p>
@@ -291,16 +291,16 @@ export default function EarningsPage() {
 
       {!hasEarnings ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="p-4 rounded-full bg-section-bg mb-4">
-            <DollarSign className="w-12 h-12 text-muted-label" />
+          <div className="p-4 rounded-full bg-rippl-black-3 text-rippl-gray mb-4">
+            <DollarSign className="w-12 h-12" />
           </div>
-          <h2 className="text-xl font-semibold text-heading-text mb-2">No earnings yet</h2>
-          <p className="text-muted-label max-w-sm mb-6">
+          <h2 className="text-2xl font-extrabold text-white mb-2">No earnings yet</h2>
+          <p className="text-rippl-gray font-medium max-w-sm mb-6">
             Earn from approved submissions. Views are tracked automatically and earnings update every few hours.
           </p>
           <Button
             variant="outline"
-            className="border-border text-body-text hover:bg-section-bg"
+            className="border-rippl-black-3 text-white hover:bg-rippl-black-3 font-bold rounded-xl"
             onClick={() => router.push("/dashboard/explore")}
           >
             Explore campaigns
@@ -309,48 +309,48 @@ export default function EarningsPage() {
       ) : (
         <div className="space-y-6">
           {/* Wallet summary */}
-          <Card className="bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden">
+          <Card className="bg-rippl-black-2/50 border border-rippl-black-3 shadow-sm rounded-[32px] overflow-hidden">
             <CardContent className="p-6 md:p-8">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-turquoise-accent/10 flex items-center justify-center shrink-0">
-                    <Wallet className="w-7 h-7 text-turquoise-accent" />
+                <div className="flex items-start gap-5">
+                  <div className="w-14 h-14 rounded-2xl bg-rippl-violet/20 flex items-center justify-center shrink-0">
+                    <Wallet className="w-7 h-7 text-rippl-violet" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-muted-label uppercase tracking-wide">Available balance</p>
-                    <p className="text-3xl font-bold text-heading-text mt-1">
+                    <p className="text-sm font-bold text-rippl-gray uppercase tracking-wide">Available balance</p>
+                    <p className="text-4xl font-extrabold text-white mt-1">
                       ₹{availableBalance.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
-                    <p className="text-sm text-muted-label mt-2">
+                    <p className="text-sm font-bold text-rippl-gray mt-2">
                       Earned ₹{totalEarned.toLocaleString("en-IN", { maximumFractionDigits: 2 })} · Paid ₹
                       {totalPaid.toLocaleString("en-IN", { maximumFractionDigits: 2 })} · Pending ₹
                       {pendingWithdrawal.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
                     </p>
                   </div>
                 </div>
-                <div className="border-t border-gray-100 pt-6 lg:border-t-0 lg:pt-0 lg:border-l lg:pl-8 lg:border-gray-100 space-y-4">
+                <div className="border-t border-rippl-black-3 pt-6 lg:border-t-0 lg:pt-0 lg:border-l lg:pl-8 lg:border-rippl-black-3 space-y-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="text-sm text-muted-label">
+                    <span className="text-sm font-bold text-rippl-gray">
                       UPI for payouts:{" "}
                       {payoutDetails.upiId ? (
-                        <span className="font-medium text-heading-text">{payoutDetails.upiId}</span>
+                        <span className="font-extrabold text-white">{payoutDetails.upiId}</span>
                       ) : (
-                        <span className="text-red-600 font-medium">Not set</span>
+                        <span className="text-red-500 font-bold">Not set</span>
                       )}
                     </span>
                     <Button
                       type="button"
                       size="sm"
                       variant="outline"
-                      className="border-gray-200 text-heading-text hover:bg-gray-50 rounded-lg"
+                      className="border-rippl-black-3 text-white hover:bg-rippl-black-3 bg-rippl-black-3/50 rounded-xl font-bold"
                       onClick={() => setUpiModalOpen(true)}
                     >
                       {payoutDetails.upiId ? "Edit" : "Add UPI"}
                     </Button>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <div className="flex-1 space-y-1">
-                      <Label htmlFor="payout-amount" className="text-xs text-muted-label font-medium">
+                    <div className="flex-1 space-y-1.5">
+                      <Label htmlFor="payout-amount" className="text-xs font-bold text-white/90">
                         Amount (min ₹2,000)
                       </Label>
                       <Input
@@ -361,7 +361,7 @@ export default function EarningsPage() {
                         placeholder="2,000"
                         value={payoutAmount}
                         onChange={(e) => setPayoutAmount(e.target.value)}
-                        className="h-10 rounded-lg border-gray-200 text-heading-text"
+                        className="h-11 rounded-xl bg-rippl-black-3/50 border border-rippl-black-3 text-white focus:border-rippl-violet focus:ring-rippl-violet"
                       />
                     </div>
                     <div className="flex items-end">
@@ -369,7 +369,7 @@ export default function EarningsPage() {
                         type="button"
                         disabled={!canRequestPayout || !isPayoutAmountValid || requesting}
                         onClick={handleRequestPayout}
-                        className="w-full sm:w-auto h-10 bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-semibold px-5"
+                        className="w-full sm:w-auto h-11 bg-rippl-violet text-white hover:bg-rippl-violet/90 rounded-xl font-bold shadow-lg shadow-rippl-violet/25 px-6 transition-all"
                       >
                         {requesting ? (
                           <>
@@ -383,12 +383,12 @@ export default function EarningsPage() {
                     </div>
                   </div>
                   {!payoutDetails.upiId && (
-                    <p className="text-xs text-red-600">
+                    <p className="text-xs font-bold text-red-400">
                       Add your UPI ID to request payouts. Minimum withdrawal is ₹2,000.
                     </p>
                   )}
                   {payoutDetails.upiId && availableBalance > 0 && availableBalance < 2000 && (
-                    <p className="text-xs text-muted-label">
+                    <p className="text-xs font-bold text-amber-500">
                       Minimum payout is ₹2,000. Current balance: ₹{availableBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })}.
                     </p>
                   )}
@@ -400,40 +400,40 @@ export default function EarningsPage() {
           {/* Approved submissions list */}
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-              <h2 className="text-lg font-semibold text-heading-text">Earnings from approved content</h2>
+              <h2 className="text-xl font-extrabold text-white">Earnings from approved content</h2>
               <div className="relative w-full sm:w-[240px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-rippl-gray" />
                 <Input
                   placeholder="Search by campaign"
                   value={earningsSearch}
                   onChange={(e) => setEarningsSearch(e.target.value)}
-                  className="pl-9 h-10 rounded-lg border-gray-200 text-sm"
+                  className="pl-9 h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl text-sm font-medium focus:border-rippl-violet focus:ring-rippl-violet"
                 />
               </div>
             </div>
             <div className="space-y-3">
               {paginatedEarnings.map((s) => (
-                <Card key={s.id} className="bg-white border border-gray-100 shadow-sm rounded-xl hover:shadow-md transition-shadow">
-                  <CardContent className="p-4 md:p-5">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
+                <Card key={s.id} className="bg-rippl-black-3/50 border border-rippl-black-3 shadow-sm rounded-2xl hover:bg-rippl-black-3/70 transition-colors">
+                  <CardContent className="p-5 md:p-6">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-heading-text mb-1">{s.campaign?.title ?? "Campaign"}</p>
+                        <p className="text-base font-extrabold text-white mb-2">{s.campaign?.title ?? "Campaign"}</p>
                         <a
                           href={s.content_link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 text-sm font-medium text-turquoise-accent hover:underline"
+                          className="inline-flex items-center gap-1.5 text-sm font-bold text-rippl-violet hover:text-white transition-colors"
                         >
                           <ExternalLink className="w-3.5 h-3.5" />
                           View content
                         </a>
-                        <p className="text-xs text-muted-label mt-2">
+                        <p className="text-xs font-bold text-rippl-gray mt-2">
                           Approved {formatDateTime(s.reviewed_at || s.submitted_at)}
                         </p>
                       </div>
                       <div className="flex flex-col items-end gap-1 shrink-0">
-                        <span className="text-sm text-muted-label">{s.view_count.toLocaleString()} views</span>
-                        <span className="text-lg font-bold text-turquoise-accent">
+                        <span className="text-sm font-bold text-rippl-gray">{s.view_count.toLocaleString()} views</span>
+                        <span className="text-xl font-extrabold text-emerald-400">
                           ₹{Number(s.earnings).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </div>
@@ -443,7 +443,7 @@ export default function EarningsPage() {
               ))}
             </div>
             {filteredEarnings.length > pageSize && (
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border text-sm text-muted-label">
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-rippl-black-3 text-sm font-bold text-rippl-gray">
                 <span>
                   Showing {earningsStartIndex + 1}–{Math.min(earningsStartIndex + pageSize, filteredEarnings.length)} of {filteredEarnings.length}
                 </span>
@@ -452,7 +452,7 @@ export default function EarningsPage() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-8 px-3 text-xs"
+                    className="h-9 px-4 text-xs border-rippl-black-3 text-white bg-rippl-black-3/50 hover:bg-rippl-black-3"
                     disabled={earningsCurrentPage === 1}
                     onClick={() => setEarningsPage((p) => Math.max(1, p - 1))}
                   >
@@ -462,7 +462,7 @@ export default function EarningsPage() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-8 px-3 text-xs"
+                    className="h-9 px-4 text-xs border-rippl-black-3 text-white bg-rippl-black-3/50 hover:bg-rippl-black-3"
                     disabled={earningsCurrentPage === earningsTotalPages}
                     onClick={() => setEarningsPage((p) => Math.min(earningsTotalPages, p + 1))}
                   >
@@ -476,13 +476,13 @@ export default function EarningsPage() {
           {/* Payout history */}
           <div>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-              <h2 className="text-lg font-semibold text-heading-text">Payout history</h2>
+              <h2 className="text-xl font-extrabold text-white">Payout history</h2>
               <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
                 <Select value={payoutStatusFilter} onValueChange={(v) => setPayoutStatusFilter(v as typeof payoutStatusFilter)}>
-                  <SelectTrigger className="h-9 w-[140px] text-sm">
+                  <SelectTrigger className="h-11 w-[140px] text-sm font-bold bg-rippl-black-3/50 border-rippl-black-3 text-white rounded-xl">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-rippl-black-3 border-rippl-black-3 text-white rounded-xl">
                     <SelectItem value="all">All</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="processing">Processing</SelectItem>
@@ -490,31 +490,31 @@ export default function EarningsPage() {
                     <SelectItem value="rejected">Rejected</SelectItem>
                   </SelectContent>
                 </Select>
-                <div className="relative w-full sm:w-[200px]">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+                <div className="relative w-full sm:w-[220px]">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-rippl-gray" />
                   <Input
                     placeholder="Search amount or ref"
                     value={payoutSearch}
                     onChange={(e) => setPayoutSearch(e.target.value)}
-                    className="pl-8 h-9 text-sm"
+                    className="pl-9 h-11 text-sm font-medium bg-rippl-black-3/50 border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl focus:border-rippl-violet focus:ring-rippl-violet"
                   />
                 </div>
               </div>
             </div>
             {payoutHistory.length === 0 ? (
-              <p className="text-sm text-muted-label">No payout requests yet.</p>
+              <p className="text-sm font-medium text-rippl-gray">No payout requests yet.</p>
             ) : filteredPayouts.length === 0 ? (
-              <p className="text-sm text-muted-label">No payouts match your filters.</p>
+              <p className="text-sm font-medium text-rippl-gray">No payouts match your filters.</p>
             ) : (
               <div className="space-y-3">
                 {paginatedPayouts.map((payout) => (
-                  <Card key={payout.id} className="bg-white border border-gray-100 shadow-sm rounded-xl">
-                    <CardContent className="p-4 md:p-5 flex items-center justify-between gap-4">
+                  <Card key={payout.id} className="bg-rippl-black-3/50 border border-rippl-black-3 shadow-sm rounded-2xl hover:bg-rippl-black-3/70 transition-colors">
+                    <CardContent className="p-5 flex items-center justify-between gap-4">
                       <div>
-                        <p className="text-sm font-medium text-heading-text">
+                        <p className="text-base font-extrabold text-white">
                           ₹{Number(payout.amount).toLocaleString("en-IN", { maximumFractionDigits: 2 })}
                         </p>
-                        <p className="text-xs text-muted-label mt-1">
+                        <p className="text-xs font-bold text-rippl-gray mt-1">
                           Requested{" "}
                           {new Date(payout.requested_at).toLocaleDateString("en-IN", {
                             dateStyle: "medium",
@@ -525,19 +525,19 @@ export default function EarningsPage() {
                             })}`}
                         </p>
                         {payout.admin_note && (
-                          <p className="text-xs text-muted-label mt-1">Note: {payout.admin_note}</p>
+                          <p className="text-xs font-bold text-rippl-gray mt-1">Note: {payout.admin_note}</p>
                         )}
                         {payout.transaction_ref && (
-                          <p className="text-xs text-muted-label mt-1">Ref: {payout.transaction_ref}</p>
+                          <p className="text-xs font-bold text-rippl-gray mt-1">Ref: {payout.transaction_ref}</p>
                         )}
                       </div>
                       <span
-                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
+                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold ${
                           payout.status === "paid"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                             : payout.status === "rejected"
-                            ? "bg-red-50 text-red-700 border border-red-200"
-                            : "bg-amber-50 text-amber-700 border border-amber-200"
+                            ? "bg-red-500/10 text-red-500 border border-red-500/20"
+                            : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
                         }`}
                       >
                         {payout.status.charAt(0).toUpperCase() + payout.status.slice(1)}
@@ -548,7 +548,7 @@ export default function EarningsPage() {
               </div>
             )}
             {filteredPayouts.length > pageSize && (
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border text-sm text-muted-label">
+              <div className="flex items-center justify-between mt-4 pt-4 border-t border-rippl-black-3 text-sm font-bold text-rippl-gray">
                 <span>
                   Showing {payoutStartIndex + 1}–{Math.min(payoutStartIndex + pageSize, filteredPayouts.length)} of {filteredPayouts.length}
                 </span>
@@ -557,7 +557,7 @@ export default function EarningsPage() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-8 px-3 text-xs"
+                    className="h-9 px-4 text-xs border-rippl-black-3 text-white bg-rippl-black-3/50 hover:bg-rippl-black-3"
                     disabled={payoutCurrentPage === 1}
                     onClick={() => setPayoutPage((p) => Math.max(1, p - 1))}
                   >
@@ -567,7 +567,7 @@ export default function EarningsPage() {
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="h-8 px-3 text-xs"
+                    className="h-9 px-4 text-xs border-rippl-black-3 text-white bg-rippl-black-3/50 hover:bg-rippl-black-3"
                     disabled={payoutCurrentPage === payoutTotalPages}
                     onClick={() => setPayoutPage((p) => Math.min(payoutTotalPages, p + 1))}
                   >
@@ -581,15 +581,15 @@ export default function EarningsPage() {
       )}
 
       <Dialog open={upiModalOpen} onOpenChange={setUpiModalOpen}>
-        <DialogContent className="sm:max-w-[420px] bg-white text-heading-text border border-gray-100 rounded-2xl">
+        <DialogContent className="sm:max-w-[420px] bg-rippl-black-2 text-white border border-rippl-black-3 rounded-[32px] p-6">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold text-heading-text">
+            <DialogTitle className="text-2xl font-extrabold text-white">
               {payoutDetails.upiId ? "Update UPI ID" : "Add UPI ID"}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="upiId" className="text-sm font-medium text-heading-text">
+              <Label htmlFor="upiId" className="text-sm font-bold text-white/90">
                 UPI ID
               </Label>
               <Input
@@ -597,14 +597,15 @@ export default function EarningsPage() {
                 placeholder="name@upi"
                 value={upiInput}
                 onChange={(e) => setUpiInput(e.target.value)}
+                className="h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl focus:border-rippl-violet focus:ring-rippl-violet px-4"
               />
-              <p className="text-xs text-muted-label">This will be used for withdrawals.</p>
+              <p className="text-xs font-medium text-rippl-gray">This will be used for withdrawals.</p>
             </div>
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-3 pt-3 border-t border-rippl-black-3">
               <Button
                 type="button"
                 variant="outline"
-                className="flex-1 border-gray-200"
+                className="flex-1 border border-rippl-black-3 text-white hover:bg-rippl-black-3 bg-rippl-black-2 rounded-xl h-11 font-bold"
                 onClick={() => setUpiModalOpen(false)}
                 disabled={savingUpi}
               >
@@ -612,7 +613,7 @@ export default function EarningsPage() {
               </Button>
               <Button
                 type="button"
-                className="flex-1 bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90"
+                className="flex-1 bg-rippl-violet text-white hover:bg-rippl-violet/90 rounded-xl h-11 font-bold shadow-lg shadow-rippl-violet/25"
                 onClick={handleSavePayoutDetails}
                 disabled={savingUpi}
               >

@@ -72,48 +72,53 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-vibrant-red-orange/5 to-turquoise-accent/5 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="flex items-center justify-center mb-4">
-            <div className="w-12 h-12 bg-vibrant-red-orange rounded-lg flex items-center justify-center shadow-md shadow-vibrant-red-orange/30">
-              <Zap className="w-7 h-7 text-white" />
+    <div className="min-h-screen bg-rippl-black flex items-center justify-center p-4 relative overflow-hidden py-12">
+      {/* Decorative blurred background elements */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-rippl-violet/10 rounded-full blur-[128px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-rippl-violet/5 rounded-full blur-[128px] pointer-events-none" />
+
+      <Card className="w-full max-w-md bg-rippl-black-2/80 backdrop-blur-xl border border-rippl-black-3 rounded-[32px] shadow-2xl relative z-10 overflow-hidden">
+        <CardHeader className="text-center pt-10 pb-6 px-8">
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-16 h-16 bg-rippl-violet flex items-center justify-center rounded-2xl shadow-xl shadow-rippl-violet/30 overflow-hidden">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/home.png" alt="Rippl Logo" className="w-8 h-8 object-contain invert brightness-0 z-10" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-heading-text">Create Account</CardTitle>
-          <CardDescription className="text-muted-label">
-            Join Rippl  and start earning from your content
+          <CardTitle className="text-3xl font-extrabold text-white tracking-tight">Create Account</CardTitle>
+          <CardDescription className="text-base font-medium text-rippl-gray mt-2">
+            Join Rippl and start earning from your content
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-8 pb-8">
           <form onSubmit={handleSignUp} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName" className="text-body-text">First Name</Label>
+                <Label htmlFor="firstName" className="text-sm font-bold text-rippl-gray ml-1">First Name</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-label" />
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-rippl-gray/50" />
                   <Input
                     id="firstName"
                     type="text"
                     placeholder="First name"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    className="pl-10"
+                    className="pl-11 h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/40 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet font-medium transition-all"
                     required
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="lastName" className="text-body-text">Last Name</Label>
+                <Label htmlFor="lastName" className="text-sm font-bold text-rippl-gray ml-1">Last Name</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-label" />
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-rippl-gray/50" />
                   <Input
                     id="lastName"
                     type="text"
                     placeholder="Last name"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
-                    className="pl-10"
+                    className="pl-11 h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/40 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet font-medium transition-all"
                     required
                   />
                 </div>
@@ -121,78 +126,85 @@ export default function SignUpPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-body-text">Email</Label>
+              <Label htmlFor="email" className="text-sm font-bold text-rippl-gray ml-1">Email</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-label" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-rippl-gray/50" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="name@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10"
+                  className="pl-11 h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/40 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet font-medium transition-all"
                   required
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-body-text">Password</Label>
+              <Label htmlFor="password" className="text-sm font-bold text-rippl-gray ml-1">Password</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-label" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-rippl-gray/50" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   placeholder="Create a password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10"
+                  className="pl-11 pr-11 h-11 bg-rippl-black-3/50 border border-rippl-black-3 text-white placeholder:text-rippl-gray/40 rounded-xl focus:border-rippl-violet focus:ring-1 focus:ring-rippl-violet font-medium transition-all tracking-widest"
                   required
                   minLength={6}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-muted-label hover:text-body-text"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-rippl-gray/50 hover:text-white transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              <p className="text-xs text-muted-label">Password must be at least 6 characters</p>
+              <p className="text-xs font-medium text-rippl-gray ml-1 mt-1">Password must be at least 6 characters</p>
             </div>
 
             {error && (
-              <div className="text-sm text-red-500 bg-red-50 p-3 rounded-md">
+              <div className="text-sm font-bold text-red-400 bg-red-500/10 border border-red-500/20 p-3 rounded-lg mt-3">
                 {error}
               </div>
             )}
 
             <Button
               type="submit"
-              className="w-full bg-vibrant-red-orange hover:bg-vibrant-red-orange/90 text-white"
+              className="w-full h-11 mt-4 bg-rippl-violet hover:bg-rippl-violet/90 text-white rounded-xl font-bold shadow-lg shadow-rippl-violet/25 transition-all text-sm"
               disabled={loading}
             >
-              {loading ? "Creating account..." : "Create Account"}
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+                  Creating account...
+                </>
+              ) : (
+                "Create Account"
+              )}
             </Button>
           </form>
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border" />
+              <span className="w-full border-t border-rippl-black-3" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-label">Or continue with</span>
+            <div className="relative flex justify-center text-[10px] font-bold uppercase tracking-widest text-rippl-gray">
+              <span className="bg-rippl-black-2 px-4 shadow-[0_0_10px_10px_var(--tw-shadow-color)] shadow-rippl-black-2">OR CONTINUE WITH</span>
             </div>
           </div>
 
           <Button
             type="button"
             variant="outline"
-            className="w-full border-border text-body-text hover:bg-section-bg"
+            className="w-full h-11 bg-rippl-black-3/50 border-rippl-black-3 text-white hover:bg-rippl-black-3 hover:text-white rounded-xl font-bold transition-all text-sm group"
             onClick={handleGoogleSignUp}
             disabled={loading}
           >
-            <svg className="mr-2 w-4 h-4" viewBox="0 0 24 24">
+            <svg className="mr-3 w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
               <path
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                 fill="#4285F4"
@@ -213,9 +225,9 @@ export default function SignUpPage() {
             Continue with Google
           </Button>
 
-          <div className="mt-6 text-center text-sm text-muted-label">
+          <div className="mt-6 text-center text-sm font-medium text-rippl-gray">
             Already have an account?{" "}
-            <Link href="/sign-in" className="text-vibrant-red-orange hover:underline">
+            <Link href="/sign-in" className="text-white hover:text-rippl-violet font-bold hover:underline transition-colors">
               Sign in
             </Link>
           </div>

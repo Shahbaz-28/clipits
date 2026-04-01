@@ -189,21 +189,21 @@ export function CreatorSubmissionsPage() {
     switch (status) {
       case "pending":
         return (
-          <Badge className="bg-amber-50 text-amber-600 border border-amber-200 rounded-lg flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1">
+          <Badge className="bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-lg flex items-center gap-1.5 text-xs font-bold px-2.5 py-1">
             <Clock className="w-3 h-3" />
             Pending
           </Badge>
         )
       case "approved":
         return (
-          <Badge className="bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-lg flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1">
+          <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg flex items-center gap-1.5 text-xs font-bold px-2.5 py-1">
             <CheckCircle className="w-3 h-3" />
             Approved
           </Badge>
         )
       case "rejected":
         return (
-          <Badge className="bg-red-50 text-red-600 border border-red-200 rounded-lg flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1">
+          <Badge className="bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg flex items-center gap-1.5 text-xs font-bold px-2.5 py-1">
             <XCircle className="w-3 h-3" />
             Rejected
           </Badge>
@@ -216,11 +216,11 @@ export function CreatorSubmissionsPage() {
   if (loading) {
     return (
       <div className="flex flex-col flex-1 space-y-8">
-        <div className="border-b border-gray-100 pb-6">
-          <h1 className="text-3xl font-bold text-heading-text mb-2">Submissions</h1>
-          <p className="text-muted-label text-base">Review and approve content from clippers</p>
+        <div className="border-b border-rippl-black-3 pb-6">
+          <h1 className="text-3xl font-extrabold text-white mb-2">Submissions</h1>
+          <p className="text-rippl-gray font-medium text-base">Review and approve content from clippers</p>
         </div>
-        <div className="flex items-center gap-2 py-12 text-muted-label">
+        <div className="flex items-center gap-2 py-12 text-rippl-gray">
           <Loader2 className="w-6 h-6 animate-spin" />
           <span>Loading submissions...</span>
         </div>
@@ -231,18 +231,18 @@ export function CreatorSubmissionsPage() {
   if (submissions.length === 0) {
     return (
       <div className="flex flex-col flex-1 space-y-8">
-        <div className="border-b border-gray-100 pb-6">
-          <h1 className="text-3xl font-bold text-heading-text mb-2">Submissions</h1>
-          <p className="text-muted-label text-base">Review and approve content from clippers</p>
+        <div className="border-b border-rippl-black-3 pb-6">
+          <h1 className="text-3xl font-extrabold text-white mb-2">Submissions</h1>
+          <p className="text-rippl-gray font-medium text-base">Review and approve content from clippers</p>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <Card className="bg-white border border-gray-100 max-w-md p-8 text-center shadow-lg rounded-2xl">
+          <Card className="bg-rippl-black-2/50 border border-rippl-black-3 max-w-md p-8 text-center shadow-lg rounded-[32px]">
             <CardContent className="p-0">
-              <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-6">
-                <Upload className="w-8 h-8 text-muted-label" />
+              <div className="w-16 h-16 rounded-2xl bg-rippl-black-3/50 flex items-center justify-center mx-auto mb-6">
+                <Upload className="w-8 h-8 text-rippl-gray" />
               </div>
-              <h2 className="text-xl font-bold text-heading-text mb-3">No submissions yet</h2>
-              <p className="text-sm text-muted-label">
+              <h2 className="text-2xl font-extrabold text-white mb-3">No submissions yet</h2>
+              <p className="text-sm font-medium text-rippl-gray">
                 When clippers submit content for your campaigns, they will appear here for review.
               </p>
             </CardContent>
@@ -255,15 +255,15 @@ export function CreatorSubmissionsPage() {
   return (
     <div className="flex flex-col flex-1 space-y-8">
       {/* Header */}
-      <div className="border-b border-gray-100 pb-6">
-        <h1 className="text-3xl font-bold text-heading-text mb-2">Submissions</h1>
-        <p className="text-muted-label text-base">Review and approve content from clippers. Views and earnings are tracked automatically after approval.</p>
+      <div className="border-b border-rippl-black-3 pb-6">
+        <h1 className="text-3xl font-extrabold text-white mb-2">Submissions</h1>
+        <p className="text-rippl-gray font-medium text-base">Review and approve content from clippers. Views and earnings are tracked automatically after approval.</p>
       </div>
 
       {/* Submissions Table */}
-      <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-rippl-black-2/50 border border-rippl-black-3 rounded-[32px] overflow-hidden shadow-sm">
         {/* Table Header */}
-        <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-muted-label uppercase tracking-wide">
+        <div className="grid grid-cols-12 gap-4 px-6 py-5 bg-rippl-black-3/30 border-b border-rippl-black-3 text-xs font-extrabold text-rippl-gray uppercase tracking-wide">
           <div className="col-span-4">Content</div>
           <div className="col-span-2">Campaign</div>
           <div className="col-span-1 text-center">Status</div>
@@ -273,9 +273,9 @@ export function CreatorSubmissionsPage() {
         </div>
 
         {/* Table Body */}
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-rippl-black-3">
           {submissions.map((s) => (
-            <div key={s.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors">
+            <div key={s.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-rippl-black-3/20 transition-colors">
               {/* Content */}
               <div className="col-span-4 flex items-center gap-3">
                 {s.media_url ? (
@@ -289,7 +289,7 @@ export function CreatorSubmissionsPage() {
                         type: isVideo ? "video" : "image",
                       })
                     }}
-                    className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 relative group cursor-pointer hover:ring-2 hover:ring-vibrant-red-orange transition-all"
+                    className="w-16 h-16 rounded-xl overflow-hidden bg-rippl-black-3 flex-shrink-0 relative group cursor-pointer hover:ring-2 hover:ring-rippl-violet transition-all"
                   >
                     {s.media_url.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) ? (
                       <>
@@ -311,8 +311,8 @@ export function CreatorSubmissionsPage() {
                     )}
                   </button>
                 ) : (
-                  <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                    <Instagram className="w-6 h-6 text-muted-label" />
+                  <div className="w-16 h-16 rounded-xl bg-rippl-black-3/50 border border-rippl-black-3 flex items-center justify-center flex-shrink-0">
+                    <Instagram className="w-6 h-6 text-rippl-gray" />
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
@@ -320,12 +320,12 @@ export function CreatorSubmissionsPage() {
                     href={s.content_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-turquoise-accent hover:underline"
+                    className="inline-flex items-center gap-1.5 text-sm font-bold text-rippl-violet hover:text-white transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>View content</span>
                   </a>
-                  <p className="text-xs text-muted-label mt-1">
+                  <p className="text-xs font-medium text-rippl-gray mt-1">
                     {s.platform} · {new Date(s.submitted_at).toLocaleDateString()}
                   </p>
                 </div>
@@ -333,8 +333,8 @@ export function CreatorSubmissionsPage() {
 
               {/* Campaign */}
               <div className="col-span-2">
-                <p className="text-sm font-medium text-heading-text truncate">{s.campaign.title}</p>
-                <p className="text-xs text-muted-label">₹{s.campaign.rate_per_1k}/1K</p>
+                <p className="text-base font-extrabold text-white truncate">{s.campaign.title}</p>
+                <p className="text-xs font-bold text-rippl-gray">₹{s.campaign.rate_per_1k}/1K</p>
               </div>
 
               {/* Status */}
@@ -346,11 +346,11 @@ export function CreatorSubmissionsPage() {
               <div className="col-span-2 text-center">
                 {s.status === "approved" ? (
                   <div className="space-y-2">
-                    <div className="flex items-center justify-center gap-3 text-xs text-muted-label">
+                    <div className="flex items-center justify-center gap-3 text-xs font-bold text-rippl-gray">
                       <span>Base: {s.baseline_views.toLocaleString()}</span>
                       <span>Now: {s.latest_views.toLocaleString()}</span>
                     </div>
-                    <p className="text-sm font-semibold text-heading-text">
+                    <p className="text-sm font-extrabold text-white">
                       +{s.view_count.toLocaleString()} gained
                     </p>
                     <Button
@@ -359,7 +359,7 @@ export function CreatorSubmissionsPage() {
                       size="sm"
                       disabled={refreshingId === s.id}
                       onClick={() => handleRefreshViews(s)}
-                      className="h-7 px-2 text-[11px] rounded-lg border-gray-200 text-muted-label hover:text-heading-text hover:border-gray-300"
+                      className="h-7 px-3 text-[11px] rounded-lg border-rippl-black-3 text-rippl-gray hover:text-white bg-rippl-black-3/50 hover:bg-rippl-black-3"
                     >
                       {refreshingId === s.id ? (
                         <>
@@ -372,19 +372,19 @@ export function CreatorSubmissionsPage() {
                     </Button>
                   </div>
                 ) : (
-                  <span className="text-sm text-muted-label">—</span>
+                  <span className="text-sm font-bold text-rippl-gray">—</span>
                 )}
               </div>
 
               {/* Earnings */}
               <div className="col-span-1 text-center">
                 {s.status === "approved" ? (
-                  <p className="text-sm font-bold text-turquoise-accent flex items-center justify-center gap-0.5">
+                  <p className="text-sm font-extrabold text-emerald-400 flex items-center justify-center gap-0.5">
                     <IndianRupee className="w-3.5 h-3.5" />
                     {Number(s.earnings).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 ) : (
-                  <span className="text-sm text-muted-label">—</span>
+                  <span className="text-sm font-bold text-rippl-gray">—</span>
                 )}
               </div>
 
@@ -410,7 +410,7 @@ export function CreatorSubmissionsPage() {
                       variant="outline"
                       disabled={updatingId === s.id}
                       onClick={() => handleReject(s)}
-                      className="border-red-200 text-red-600 hover:bg-red-50 rounded-lg font-medium"
+                      className="border border-red-500/20 bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:text-red-400 rounded-lg font-bold transition-all"
                     >
                       {updatingId === s.id ? <Loader2 className="w-4 h-4 animate-spin" /> : (
                         <>
@@ -422,12 +422,12 @@ export function CreatorSubmissionsPage() {
                   </>
                 )}
                 {s.status === "rejected" && s.rejection_reason && (
-                  <span className="text-xs text-muted-label italic max-w-[120px] truncate" title={s.rejection_reason}>
+                  <span className="text-xs font-medium text-rippl-gray italic max-w-[120px] truncate" title={s.rejection_reason}>
                     {s.rejection_reason}
                   </span>
                 )}
                 {(s.status === "approved" || s.status === "rejected") && (
-                  <span className="text-xs text-muted-label">No actions</span>
+                  <span className="text-xs font-medium text-rippl-gray">No actions</span>
                 )}
               </div>
             </div>
@@ -437,8 +437,8 @@ export function CreatorSubmissionsPage() {
 
       {/* Rejection Reason Modal/Input - shown below for pending items */}
       {submissions.some(s => s.status === "pending") && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <p className="text-sm text-amber-700">
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
+          <p className="text-sm font-medium text-amber-500">
             <strong>Tip:</strong> Click "Reject" to reject a submission. You can add a rejection reason before clicking.
           </p>
         </div>
@@ -446,7 +446,7 @@ export function CreatorSubmissionsPage() {
 
       {/* Video/Image Preview Modal */}
       <Dialog open={videoModal.isOpen} onOpenChange={(open) => setVideoModal({ ...videoModal, isOpen: open })}>
-        <DialogContent className="sm:max-w-4xl bg-white border border-gray-100 rounded-2xl p-0 overflow-hidden">
+        <DialogContent className="sm:max-w-4xl bg-rippl-black-2 border border-rippl-black-3 rounded-[32px] p-0 overflow-hidden">
           <div className="relative">
             <button
               onClick={() => setVideoModal({ ...videoModal, isOpen: false })}

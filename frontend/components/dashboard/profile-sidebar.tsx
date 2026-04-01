@@ -39,15 +39,15 @@ export function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
   const navItems = isCreator ? baseNavItems.filter((item) => item.id === "general") : baseNavItems
 
   return (
-    <div className="w-full lg:w-72 bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col">
+    <div className="w-full lg:w-72 bg-rippl-black-2 rounded-[32px] border border-rippl-black-3 shadow-2xl p-6 flex flex-col">
       {/* Profile Info */}
-      <div className="flex flex-col items-center text-center mb-6 pb-6 border-b border-gray-100">
-        <Avatar className="w-20 h-20 mb-3 ring-2 ring-gray-100">
+      <div className="flex flex-col items-center text-center mb-6 pb-6 border-b border-rippl-black-3">
+        <Avatar className="w-20 h-20 mb-3 ring-2 ring-rippl-black-3">
           <AvatarImage
             src={user?.user_metadata?.avatar_url}
             alt={profile?.first_name || user?.user_metadata?.first_name || user?.email || "Profile"}
           />
-          <AvatarFallback className="text-2xl font-bold text-heading-text bg-gray-100">
+          <AvatarFallback className="text-2xl font-extrabold text-white bg-rippl-black-3">
             {user
               ? getInitials(
                   profile?.first_name || user.user_metadata?.first_name,
@@ -57,7 +57,7 @@ export function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
               : "?"}
           </AvatarFallback>
         </Avatar>
-        <h2 className="text-lg font-bold text-heading-text">
+        <h2 className="text-xl font-extrabold text-white">
           {profile?.first_name
             ? profile.first_name
             : user?.user_metadata?.first_name
@@ -76,10 +76,10 @@ export function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
               <Button
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start gap-3 h-11 text-sm font-medium rounded-xl transition-all",
+                  "w-full justify-start gap-4 h-11 text-sm font-bold rounded-xl transition-all",
                   isActive
-                    ? "bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90"
-                    : "text-heading-text hover:bg-gray-50"
+                    ? "bg-rippl-violet text-white hover:bg-rippl-violet/90"
+                    : "text-rippl-gray hover:bg-rippl-black-3 hover:text-white"
                 )}
               >
                 <item.icon className="w-4 h-4" />
@@ -91,11 +91,11 @@ export function ProfileSidebar({ activeTab }: ProfileSidebarProps) {
       </nav>
 
       {/* Logout */}
-      <div className="pt-4 border-t border-gray-100 mt-4">
+      <div className="pt-4 border-t border-rippl-black-3 mt-4">
         <Button
           variant="ghost"
           onClick={handleLogout}
-          className="w-full justify-start gap-3 h-11 text-sm font-medium rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600"
+          className="w-full justify-start gap-4 h-11 text-sm font-bold rounded-xl text-red-400 hover:bg-red-400/10 hover:text-red-400"
         >
           <LogOut className="w-4 h-4" />
           <span className="flex-1 text-left">Logout</span>

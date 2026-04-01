@@ -40,7 +40,7 @@ export default function JoinedCampaignDetailPage() {
   if (loading) {
     return (
       <div className="min-h-[200px] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-2 border-vibrant-red-orange border-t-transparent" />
+        <div className="animate-spin rounded-full h-10 w-10 border-2 border-rippl-violet border-t-transparent" />
       </div>
     )
   }

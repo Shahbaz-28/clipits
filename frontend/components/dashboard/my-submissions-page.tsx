@@ -133,21 +133,21 @@ export function MySubmissionsPage() {
     switch (status) {
       case "pending":
         return (
-          <Badge className="bg-amber-50 text-amber-600 border border-amber-200 rounded-lg flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1">
+          <Badge className="bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-lg flex items-center gap-1.5 text-xs font-bold px-2.5 py-1">
             <Clock className="w-3 h-3" />
             Pending
           </Badge>
         )
       case "approved":
         return (
-          <Badge className="bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-lg flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1">
+          <Badge className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg flex items-center gap-1.5 text-xs font-bold px-2.5 py-1">
             <CheckCircle className="w-3 h-3" />
             Approved
           </Badge>
         )
       case "rejected":
         return (
-          <Badge className="bg-red-50 text-red-600 border border-red-200 rounded-lg flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1">
+          <Badge className="bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg flex items-center gap-1.5 text-xs font-bold px-2.5 py-1">
             <XCircle className="w-3 h-3" />
             Rejected
           </Badge>
@@ -160,11 +160,11 @@ export function MySubmissionsPage() {
   if (loading) {
     return (
       <div className="flex flex-col flex-1 space-y-8">
-        <div className="border-b border-gray-100 pb-6">
-          <h1 className="text-3xl font-bold text-heading-text mb-2">My Submissions</h1>
-          <p className="text-muted-label text-base">Track your submitted content and earnings</p>
+        <div className="border-b border-rippl-black-3 pb-6">
+          <h1 className="text-3xl font-extrabold text-white mb-2">My Submissions</h1>
+          <p className="text-rippl-gray text-base font-medium">Track your submitted content and earnings</p>
         </div>
-        <div className="flex items-center gap-2 py-12 text-muted-label">
+        <div className="flex items-center gap-2 py-12 text-rippl-gray">
           <Loader2 className="w-6 h-6 animate-spin" />
           <span>Loading submissions...</span>
         </div>
@@ -175,18 +175,18 @@ export function MySubmissionsPage() {
   if (submissions.length === 0) {
     return (
       <div className="flex flex-col flex-1 space-y-8">
-        <div className="border-b border-gray-100 pb-6">
-          <h1 className="text-3xl font-bold text-heading-text mb-2">My Submissions</h1>
-          <p className="text-muted-label text-base">Track your submitted content and earnings</p>
+        <div className="border-b border-rippl-black-3 pb-6">
+          <h1 className="text-3xl font-extrabold text-white mb-2">My Submissions</h1>
+          <p className="text-rippl-gray text-base font-medium">Track your submitted content and earnings</p>
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <Card className="bg-white border border-gray-100 max-w-md p-8 text-center shadow-lg rounded-2xl">
+          <Card className="bg-rippl-black-2/50 border border-rippl-black-3 max-w-md p-8 text-center shadow-lg rounded-[32px]">
             <CardContent className="p-0">
-              <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-6">
-                <Upload className="w-8 h-8 text-muted-label" />
+              <div className="w-16 h-16 rounded-2xl bg-rippl-black-3/50 flex items-center justify-center mx-auto mb-6">
+                <Upload className="w-8 h-8 text-rippl-gray" />
               </div>
-              <h2 className="text-xl font-bold text-heading-text mb-3">No submissions yet</h2>
-              <p className="text-sm text-muted-label">
+              <h2 className="text-2xl font-extrabold text-white mb-3">No submissions yet</h2>
+              <p className="text-sm font-medium text-rippl-gray">
                 Join a campaign from Explore, then submit your content link from the campaign page.
               </p>
             </CardContent>
@@ -199,21 +199,21 @@ export function MySubmissionsPage() {
   return (
     <div className="flex flex-col flex-1 space-y-8">
       {/* Header */}
-      <div className="border-b border-gray-100 pb-6">
-        <h1 className="text-3xl font-bold text-heading-text mb-2">My Submissions</h1>
-        <p className="text-muted-label text-base">Track your submitted content and earnings</p>
+      <div className="border-b border-rippl-black-3 pb-6">
+        <h1 className="text-3xl font-extrabold text-white mb-2">My Submissions</h1>
+        <p className="text-rippl-gray font-medium text-base">Track your submitted content and earnings</p>
       </div>
 
       {/* Submissions Table */}
-      <div className="bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-rippl-black-2/50 border border-rippl-black-3 rounded-[32px] overflow-hidden shadow-sm">
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 px-6 py-4 border-b border-gray-100 items-start sm:items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-3 px-6 py-4 border-b border-rippl-black-3 items-start sm:items-center justify-between">
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full sm:w-auto">
             <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
-              <SelectTrigger className="h-9 w-[150px] text-sm">
+              <SelectTrigger className="h-10 w-[150px] text-sm font-bold bg-rippl-black-3/50 border-rippl-black-3 text-white rounded-xl">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-rippl-black-3 border-rippl-black-3 text-white rounded-xl">
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="approved">Approved</SelectItem>
@@ -221,18 +221,18 @@ export function MySubmissionsPage() {
               </SelectContent>
             </Select>
             <div className="relative flex-1 sm:w-[220px]">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-label" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-rippl-gray" />
               <Input
                 placeholder="Search by campaign or link"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8 h-9 text-sm"
+                className="pl-9 h-10 text-sm font-medium bg-rippl-black-3/50 border-rippl-black-3 text-white placeholder:text-rippl-gray/50 rounded-xl"
               />
             </div>
           </div>
         </div>
         {/* Table Header */}
-        <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-muted-label uppercase tracking-wide">
+        <div className="grid grid-cols-12 gap-4 px-6 py-5 bg-rippl-black-3/30 border-b border-rippl-black-3 text-xs font-extrabold text-rippl-gray uppercase tracking-wide">
           <div className="col-span-4">Content</div>
           <div className="col-span-2">Campaign</div>
           <div className="col-span-2 text-center">Status</div>
@@ -241,14 +241,14 @@ export function MySubmissionsPage() {
         </div>
 
         {/* Table Body */}
-        <div className="divide-y divide-gray-100">
+        <div className="divide-y divide-rippl-black-3">
           {paginated.length === 0 ? (
-            <div className="px-6 py-12 text-center text-muted-label text-sm">
+            <div className="px-6 py-12 text-center font-medium text-rippl-gray text-sm">
               No submissions match your filters.
             </div>
           ) : (
           paginated.map((s) => (
-            <div key={s.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-gray-50 transition-colors">
+            <div key={s.id} className="grid grid-cols-12 gap-4 px-6 py-4 items-center hover:bg-rippl-black-3/20 transition-colors">
               {/* Content */}
               <div className="col-span-4 flex items-center gap-3">
                 {s.media_url ? (
@@ -262,7 +262,7 @@ export function MySubmissionsPage() {
                         type: isVideo ? "video" : "image",
                       })
                     }}
-                    className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 relative group cursor-pointer hover:ring-2 hover:ring-vibrant-red-orange transition-all"
+                    className="w-14 h-14 rounded-xl overflow-hidden bg-rippl-black-3 flex-shrink-0 relative group cursor-pointer hover:ring-2 hover:ring-rippl-violet transition-all"
                   >
                     {s.media_url.match(/\.(mp4|webm|ogg|mov)(\?|$)/i) ? (
                       <>
@@ -284,8 +284,8 @@ export function MySubmissionsPage() {
                     )}
                   </button>
                 ) : (
-                  <div className="w-14 h-14 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
-                    <Instagram className="w-5 h-5 text-muted-label" />
+                  <div className="w-14 h-14 rounded-xl bg-rippl-black-3/50 border border-rippl-black-3 flex items-center justify-center flex-shrink-0">
+                    <Instagram className="w-5 h-5 text-rippl-gray" />
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
@@ -293,12 +293,12 @@ export function MySubmissionsPage() {
                     href={s.content_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-turquoise-accent hover:underline"
+                    className="inline-flex items-center gap-1.5 text-sm font-bold text-rippl-violet hover:text-white transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
                     <span>View content</span>
                   </a>
-                  <div className="flex flex-col gap-0.5 mt-1 text-xs text-muted-label">
+                  <div className="flex flex-col gap-0.5 mt-1 text-xs font-medium text-rippl-gray">
                     <div className="flex items-center gap-2">
                       <Instagram className="w-3 h-3" />
                       <span>{s.platform}</span>
@@ -315,7 +315,7 @@ export function MySubmissionsPage() {
 
               {/* Campaign */}
               <div className="col-span-2">
-                <p className="text-sm font-medium text-heading-text truncate">{s.campaign?.title ?? "Campaign"}</p>
+                <p className="text-sm font-extrabold text-white truncate">{s.campaign?.title ?? "Campaign"}</p>
               </div>
 
               {/* Status */}
@@ -327,28 +327,28 @@ export function MySubmissionsPage() {
               <div className="col-span-2 text-center">
                 {s.status === "approved" ? (
                   <div className="space-y-0.5">
-                    <div className="flex items-center justify-center gap-2 text-xs text-muted-label">
+                    <div className="flex items-center justify-center gap-2 text-xs font-bold text-rippl-gray">
                       <span>Base: {s.baseline_views?.toLocaleString() ?? 0}</span>
                       <span>Now: {s.latest_views?.toLocaleString() ?? 0}</span>
                     </div>
-                    <p className="text-sm font-semibold text-heading-text">
+                    <p className="text-sm font-extrabold text-white">
                       +{s.view_count.toLocaleString()} gained
                     </p>
                   </div>
                 ) : (
-                  <span className="text-sm text-muted-label">—</span>
+                  <span className="text-sm text-rippl-gray font-bold">—</span>
                 )}
               </div>
 
               {/* Earnings */}
               <div className="col-span-2 text-center">
                 {s.status === "approved" ? (
-                  <p className="text-sm font-bold text-turquoise-accent flex items-center justify-center gap-0.5">
+                  <p className="text-sm font-extrabold text-emerald-400 flex items-center justify-center gap-0.5">
                     <IndianRupee className="w-3.5 h-3.5" />
                     {Number(s.earnings).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 ) : (
-                  <span className="text-sm text-muted-label">—</span>
+                  <span className="text-sm text-rippl-gray font-bold">—</span>
                 )}
               </div>
             </div>
@@ -356,7 +356,7 @@ export function MySubmissionsPage() {
           )}
         </div>
         {filtered.length > 0 && (
-          <div className="flex items-center justify-between px-6 py-3 border-t border-gray-100 text-sm text-muted-label">
+          <div className="flex items-center justify-between px-6 py-4 border-t border-rippl-black-3 text-sm font-bold text-rippl-gray">
             <span>
               Showing {startIndex + 1}–{Math.min(startIndex + pageSize, filtered.length)} of {filtered.length}
             </span>
@@ -365,7 +365,7 @@ export function MySubmissionsPage() {
                 type="button"
                 size="sm"
                 variant="outline"
-                className="h-8 px-3 text-xs"
+                className="h-9 px-4 text-xs border-rippl-black-3 text-white bg-rippl-black-3/50 hover:bg-rippl-black-3"
                 disabled={currentPage === 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
               >
@@ -375,7 +375,7 @@ export function MySubmissionsPage() {
                 type="button"
                 size="sm"
                 variant="outline"
-                className="h-8 px-3 text-xs"
+                className="h-9 px-4 text-xs border-rippl-black-3 text-white bg-rippl-black-3/50 hover:bg-rippl-black-3"
                 disabled={currentPage === totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               >
@@ -388,7 +388,7 @@ export function MySubmissionsPage() {
 
       {/* Video/Image Preview Modal */}
       <Dialog open={videoModal.isOpen} onOpenChange={(open) => setVideoModal({ ...videoModal, isOpen: open })}>
-        <DialogContent className="sm:max-w-4xl bg-white border border-gray-100 rounded-2xl p-0 overflow-hidden">
+        <DialogContent className="sm:max-w-4xl bg-rippl-black-2 border border-rippl-black-3 rounded-[32px] p-0 overflow-hidden">
           <div className="relative">
             <button
               onClick={() => setVideoModal({ ...videoModal, isOpen: false })}

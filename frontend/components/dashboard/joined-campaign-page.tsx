@@ -60,7 +60,7 @@ export function JoinedCampaignPage({ campaign, onBackToList }: JoinedCampaignPag
           variant="ghost"
           size="sm"
           onClick={onBackToList}
-          className="w-fit text-muted-label hover:text-heading-text hover:bg-gray-50 -ml-2"
+          className="w-fit text-white hover:text-rippl-violet hover:bg-rippl-black-3 font-bold rounded-xl -ml-2 transition-all px-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Joined campaigns
@@ -68,15 +68,15 @@ export function JoinedCampaignPage({ campaign, onBackToList }: JoinedCampaignPag
       )}
 
       {/* Header Section */}
-      <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
-        <div className="px-6 py-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="bg-rippl-black-2/50 border border-rippl-black-3 rounded-[32px] shadow-sm overflow-hidden">
+        <div className="px-6 py-6 border-b border-rippl-black-3 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-heading-text mb-1">{campaign.title}</h1>
-            <p className="text-muted-label">{campaign.description}</p>
+            <h1 className="text-3xl font-extrabold text-white mb-2">{campaign.title}</h1>
+            <p className="text-rippl-gray font-medium">{campaign.description}</p>
           </div>
           <Button
             onClick={() => setIsSubmitModalOpen(true)}
-            className="h-10 px-5 bg-vibrant-red-orange text-white hover:bg-vibrant-red-orange/90 rounded-lg font-semibold shadow-lg shadow-vibrant-red-orange/25"
+            className="h-11 px-6 bg-rippl-violet text-white hover:bg-rippl-violet/90 rounded-xl font-bold shadow-lg shadow-rippl-violet/25 transition-all text-base"
           >
             <Upload className="w-4 h-4 mr-2" />
             Submit Content
@@ -84,59 +84,59 @@ export function JoinedCampaignPage({ campaign, onBackToList }: JoinedCampaignPag
         </div>
 
         {/* Progress Section */}
-        <div className="p-6 bg-gray-50 border-b border-gray-100">
-          <div className="flex flex-col md:flex-row md:items-center gap-4">
+        <div className="p-8 bg-rippl-black-3/30 border-b border-rippl-black-3">
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
             <div className="flex-1">
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-3">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-turquoise-accent">₹{campaign.progressPaidOut.toLocaleString()}</span>
-                  <span className="text-sm text-muted-label">of ₹{campaign.totalBudgetDetail.toLocaleString()} paid out</span>
+                  <span className="text-3xl font-extrabold text-rippl-violet">₹{campaign.progressPaidOut.toLocaleString()}</span>
+                  <span className="text-xs font-bold text-white">of ₹{campaign.totalBudgetDetail.toLocaleString()} paid out</span>
                 </div>
-                <span className="text-sm font-bold text-heading-text">{campaign.progressPercentage}%</span>
+                <span className="text-sm font-extrabold text-white">{campaign.progressPercentage}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+              <div className="w-full bg-rippl-black-3 rounded-full h-3 overflow-hidden">
                 <div
-                  className="bg-gradient-to-r from-turquoise-accent to-secondary h-2.5 rounded-full transition-all duration-500"
+                  className="bg-rippl-violet h-3 rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(139,92,246,0.5)]"
                   style={{ width: `${campaign.progressPercentage}%` }}
                 />
               </div>
             </div>
-            <div className="flex gap-6 md:gap-8">
+            <div className="flex gap-6 md:gap-8 bg-rippl-black-2/50 p-4 rounded-xl border border-rippl-black-3 min-w-[120px] justify-center items-center">
               <div className="text-center">
-                <p className="text-xs text-muted-label mb-1">Days Left</p>
-                <p className="text-xl font-bold text-heading-text">{campaign.daysLeft}</p>
+                <p className="text-xs font-bold text-white mb-1">Days Left</p>
+                <p className="text-2xl font-extrabold text-white">{campaign.daysLeft}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Key Metrics Grid */}
-        <div className="p-6">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            <div className="p-4 bg-gray-50 rounded-xl text-center">
-              <DollarSign className="w-5 h-5 text-turquoise-accent mx-auto mb-2" />
-              <p className="text-xs text-muted-label mb-1">Reward Rate</p>
-              <p className="text-sm font-bold text-heading-text">{campaign.rate}</p>
+        <div className="p-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="p-5 bg-rippl-black-3/50 border border-rippl-black-3 rounded-2xl text-center">
+              <DollarSign className="w-5 h-5 text-rippl-violet mx-auto mb-2" />
+              <p className="text-xs font-bold text-rippl-gray mb-1">Reward Rate</p>
+              <p className="text-base font-extrabold text-white">{campaign.rate}</p>
             </div>
-            <div className="p-4 bg-gray-50 rounded-xl text-center">
-              <Tag className="w-5 h-5 text-vibrant-red-orange mx-auto mb-2" />
-              <p className="text-xs text-muted-label mb-1">Type</p>
-              <p className="text-sm font-bold text-heading-text">{campaign.type}</p>
+            <div className="p-5 bg-rippl-black-3/50 border border-rippl-black-3 rounded-2xl text-center">
+              <Tag className="w-5 h-5 text-rippl-violet mx-auto mb-2" />
+              <p className="text-xs font-bold text-rippl-gray mb-1">Type</p>
+              <p className="text-base font-extrabold text-white capitalize">{campaign.type}</p>
             </div>
-            <div className="p-4 bg-gray-50 rounded-xl text-center">
+            <div className="p-5 bg-rippl-black-3/50 border border-rippl-black-3 rounded-2xl text-center">
               <TrendingUp className="w-5 h-5 text-amber-500 mx-auto mb-2" />
-              <p className="text-xs text-muted-label mb-1">Min Payout</p>
-              <p className="text-sm font-bold text-heading-text">₹{campaign.minPayout.toLocaleString()}</p>
+              <p className="text-xs font-bold text-rippl-gray mb-1">Min Payout</p>
+              <p className="text-base font-extrabold text-white">₹{campaign.minPayout.toLocaleString()}</p>
             </div>
-            <div className="p-4 bg-gray-50 rounded-xl text-center">
-              <TrendingUp className="w-5 h-5 text-emerald-500 mx-auto mb-2" />
-              <p className="text-xs text-muted-label mb-1">Max Payout</p>
-              <p className="text-sm font-bold text-heading-text">₹{campaign.maxPayout.toLocaleString()}</p>
+            <div className="p-5 bg-rippl-black-3/50 border border-rippl-black-3 rounded-2xl text-center">
+              <TrendingUp className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
+              <p className="text-xs font-bold text-rippl-gray mb-1">Max Payout</p>
+              <p className="text-base font-extrabold text-white">₹{campaign.maxPayout.toLocaleString()}</p>
             </div>
-            <div className="p-4 bg-gray-50 rounded-xl text-center">
-              <LayoutGrid className="w-5 h-5 text-blue-500 mx-auto mb-2" />
-              <p className="text-xs text-muted-label mb-1">Category</p>
-              <p className="text-sm font-bold text-heading-text">{campaign.category}</p>
+            <div className="p-5 bg-rippl-black-3/50 border border-rippl-black-3 rounded-2xl text-center sm:col-span-full lg:col-span-1">
+              <LayoutGrid className="w-5 h-5 text-blue-400 mx-auto mb-2" />
+              <p className="text-xs font-bold text-rippl-gray mb-1">Category</p>
+              <p className="text-base font-extrabold text-white capitalize">{campaign.category}</p>
             </div>
           </div>
         </div>
@@ -145,20 +145,20 @@ export function JoinedCampaignPage({ campaign, onBackToList }: JoinedCampaignPag
       {/* Platforms & Requirements */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Platforms */}
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-          <h3 className="text-base font-bold text-heading-text mb-4 flex items-center gap-2">
-            <User className="w-4 h-4 text-muted-label" />
+        <div className="bg-rippl-black-2/50 border border-rippl-black-3 rounded-[32px] shadow-sm p-8">
+          <h3 className="text-lg font-extrabold text-white mb-6 flex items-center gap-2">
+            <User className="w-5 h-5 text-rippl-gray" />
             Target Platforms
           </h3>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {campaign.platforms.map((PlatformIcon, idx) => (
               <Badge
                 key={idx}
                 variant="outline"
-                className="flex items-center gap-2 px-4 py-2 text-heading-text border border-gray-200 bg-gray-50 rounded-lg"
+                className="flex items-center gap-2 px-4 py-2.5 text-white border border-rippl-black-3 bg-rippl-black-3/50 rounded-xl"
               >
-                <PlatformIcon className="w-4 h-4" />
-                <span className="font-medium">
+                <PlatformIcon className="w-4 h-4 opacity-80" />
+                <span className="font-bold">
                   {PlatformIcon === Instagram && "Instagram"}
                   {PlatformIcon === Youtube && "YouTube"}
                   {PlatformIcon === TikTok && "TikTok"}
@@ -169,19 +169,19 @@ export function JoinedCampaignPage({ campaign, onBackToList }: JoinedCampaignPag
         </div>
 
         {/* Requirements */}
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-          <h3 className="text-base font-bold text-heading-text mb-4 flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-muted-label" />
+        <div className="bg-rippl-black-2/50 border border-rippl-black-3 rounded-[32px] shadow-sm p-8">
+          <h3 className="text-lg font-extrabold text-white mb-6 flex items-center gap-2">
+            <CheckCircle className="w-5 h-5 text-rippl-gray" />
             Requirements
           </h3>
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {campaign.requirements.map((req, idx) => (
               <li
                 key={idx}
-                className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
+                className="flex items-center gap-3 p-4 bg-rippl-black-3/50 border border-rippl-black-3 rounded-xl"
               >
-                <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                <p className="text-sm text-heading-text">{req}</p>
+                <CheckCircle className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                <p className="text-sm font-medium text-white">{req}</p>
               </li>
             ))}
           </ul>
@@ -190,22 +190,22 @@ export function JoinedCampaignPage({ campaign, onBackToList }: JoinedCampaignPag
 
       {/* Assets & Resources */}
       {campaign.assets.length > 0 && (
-        <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6">
-          <h3 className="text-base font-bold text-heading-text mb-4 flex items-center gap-2">
-            <Link className="w-4 h-4 text-muted-label" />
+        <div className="bg-rippl-black-2/50 border border-rippl-black-3 rounded-[32px] shadow-sm p-8">
+          <h3 className="text-lg font-extrabold text-white mb-6 flex items-center gap-2">
+            <Link className="w-5 h-5 text-rippl-gray" />
             Assets & Resources
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {campaign.assets.map((asset, idx) => (
               <a
                 key={idx}
                 href={asset.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-4 border border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors text-heading-text group"
+                className="flex items-center gap-3 p-4 border border-rippl-black-3 rounded-xl bg-rippl-black-3/50 hover:bg-rippl-black-3 transition-all text-white font-bold group"
               >
-                <PlayCircle className="w-5 h-5 text-muted-label group-hover:text-vibrant-red-orange transition-colors" />
-                <span className="font-medium text-sm truncate">{asset.name}</span>
+                <PlayCircle className="w-5 h-5 text-rippl-violet group-hover:scale-110 transition-transform" />
+                <span className="truncate">{asset.name}</span>
               </a>
             ))}
           </div>
@@ -214,12 +214,12 @@ export function JoinedCampaignPage({ campaign, onBackToList }: JoinedCampaignPag
 
       {/* Disclaimer */}
       {campaign.disclaimer && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+        <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5">
           <div className="flex gap-3">
-            <Info className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+            <Info className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium text-amber-700 mb-1">Disclaimer</p>
-              <p className="text-sm text-amber-600">{campaign.disclaimer}</p>
+              <p className="text-sm font-bold text-amber-500 mb-1">Disclaimer</p>
+              <p className="text-sm font-medium text-amber-400">{campaign.disclaimer}</p>
             </div>
           </div>
         </div>
@@ -229,7 +229,7 @@ export function JoinedCampaignPage({ campaign, onBackToList }: JoinedCampaignPag
         isOpen={isSubmitModalOpen}
         onClose={() => setIsSubmitModalOpen(false)}
         campaignId={campaign.id}
-        onSuccess={() => {}}
+        onSuccess={() => { }}
       />
     </div>
   )
