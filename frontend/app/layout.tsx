@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Inter, Manrope } from "next/font/google"
+import { Inter, Roboto } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/lib/auth-context"
@@ -8,7 +8,11 @@ import { Toaster } from "@/components/ui/sonner"
 import { cn } from "@/lib/utils"
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
-const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope" })
+const roboto = Roboto({ 
+  subsets: ["latin"], 
+  weight: ["300", "400", "500", "700", "900"],
+  variable: "--font-roboto" 
+})
 
 export const metadata: Metadata = {
   title: "Rippl ",
@@ -22,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background font-manrope antialiased", inter.variable, manrope.variable)}>
+      <body className={cn("min-h-screen bg-background font-roboto antialiased", inter.variable, roboto.variable)}>
         <AuthProvider>
           <CampaignDataProvider>
             <ThemeProvider

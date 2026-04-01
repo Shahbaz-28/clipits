@@ -71,7 +71,7 @@ const config: Config = {
         "muted-label": "#6B7280",
       },
       fontFamily: {
-        manrope: ["var(--font-manrope)", "sans-serif"],
+        roboto: ["var(--font-roboto)", "sans-serif"],
       },
       borderRadius: {
         lg: "0.75rem", // Increased from 0.5rem for more rounding
