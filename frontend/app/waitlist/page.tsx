@@ -63,7 +63,7 @@ export default function WaitlistPage() {
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
 
       {/* Header / Logo */}
-      <nav className="container mx-auto px-6 py-8 flex justify-center relative z-10">
+      <nav className="container mx-auto px-3 sm:px-6 py-8 flex justify-center relative z-10">
         <Link href="/" className="flex items-center space-x-3 group">
           <div className="w-10 h-10 bg-rippl-violet rounded-xl flex items-center justify-center shadow-lg shadow-rippl-violet/30 group-hover:scale-110 transition-transform">
             <Zap className="w-6 h-6 text-white" />
@@ -73,7 +73,7 @@ export default function WaitlistPage() {
       </nav>
 
       {/* Main Content */}
-      <main className="container mx-auto px-6 pt-12 pb-24 relative z-10 text-center">
+      <main className="container mx-auto px-3 sm:px-6 pt-12 pb-24 relative z-10 text-center">
         {!submitted ? (
           <div className="max-w-3xl mx-auto">
             {/* Badge */}
@@ -83,20 +83,20 @@ export default function WaitlistPage() {
             </div>
 
             {/* Hero Heading */}
-            <div className="max-w-4xl mx-auto px-4">
+            <div className="max-w-4xl mx-auto px-1 sm:px-4">
               <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.1] mb-6">
                 The Future of <span className="text-rippl-violet-soft">Content Rewards</span> is Almost Here.
               </h1>
             </div>
 
-            <p className="text-rippl-gray text-base md:text-lg max-w-2xl mx-auto mb-12 leading-relaxed px-4">
+            <p className="text-rippl-gray text-base md:text-lg max-w-2xl mx-auto mb-12 leading-relaxed px-1 sm:px-4">
               Clip, Post, and Earn. Secure early access to monetize your viral content with India&apos;s biggest brands—no minimum followers required.
             </p>
 
             {/* Waitlist Form Section */}
-            <div className="max-w-md mx-auto relative z-20">
+            <div className="w-full max-w-md mx-auto relative z-20">
               {/* Premium Role Selector */}
-              <div className="flex sm:inline-flex p-1 bg-rippl-black-2 border border-rippl-black-3 rounded-2xl mb-8 shadow-2xl relative z-30 mx-4 sm:mx-0">
+              <div className="flex sm:inline-flex p-1 bg-rippl-black-2 border border-rippl-black-3 rounded-2xl mb-8 shadow-2xl relative z-30 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); setRole("clipper"); }}
@@ -116,7 +116,7 @@ export default function WaitlistPage() {
               </div>
 
               {/* Form Input Group */}
-              <div className="relative group mx-4 sm:mx-0">
+              <div className="relative group w-full">
                 <div className="absolute -inset-1 bg-gradient-to-r from-rippl-violet to-rippl-violet-dim rounded-[30px] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
                 <form onSubmit={handleSubmit} className="relative flex flex-col sm:flex-row gap-2 p-2 bg-rippl-black-2 border border-rippl-black-3 rounded-[30px] shadow-2xl backdrop-blur-xl">
                   <label className="sr-only" htmlFor={WAITLIST_HONEYPOT_FIELD}>
@@ -178,15 +178,15 @@ export default function WaitlistPage() {
               />
             </div>
 
-            <h2 className="text-4xl md:text-7xl font-black text-white mb-6 tracking-tighter leading-tight px-4">
+            <h2 className="text-4xl md:text-7xl font-black text-white mb-6 tracking-tighter leading-tight px-2 sm:px-4">
               You&apos;re on the Waitlist<span className="text-emerald-400">!</span>
             </h2>
 
-            <p className="text-base md:text-xl text-rippl-gray mb-12 max-w-lg mx-auto leading-relaxed px-6">
+            <p className="text-base md:text-xl text-rippl-gray mb-12 max-w-lg mx-auto leading-relaxed px-3 sm:px-6">
               We&apos;ve reserved your priority spot. Watch your inbox—exclusive perks are heading your way soon.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-6">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-3 sm:px-6">
               <Button
                 className="bg-rippl-violet text-white h-14 px-8 sm:px-12 rounded-[20px] font-black shadow-xl shadow-rippl-violet/25 hover:shadow-rippl-violet/40 transition-all hover:scale-105 uppercase tracking-widest text-xs sm:text-sm w-full sm:w-auto"
                 onClick={() => {
@@ -211,7 +211,7 @@ export default function WaitlistPage() {
       </main>
 
       {/* Footer */}
-      <footer className="container mx-auto px-6 py-12 text-center border-t border-rippl-black-3 opacity-50 text-xs font-bold tracking-widest text-rippl-gray uppercase">
+      <footer className="container mx-auto px-3 sm:px-6 py-12 text-center border-t border-rippl-black-3 opacity-50 text-xs font-bold tracking-widest text-rippl-gray uppercase">
         © 2026 Rippl. Designed for the Next Generation of Creators.
       </footer>
     </div>
