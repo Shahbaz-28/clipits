@@ -26,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background font-roboto antialiased", inter.variable, roboto.variable)}>
+      <body className={cn("min-h-screen bg-background font-roboto antialiased", inter.variable, roboto.variable)} suppressHydrationWarning>
         <AuthProvider>
           <CampaignDataProvider>
             <ThemeProvider

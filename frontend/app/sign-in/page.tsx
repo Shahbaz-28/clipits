@@ -68,12 +68,12 @@ export default function SignInPage() {
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-rippl-violet/5 rounded-full blur-[128px] pointer-events-none" />
 
       <Card className="w-full max-w-md bg-rippl-black-2/80 backdrop-blur-xl border border-rippl-black-3 rounded-[32px] shadow-2xl relative z-10 overflow-hidden">
-        <CardHeader className="text-center pt-10 pb-6 px-8">
-          <div className="flex items-center justify-center mb-6">
-            <div className="w-16 h-16 bg-rippl-violet flex items-center justify-center rounded-2xl shadow-xl shadow-rippl-violet/30 overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/home.png" alt="Rippl Logo" className="w-8 h-8 object-contain invert brightness-0 z-10" />
+        <CardHeader className="text-center pt-6 pb-6 px-8">
+          <div className="flex items-center justify-center mb-4 space-x-2">
+            <div className="relative w-10 h-10">
+              <img src="/logo.png" alt="Rippl" className="w-full h-full object-contain" />
             </div>
+            <h1 className="text-3xl font-black text-white tracking-tighter">Rippl<span className="text-rippl-violet">.</span></h1>
           </div>
           <CardTitle className="text-3xl font-extrabold text-white tracking-tight">Welcome Back</CardTitle>
           <CardDescription className="text-base font-medium text-rippl-gray mt-2">
