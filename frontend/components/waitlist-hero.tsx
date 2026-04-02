@@ -226,7 +226,7 @@ export function WaitlistHero() {
           <Image src="/logo.png" alt="Rippl" width={28} height={28} className="object-contain" />
           <span className="text-2xl font-black tracking-tighter">Rippl<span className="text-rippl-violet">.</span></span>
         </div>
-        <div className="w-full opacity-50 text-[10px] font-bold tracking-[0.2em] text-rippl-gray uppercase text-center">
+        <div className="w-full opacity-50 text-sm sm:text-base font-bold tracking-wide sm:tracking-widest text-rippl-gray uppercase text-center">
           © 2026 Rippl. Designed for the Next Generation of Creators.
         </div>
       </footer>

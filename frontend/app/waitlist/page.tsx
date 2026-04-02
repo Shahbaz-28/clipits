@@ -211,7 +211,7 @@ export default function WaitlistPage() {
       </main>
 
       {/* Footer */}
-      <footer className="container mx-auto w-full px-3 sm:px-6 py-12 text-center border-t border-rippl-black-3 opacity-50 text-xs font-bold tracking-widest text-rippl-gray uppercase">
+      <footer className="container mx-auto w-full px-3 sm:px-6 py-12 text-center border-t border-rippl-black-3 opacity-50 text-sm sm:text-base font-bold tracking-wide sm:tracking-widest text-rippl-gray uppercase">
         © 2026 Rippl. Designed for the Next Generation of Creators.
       </footer>
     </div>

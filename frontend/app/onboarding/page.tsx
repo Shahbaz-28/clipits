@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Zap, Video, Megaphone, ArrowRight } from "lucide-react"
+import { Video, Megaphone, ArrowRight } from "lucide-react"
+import Image from "next/image"
 import { useAuth } from "@/lib/auth-context"
 import { supabase } from "@/lib/supabase"
 
@@ -69,11 +70,14 @@ export default function OnboardingPage() {
       <div className="w-full max-w-xl relative z-10">
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-rippl-violet rounded-[20px] shadow-xl shadow-rippl-violet/30 mb-6">
-            <Zap className="w-8 h-8 text-white" />
+          <div className="flex items-center justify-center mb-6 space-x-2">
+            <div className="relative w-12 h-12">
+              <Image src="/logo.png" alt="Rippl" fill className="object-contain" />
+            </div>
+            <h1 className="text-4xl font-black text-white tracking-tighter">Rippl<span className="text-rippl-violet">.</span></h1>
           </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">Welcome to Rippl<span className="text-rippl-violet">.</span></h1>
-          <p className="text-rippl-gray text-base">Choose how you want to get started</p>
+          <h1 className="text-2xl font-black text-white tracking-tight mb-2">Welcome!</h1>
+          <p className="text-rippl-gray text-base font-medium">Choose how you want to get started</p>
         </div>
 
         {/* Error Message */}
