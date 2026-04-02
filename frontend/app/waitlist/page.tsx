@@ -63,7 +63,7 @@ export default function WaitlistPage() {
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
 
       {/* Header / Logo */}
-      <nav className="container mx-auto px-3 sm:px-6 py-8 flex justify-center relative z-10">
+      <nav className="container mx-auto px-3 sm:px-6 py-4 sm:py-8 flex justify-center relative z-10">
         <Link href="/" className="flex items-center space-x-3 group">
           <div className="w-10 h-10 bg-rippl-violet rounded-xl flex items-center justify-center shadow-lg shadow-rippl-violet/30 group-hover:scale-110 transition-transform">
             <Zap className="w-6 h-6 text-white" />
@@ -73,7 +73,7 @@ export default function WaitlistPage() {
       </nav>
 
       {/* Main Content */}
-      <main className="container mx-auto px-3 sm:px-6 pt-12 pb-24 relative z-10 text-center">
+      <main className="container mx-auto px-3 sm:px-6 pt-4 sm:pt-12 pb-24 relative z-10 text-center">
         {!submitted ? (
           <div className="max-w-3xl mx-auto">
             {/* Badge */}
@@ -211,7 +211,7 @@ export default function WaitlistPage() {
       </main>
 
       {/* Footer */}
-      <footer className="container mx-auto px-3 sm:px-6 py-12 text-center border-t border-rippl-black-3 opacity-50 text-xs font-bold tracking-widest text-rippl-gray uppercase">
+      <footer className="container mx-auto w-full px-3 sm:px-6 py-12 text-center border-t border-rippl-black-3 opacity-50 text-xs font-bold tracking-widest text-rippl-gray uppercase">
         © 2026 Rippl. Designed for the Next Generation of Creators.
       </footer>
     </div>

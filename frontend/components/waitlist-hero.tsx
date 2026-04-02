@@ -63,7 +63,7 @@ export function WaitlistHero() {
       <div className="absolute inset-0 bg-[url('https://res.cloudinary.com/dcbiv6f9q/image/upload/v1711200000/noise_pt4z3s.svg')] opacity-20 pointer-events-none" />
 
       {/* Header / Logo */}
-      <nav className="container mx-auto px-3 sm:px-6 py-8 flex justify-center relative z-10">
+      <nav className="container mx-auto px-3 sm:px-6 py-4 sm:py-8 flex justify-center relative z-10">
         <Link href="/" className="flex items-center space-x-2 group">
           <div className="relative w-11 h-11 md:w-12 md:h-12 group-hover:scale-110 transition-transform duration-300">
             <Image 
@@ -83,7 +83,7 @@ export function WaitlistHero() {
       </nav>
 
       {/* Main Content */}
-      <main className="container mx-auto px-3 sm:px-6 pt-12 pb-24 relative z-10 text-center">
+      <main className="container mx-auto px-3 sm:px-6 pt-4 sm:pt-12 pb-24 relative z-10 text-center">
         {!submitted ? (
           <div className="max-w-3xl mx-auto">
             {/* Badge */}
@@ -221,12 +221,12 @@ export function WaitlistHero() {
       </main>
 
       {/* Footer */}
-      <footer className="container mx-auto px-3 sm:px-6 py-12 flex flex-col items-center justify-center gap-6 border-t border-rippl-black-3 relative z-10">
-        <div className="flex items-center space-x-2 -ml-4 grayscale opacity-40">
+      <footer className="container mx-auto px-3 sm:px-6 py-12 flex flex-col items-center justify-center gap-6 border-t border-rippl-black-3 relative z-10 text-center">
+        <div className="flex items-center justify-center space-x-2 grayscale opacity-40">
           <Image src="/logo.png" alt="Rippl" width={28} height={28} className="object-contain" />
           <span className="text-2xl font-black tracking-tighter">Rippl<span className="text-rippl-violet">.</span></span>
         </div>
-        <div className="opacity-50 text-[10px] font-bold tracking-[0.2em] text-rippl-gray uppercase">
+        <div className="w-full opacity-50 text-[10px] font-bold tracking-[0.2em] text-rippl-gray uppercase text-center">
           © 2026 Rippl. Designed for the Next Generation of Creators.
         </div>
       </footer>
