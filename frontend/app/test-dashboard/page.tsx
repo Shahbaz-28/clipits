@@ -2,7 +2,7 @@
 
 import { LandingHero } from "@/components/landing-hero"
 
-export default function PreviewLandingPage() {
+export default function TestDashboardPage() {
   return (
     <div suppressHydrationWarning>
       <LandingHero />
