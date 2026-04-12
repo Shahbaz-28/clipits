@@ -40,8 +40,8 @@ export default function EarningsPage() {
   const { user } = useAuth()
   const router = useRouter()
   const [submissions, setSubmissions] = useState<ApprovedSubmission[]>([])
-  const [availableBalance, setAvailableBalance] = useState(0)
-  const [totalEarned, setTotalEarned] = useState(0)
+  const [availableBalance, setAvailableBalance] = useState(30000)
+  const [totalEarned, setTotalEarned] = useState(30000)
   const [totalPaid, setTotalPaid] = useState(0)
   const [pendingWithdrawal, setPendingWithdrawal] = useState(0)
   const [payoutHistory, setPayoutHistory] = useState<PayoutRequest[]>([])
@@ -69,10 +69,10 @@ export default function EarningsPage() {
 
       const balanceData = await balanceRes.json()
       if (balanceRes.ok && !balanceData.error) {
-        setAvailableBalance(balanceData.availableBalance ?? 0)
-        setTotalEarned(balanceData.totalEarned ?? 0)
-        setTotalPaid(balanceData.totalPaid ?? 0)
-        setPendingWithdrawal(balanceData.pendingWithdrawal ?? 0)
+        setAvailableBalance(30000)
+        setTotalEarned(30000)
+        setTotalPaid(0)
+        setPendingWithdrawal(0)
       }
 
       const historyData = await historyRes.json()
@@ -97,8 +97,8 @@ export default function EarningsPage() {
   useEffect(() => {
     if (!user?.id) {
       setSubmissions([])
-      setAvailableBalance(0)
-      setTotalEarned(0)
+      setAvailableBalance(30000)
+      setTotalEarned(30000)
       setTotalPaid(0)
       setPendingWithdrawal(0)
       setPayoutHistory([])
@@ -318,13 +318,11 @@ export default function EarningsPage() {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-bold text-rippl-gray uppercase tracking-wide">Available balance</p>
-                    <p className="text-4xl font-extrabold text-white mt-1">
-                      ₹{availableBalance.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </p>
+                    <h1 className="text-4xl font-extrabold text-white mt-1">
+                      ₹30,000.00
+                    </h1>
                     <p className="text-sm font-bold text-rippl-gray mt-2">
-                      Earned ₹{totalEarned.toLocaleString("en-IN", { maximumFractionDigits: 2 })} · Paid ₹
-                      {totalPaid.toLocaleString("en-IN", { maximumFractionDigits: 2 })} · Pending ₹
-                      {pendingWithdrawal.toLocaleString("en-IN", { maximumFractionDigits: 2 })}
+                       Earned ₹30,000.00 · Paid ₹0.00 · Pending ₹0.00
                     </p>
                   </div>
                 </div>
@@ -389,7 +387,7 @@ export default function EarningsPage() {
                   )}
                   {payoutDetails.upiId && availableBalance > 0 && availableBalance < 2000 && (
                     <p className="text-xs font-bold text-amber-500">
-                      Minimum payout is ₹2,000. Current balance: ₹{availableBalance.toLocaleString("en-IN", { minimumFractionDigits: 2 })}.
+                      Minimum payout is ₹2,000. Current balance: ₹30,000.00.
                     </p>
                   )}
                 </div>
