@@ -322,7 +322,7 @@ export default function EarningsPage() {
                       ₹30,000.00
                     </h1>
                     <p className="text-sm font-bold text-rippl-gray mt-2">
-                       Earned ₹30,000.00 · Paid ₹0.00 · Pending ₹0.00
+                      Earned ₹30,000.00 · Paid ₹0.00 · Pending ₹30,000.00
                     </p>
                   </div>
                 </div>
@@ -530,13 +530,12 @@ export default function EarningsPage() {
                         )}
                       </div>
                       <span
-                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold ${
-                          payout.status === "paid"
+                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold ${payout.status === "paid"
                             ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                             : payout.status === "rejected"
-                            ? "bg-red-500/10 text-red-500 border border-red-500/20"
-                            : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
-                        }`}
+                              ? "bg-red-500/10 text-red-500 border border-red-500/20"
+                              : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                          }`}
                       >
                         {payout.status.charAt(0).toUpperCase() + payout.status.slice(1)}
                       </span>
