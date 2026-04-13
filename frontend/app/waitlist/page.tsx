@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useId, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Zap, ArrowRight, Sparkles, Megaphone, Video } from "lucide-react"
@@ -26,9 +26,16 @@ function fireConfetti() {
   }, 250)
 }
 
+const selectClass =
+  "flex h-11 w-full rounded-xl border border-rippl-black-3 bg-rippl-black-2/50 px-4 py-2 text-sm text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-rippl-violet focus-visible:border-rippl-violet"
+
 export default function WaitlistPage() {
+  const waitlistFormId = useId()
   const [email, setEmail] = useState("")
   const [role, setRole] = useState<"clipper" | "creator">("clipper")
+  const [creatorMonthlySpend, setCreatorMonthlySpend] = useState("")
+  const [creatorContentType, setCreatorContentType] = useState("")
+  const [clipperClippedBefore, setClipperClippedBefore] = useState<"" | "yes" | "no">("")
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -39,7 +46,14 @@ export default function WaitlistPage() {
     if (!email.trim()) return
     setError(null)
     setLoading(true)
-    const result = await joinWaitlist(email, role, honeypot)
+    const survey =
+      role === "creator"
+        ? {
+            creatorMonthlySpend: creatorMonthlySpend.trim(),
+            creatorContentType: creatorContentType.trim(),
+          }
+        : { clipperClippedBefore: clipperClippedBefore as "yes" | "no" }
+    const result = await joinWaitlist(email, role, honeypot, survey)
     setLoading(false)
     if (!result.ok) {
       setError(
@@ -115,10 +129,67 @@ export default function WaitlistPage() {
                 </button>
               </div>
 
+              <div className="w-full space-y-4 mb-6 text-left">
+                {role === "creator" ? (
+                  <>
+                    <div>
+                      <label htmlFor="wp-creator-spend" className="block text-sm font-medium text-rippl-gray mb-2">
+                        How much would you be willing to spend monthly on clipping campaigns?
+                      </label>
+                      <Input
+                        id="wp-creator-spend"
+                        form={waitlistFormId}
+                        value={creatorMonthlySpend}
+                        onChange={(e) => setCreatorMonthlySpend(e.target.value)}
+                        required
+                        className="bg-rippl-black-2/50"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="wp-creator-type" className="block text-sm font-medium text-rippl-gray mb-2">
+                        What type of content do you create?
+                      </label>
+                      <Input
+                        id="wp-creator-type"
+                        form={waitlistFormId}
+                        value={creatorContentType}
+                        onChange={(e) => setCreatorContentType(e.target.value)}
+                        required
+                        className="bg-rippl-black-2/50"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div>
+                    <label htmlFor="wp-clipper-before" className="block text-sm font-medium text-rippl-gray mb-2">
+                      Have you clipped content before?
+                    </label>
+                    <select
+                      id="wp-clipper-before"
+                      form={waitlistFormId}
+                      value={clipperClippedBefore}
+                      onChange={(e) => setClipperClippedBefore(e.target.value as "" | "yes" | "no")}
+                      required
+                      className={selectClass}
+                    >
+                      <option value="" disabled>
+                        Select
+                      </option>
+                      <option value="yes">Yes</option>
+                      <option value="no">No</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+
               {/* Form Input Group */}
               <div className="relative group w-full">
                 <div className="absolute -inset-1 bg-gradient-to-r from-rippl-violet to-rippl-violet-dim rounded-[30px] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-                <form onSubmit={handleSubmit} className="relative flex flex-col sm:flex-row gap-2 p-2 bg-rippl-black-2 border border-rippl-black-3 rounded-[30px] shadow-2xl backdrop-blur-xl">
+                <form
+                  id={waitlistFormId}
+                  onSubmit={handleSubmit}
+                  className="relative flex flex-col sm:flex-row gap-2 p-2 bg-rippl-black-2 border border-rippl-black-3 rounded-[30px] shadow-2xl backdrop-blur-xl"
+                >
                   <label className="sr-only" htmlFor={WAITLIST_HONEYPOT_FIELD}>
                     Leave blank
                   </label>
@@ -133,11 +204,6 @@ export default function WaitlistPage() {
                     className="absolute -left-[9999px] top-0 h-px w-px overflow-hidden opacity-0"
                     aria-hidden="true"
                   />
-                  {error && !submitted && (
-                    <p className="absolute -bottom-12 left-0 right-0 text-center text-sm text-red-400 px-2">
-                      {error}
-                    </p>
-                  )}
                   <Input
                     type="email"
                     placeholder="name@email.com"
@@ -162,6 +228,9 @@ export default function WaitlistPage() {
                   </Button>
                 </form>
               </div>
+              {error && !submitted && (
+                <p className="mt-4 text-center text-sm text-red-400 px-2">{error}</p>
+              )}
             </div>
           </div>
         ) : (

@@ -5,6 +5,7 @@ import { WAITLIST_HONEYPOT_FIELD } from "@/lib/waitlist-constants"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const MAX_EMAIL_LEN = 254
+const MAX_SURVEY_TEXT = 500
 
 export function GET() {
   return NextResponse.json({ error: "Method not allowed" }, { status: 405 })
@@ -46,6 +47,42 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Please choose Clipper or Creator." }, { status: 400 })
     }
 
+    let creatorMonthlySpend: string | null = null
+    let creatorContentType: string | null = null
+    let clipperClippedBefore: string | null = null
+
+    if (role === "creator") {
+      const spend =
+        typeof body.creatorMonthlySpend === "string" ? body.creatorMonthlySpend.trim() : ""
+      const creatorContentTrimmed =
+        typeof body.creatorContentType === "string" ? body.creatorContentType.trim() : ""
+      if (!spend || spend.length > MAX_SURVEY_TEXT) {
+        return NextResponse.json(
+          { error: "Please answer both creator questions (monthly spend and content type)." },
+          { status: 400 },
+        )
+      }
+      if (!creatorContentTrimmed || creatorContentTrimmed.length > MAX_SURVEY_TEXT) {
+        return NextResponse.json(
+          { error: "Please answer both creator questions (monthly spend and content type)." },
+          { status: 400 },
+        )
+      }
+      creatorMonthlySpend = spend
+      creatorContentType = creatorContentTrimmed
+    } else {
+      const rawClipped = body.clipperClippedBefore
+      const clipped =
+        typeof rawClipped === "string" ? rawClipped.trim().toLowerCase() : ""
+      if (clipped !== "yes" && clipped !== "no") {
+        return NextResponse.json(
+          { error: "Please indicate if you have clipped content before." },
+          { status: 400 },
+        )
+      }
+      clipperClippedBefore = clipped
+    }
+
     const email = rawEmail.toLowerCase()
 
     const allowedEmail = checkRateLimit(`waitlist:email:${email}`, 8, 60 * 60 * 1000)
@@ -59,6 +96,9 @@ export async function POST(req: NextRequest) {
     const { error } = await supabaseAdmin.from("waitlist_signups").insert({
       email,
       role,
+      creator_monthly_spend: creatorMonthlySpend,
+      creator_content_type: creatorContentType,
+      clipper_clipped_before: clipperClippedBefore,
     })
 
     if (error) {

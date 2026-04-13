@@ -1,8 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useId, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { ArrowRight, Sparkles, Megaphone, Video } from "lucide-react"
 import Link from "next/link"
 import confetti from "canvas-confetti"
@@ -27,8 +34,12 @@ function fireConfetti() {
 }
 
 export function WaitlistHero() {
+  const waitlistFormId = useId()
   const [email, setEmail] = useState("")
   const [role, setRole] = useState<"clipper" | "creator">("clipper")
+  const [creatorMonthlySpend, setCreatorMonthlySpend] = useState("")
+  const [creatorContentType, setCreatorContentType] = useState("")
+  const [clipperClippedBefore, setClipperClippedBefore] = useState<"" | "yes" | "no">("")
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -39,7 +50,14 @@ export function WaitlistHero() {
     if (!email.trim()) return
     setError(null)
     setLoading(true)
-    const result = await joinWaitlist(email, role, honeypot)
+    const survey =
+      role === "creator"
+        ? {
+            creatorMonthlySpend: creatorMonthlySpend.trim(),
+            creatorContentType: creatorContentType.trim(),
+          }
+        : { clipperClippedBefore: clipperClippedBefore as "yes" | "no" }
+    const result = await joinWaitlist(email, role, honeypot, survey)
     setLoading(false)
     if (!result.ok) {
       setError(
@@ -95,7 +113,7 @@ export function WaitlistHero() {
             {/* Hero Heading */}
             <div className="max-w-4xl mx-auto px-1 sm:px-4">
               <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[1.1] mb-6">
-                The Future of <span className="text-rippl-violet-soft">Content Rewards</span> is Almost Here.
+                The Future of <span className="text-rippl-violet-soft">Content Rewards Here</span>
               </h1>
             </div>
 
@@ -125,10 +143,84 @@ export function WaitlistHero() {
                 </button>
               </div>
 
+              <div className="w-full space-y-4 mb-6 text-left">
+                {role === "creator" ? (
+                  <>
+                    <div>
+                      <label htmlFor="wh-creator-spend" className="block text-sm font-medium text-rippl-gray mb-2">
+                        How much would you be willing to spend monthly on clipping campaigns?
+                      </label>
+                      <Input
+                        id="wh-creator-spend"
+                        form={waitlistFormId}
+                        value={creatorMonthlySpend}
+                        onChange={(e) => setCreatorMonthlySpend(e.target.value)}
+                        required
+                        className="bg-rippl-black-2/50"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="wh-creator-type" className="block text-sm font-medium text-rippl-gray mb-2">
+                        What type of content do you create?
+                      </label>
+                      <Input
+                        id="wh-creator-type"
+                        form={waitlistFormId}
+                        value={creatorContentType}
+                        onChange={(e) => setCreatorContentType(e.target.value)}
+                        required
+                        className="bg-rippl-black-2/50"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <div>
+                    <label htmlFor="wh-clipper-before" className="block text-sm font-medium text-rippl-gray mb-2">
+                      Have you clipped content before?
+                    </label>
+                    <Select
+                      value={clipperClippedBefore === "" ? undefined : clipperClippedBefore}
+                      onValueChange={(v) => setClipperClippedBefore(v as "yes" | "no")}
+                    >
+                      <SelectTrigger
+                        id="wh-clipper-before"
+                        className="w-full border-rippl-violet/40 bg-rippl-black-2/50 text-white focus:ring-2 focus:ring-rippl-violet/40 data-[placeholder]:text-rippl-gray/70"
+                      >
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent
+                        position="popper"
+                        sideOffset={6}
+                        className="border-rippl-violet/25 bg-rippl-black-2 text-white shadow-xl shadow-black/40"
+                      >
+                        <SelectItem value="yes" className="cursor-pointer normal-case text-sm font-medium">
+                          Yes
+                        </SelectItem>
+                        <SelectItem value="no" className="cursor-pointer normal-case text-sm font-medium">
+                          No
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <input
+                      type="hidden"
+                      form={waitlistFormId}
+                      value={clipperClippedBefore}
+                      required
+                      aria-hidden="true"
+                      tabIndex={-1}
+                    />
+                  </div>
+                )}
+              </div>
+
               {/* Form Input Group */}
               <div className="relative group w-full">
                 <div className="absolute -inset-1 bg-gradient-to-r from-rippl-violet to-rippl-violet-dim rounded-[30px] blur opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-                <form onSubmit={handleSubmit} className="relative flex flex-col sm:flex-row gap-2 p-2 bg-rippl-black-2 border border-rippl-black-3 rounded-[30px] shadow-2xl backdrop-blur-xl">
+                <form
+                  id={waitlistFormId}
+                  onSubmit={handleSubmit}
+                  className="relative flex flex-col sm:flex-row gap-2 p-2 bg-rippl-black-2 border border-rippl-black-3 rounded-[30px] shadow-2xl backdrop-blur-xl"
+                >
                   <label className="sr-only" htmlFor={WAITLIST_HONEYPOT_FIELD}>
                     Leave blank
                   </label>
@@ -143,11 +235,6 @@ export function WaitlistHero() {
                     className="absolute -left-[9999px] top-0 h-px w-px overflow-hidden opacity-0"
                     aria-hidden="true"
                   />
-                  {error && !submitted && (
-                    <p className="absolute -bottom-12 left-0 right-0 text-center text-sm text-red-400 px-2">
-                      {error}
-                    </p>
-                  )}
                   <Input
                     type="email"
                     placeholder="name@email.com"
@@ -172,6 +259,9 @@ export function WaitlistHero() {
                   </Button>
                 </form>
               </div>
+              {error && !submitted && (
+                <p className="mt-4 text-center text-sm text-red-400 px-2">{error}</p>
+              )}
             </div>
           </div>
         ) : (

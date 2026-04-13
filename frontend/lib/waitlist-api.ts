@@ -8,10 +8,15 @@ export type JoinWaitlistResult =
   | { ok: true }
   | { ok: false; error: string; duplicate?: boolean }
 
+export type WaitlistSurveyPayload =
+  | { creatorMonthlySpend: string; creatorContentType: string }
+  | { clipperClippedBefore: "yes" | "no" }
+
 export async function joinWaitlist(
   email: string,
   role: WaitlistRole,
   honeypotValue = "",
+  survey: WaitlistSurveyPayload,
 ): Promise<JoinWaitlistResult> {
   const res = await fetch("/api/waitlist", {
     method: "POST",
@@ -19,6 +24,7 @@ export async function joinWaitlist(
     body: JSON.stringify({
       email: email.trim(),
       role,
+      ...survey,
       [WAITLIST_HONEYPOT_FIELD]: honeypotValue,
     }),
   })
