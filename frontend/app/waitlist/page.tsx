@@ -7,6 +7,7 @@ import { Zap, ArrowRight, Sparkles, Megaphone, Video } from "lucide-react"
 import Link from "next/link"
 import confetti from "canvas-confetti"
 import Image from "next/image"
+import { RIPPL_DISCORD_INVITE_URL } from "@/lib/waitlist-constants"
 import { joinWaitlist, WAITLIST_HONEYPOT_FIELD } from "@/lib/waitlist-api"
 
 function fireConfetti() {
@@ -77,7 +78,7 @@ export default function WaitlistPage() {
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none" />
 
       {/* Header / Logo */}
-      <nav className="container mx-auto px-3 sm:px-6 py-4 sm:py-8 flex justify-center relative z-10">
+      <nav className="container mx-auto px-3 sm:px-6 pt-4 pb-2 sm:pt-6 sm:pb-3 flex justify-center relative z-10">
         <Link href="/" className="flex items-center space-x-3 group">
           <div className="w-10 h-10 bg-rippl-violet rounded-xl flex items-center justify-center shadow-lg shadow-rippl-violet/30 group-hover:scale-110 transition-transform">
             <Zap className="w-6 h-6 text-white" />
@@ -87,7 +88,7 @@ export default function WaitlistPage() {
       </nav>
 
       {/* Main Content */}
-      <main className="container mx-auto px-3 sm:px-6 pt-4 sm:pt-12 pb-24 relative z-10 text-center">
+      <main className="container mx-auto px-3 sm:px-6 pt-2 sm:pt-6 pb-24 relative z-10 text-center">
         {!submitted ? (
           <div className="max-w-3xl mx-auto">
             {/* Badge */}
@@ -231,6 +232,33 @@ export default function WaitlistPage() {
               {error && !submitted && (
                 <p className="mt-4 text-center text-sm text-red-400 px-2">{error}</p>
               )}
+              <div
+                className="mt-8 flex flex-col items-center justify-center gap-2.5 px-2 text-center text-sm leading-relaxed text-rippl-gray sm:flex-row sm:flex-wrap sm:gap-x-1.5 sm:gap-y-0"
+                role="note"
+              >
+                <span className="max-w-[min(100%,20rem)] sm:max-w-none">
+                  Quick updates and community chat
+                </span>
+                <span className="hidden shrink-0 text-rippl-gray sm:inline" aria-hidden>
+                  —
+                </span>
+                <a
+                  href={RIPPL_DISCORD_INVITE_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 font-semibold text-rippl-violet-soft underline-offset-4 transition-colors hover:text-white hover:underline"
+                >
+                  <Image
+                    src="/discord.png"
+                    alt=""
+                    width={20}
+                    height={20}
+                    className="h-5 w-5 shrink-0 object-contain"
+                    aria-hidden
+                  />
+                  Join Discord
+                </a>
+              </div>
             </div>
           </div>
         ) : (
@@ -255,7 +283,7 @@ export default function WaitlistPage() {
               We&apos;ve reserved your priority spot. Watch your inbox—exclusive perks are heading your way soon.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-3 sm:px-6">
+            <div className="flex flex-col items-center justify-center gap-5 px-3 sm:px-6">
               <Button
                 className="bg-rippl-violet text-white h-14 px-8 sm:px-12 rounded-[20px] font-black shadow-xl shadow-rippl-violet/25 hover:shadow-rippl-violet/40 transition-all hover:scale-105 uppercase tracking-widest text-xs sm:text-sm w-full sm:w-auto"
                 onClick={() => {
@@ -274,6 +302,22 @@ export default function WaitlistPage() {
               >
                 Share Rippl with Friends 🚀
               </Button>
+              <a
+                href={RIPPL_DISCORD_INVITE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm font-semibold text-rippl-violet-soft underline-offset-4 transition-colors hover:text-white hover:underline"
+              >
+                <Image
+                  src="/discord.png"
+                  alt=""
+                  width={20}
+                  height={20}
+                  className="h-5 w-5 shrink-0 object-contain"
+                  aria-hidden
+                />
+                Join Rippl on Discord
+              </a>
             </div>
           </div>
         )}
