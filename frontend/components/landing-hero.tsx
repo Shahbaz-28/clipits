@@ -205,9 +205,15 @@ export function LandingHero() {
               </div>
               <span className="text-xl font-black text-white tracking-tighter">Rippl<span className="text-rippl-violet">.</span></span>
             </div>
-            <p className="text-sm text-rippl-gray font-medium">
-              © 2026 Rippl. All rights reserved.
-            </p>
+            <div className="flex flex-col items-center gap-2 sm:items-end sm:text-right">
+              <Link
+                href="/privacy-policy"
+                className="text-sm font-semibold text-rippl-violet-soft transition-colors hover:text-white"
+              >
+                Privacy Policy
+              </Link>
+              <p className="text-sm text-rippl-gray font-medium">© 2026 Rippl. All rights reserved.</p>
+            </div>
           </div>
         </div>
       </footer>
