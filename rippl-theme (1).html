@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rippl — Design Theme & Waitlist Page</title>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+
+  <style>
+    /* ============================================
+       RIPPL BRAND THEME — SHARE THIS WITH YOUR DEV
+       ============================================
+
+       BRAND IDENTITY
+       --------------
+       Name        : Rippl
+       Domain      : getrippl.co
+       Tagline     : Clip. Post. Earn ₹
+       Font        : Manrope (Google Fonts)
+       Theme       : Dark + Violet — Luxury Premium
+
+       COLOR PALETTE
+       -------------
+       --rippl-black      : #08050f  → Main background
+       --rippl-black-2    : #0f0a1a  → Card backgrounds
+       --rippl-black-3    : #1a1230  → Borders, subtle surfaces
+       --rippl-violet     : #8b5cf6  → Primary — buttons, highlights, logo
+       --rippl-violet-soft: #c4b5fd  → Secondary text, subheadings
+       --rippl-violet-dim : #3b2a6e  → Hover states, subtle fills
+       --rippl-white      : #ffffff  → Primary text
+       --rippl-gray       : #6b7280  → Muted text
+    */
+
+    :root {
+      --rippl-black      : #08050f;
+      --rippl-black-2    : #0f0a1a;
+      --rippl-black-3    : #1a1230;
+      --rippl-violet     : #8b5cf6;
+      --rippl-violet-soft: #c4b5fd;
+      --rippl-violet-dim : #3b2a6e;
+      --rippl-white      : #ffffff;
+      --rippl-gray       : #6b7280;
+      --rippl-font       : 'Manrope', sans-serif;
+      --rippl-radius     : 12px;
+      --rippl-radius-sm  : 8px;
+      --rippl-radius-full: 100px;
+    }
+
+    /* ============================================
+       RESET & BASE
+    ============================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--rippl-black);
+      color: var(--rippl-white);
+      font-family: var(--rippl-font);
+      font-size: 16px;
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ============================================
+       BACKGROUND EFFECT
+    ============================================ */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ============================================
+       NAVBAR
+    ============================================ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 40px;
+      background: rgba(8, 5, 15, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 0.5px solid var(--rippl-black-3);
+    }
+
+    .nav-logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--rippl-white);
+      letter-spacing: -0.5px;
+    }
+
+    .nav-logo span {
+      color: var(--rippl-violet);
+    }
+
+    .nav-btn {
+      background: var(--rippl-violet);
+      color: var(--rippl-white);
+      border: none;
+      padding: 10px 24px;
+      border-radius: var(--rippl-radius-full);
+      font-family: var(--rippl-font);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .nav-btn:hover { opacity: 0.85; }
+
+    /* ============================================
+       HERO SECTION
+    ============================================ */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--rippl-black-3);
+      border: 0.5px solid var(--rippl-violet-dim);
+      color: var(--rippl-violet-soft);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 18px;
+      border-radius: var(--rippl-radius-full);
+      margin-bottom: 32px;
+      letter-spacing: 0.3px;
+    }
+
+    .hero-badge .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--rippl-violet);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 72px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+      max-width: 800px;
+    }
+
+    .hero h1 .highlight {
+      color: var(--rippl-violet);
+    }
+
+    .hero p {
+      font-size: clamp(16px, 2vw, 20px);
+      color: var(--rippl-gray);
+      max-width: 520px;
+      margin-bottom: 48px;
+      line-height: 1.7;
+    }
+
+    /* ============================================
+       WAITLIST FORM
+    ============================================ */
+    .waitlist-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--rippl-black-2);
+      border: 0.5px solid var(--rippl-black-3);
+      color: var(--rippl-white);
+      font-family: var(--rippl-font);
+      font-size: 14px;
+      padding: 14px 18px;
+      border-radius: var(--rippl-radius-sm);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input::placeholder { color: var(--rippl-gray); }
+
+    .form-input:focus {
+      border-color: var(--rippl-violet);
+    }
+
+    .form-select {
+      width: 100%;
+      background: var(--rippl-black-2);
+      border: 0.5px solid var(--rippl-black-3);
+      color: var(--rippl-gray);
+      font-family: var(--rippl-font);
+      font-size: 14px;
+      padding: 14px 18px;
+      border-radius: var(--rippl-radius-sm);
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-select:focus { border-color: var(--rippl-violet); }
+
+    .form-select option { background: var(--rippl-black-2); color: var(--rippl-white); }
+
+    .submit-btn {
+      width: 100%;
+      background: var(--rippl-violet);
+      color: var(--rippl-white);
+      border: none;
+      padding: 16px;
+      border-radius: var(--rippl-radius-sm);
+      font-family: var(--rippl-font);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.2px;
+    }
+
+    .submit-btn:hover { opacity: 0.9; }
+    .submit-btn:active { transform: scale(0.99); }
+
+    /* ============================================
+       SUCCESS STATE
+    ============================================ */
+    .success-box {
+      display: none;
+      background: var(--rippl-black-2);
+      border: 0.5px solid var(--rippl-violet-dim);
+      border-radius: var(--rippl-radius);
+      padding: 32px;
+      text-align: center;
+      max-width: 440px;
+      width: 100%;
+    }
+
+    .success-box .success-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--rippl-violet-dim);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 24px;
+    }
+
+    .success-box h3 {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .success-box p {
+      color: var(--rippl-gray);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .waitlist-number {
+      color: var(--rippl-violet);
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    /* ============================================
+       STATS ROW
+    ============================================ */
+    .stats {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      padding: 60px 24px;
+      border-top: 0.5px solid var(--rippl-black-3);
+      border-bottom: 0.5px solid var(--rippl-black-3);
+      flex-wrap: wrap;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-item .stat-value {
+      font-size: 36px;
+      font-weight: 800;
+      color: var(--rippl-violet);
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+
+    .stat-item .stat-label {
+      font-size: 14px;
+      color: var(--rippl-gray);
+    }
+
+    /* ============================================
+       FEATURES SECTION
+    ============================================ */
+    .features {
+      position: relative;
+      z-index: 1;
+      padding: 100px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      text-align: center;
+      color: var(--rippl-violet);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 64px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--rippl-black-2);
+      border: 0.5px solid var(--rippl-black-3);
+      border-radius: var(--rippl-radius);
+      padding: 32px;
+      transition: border-color 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--rippl-violet-dim);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--rippl-black-3);
+      border-radius: var(--rippl-radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--rippl-white);
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--rippl-gray);
+      line-height: 1.7;
+    }
+
+    /* ============================================
+       HOW IT WORKS
+    ============================================ */
+    .how-it-works {
+      position: relative;
+      z-index: 1;
+      padding: 80px 24px;
+      background: var(--rippl-black-2);
+      border-top: 0.5px solid var(--rippl-black-3);
+      border-bottom: 0.5px solid var(--rippl-black-3);
+    }
+
+    .how-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 32px;
+      margin-top: 56px;
+    }
+
+    .step {
+      text-align: center;
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      background: var(--rippl-violet);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      margin: 0 auto 16px;
+    }
+
+    .step h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .step p {
+      font-size: 13px;
+      color: var(--rippl-gray);
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       FOOTER
+    ============================================ */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 40px 24px;
+      border-top: 0.5px solid var(--rippl-black-3);
+    }
+
+    footer .footer-logo {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    footer .footer-logo span { color: var(--rippl-violet); }
+
+    footer p {
+      font-size: 13px;
+      color: var(--rippl-gray);
+    }
+
+    /* ============================================
+       UTILITY CLASSES — USE THESE EVERYWHERE
+    ============================================ */
+
+    /* Buttons */
+    .btn-primary {
+      background: var(--rippl-violet);
+      color: var(--rippl-white);
+      border: none;
+      padding: 12px 28px;
+      border-radius: var(--rippl-radius-full);
+      font-family: var(--rippl-font);
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--rippl-violet-soft);
+      border: 0.5px solid var(--rippl-violet-dim);
+      padding: 12px 28px;
+      border-radius: var(--rippl-radius-full);
+      font-family: var(--rippl-font);
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-outline:hover { background: var(--rippl-black-3); }
+
+    /* Cards */
+    .card {
+      background: var(--rippl-black-2);
+      border: 0.5px solid var(--rippl-black-3);
+      border-radius: var(--rippl-radius);
+      padding: 24px;
+    }
+
+    /* Badge/Pill */
+    .badge {
+      display: inline-block;
+      background: var(--rippl-black-3);
+      color: var(--rippl-violet-soft);
+      border: 0.5px solid var(--rippl-violet-dim);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: var(--rippl-radius-full);
+    }
+
+    /* Text helpers */
+    .text-violet  { color: var(--rippl-violet); }
+    .text-soft    { color: var(--rippl-violet-soft); }
+    .text-muted   { color: var(--rippl-gray); }
+    .text-white   { color: var(--rippl-white); }
+    .font-bold    { font-weight: 800; }
+    .font-medium  { font-weight: 600; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      nav { padding: 16px 20px; }
+      .form-row { grid-template-columns: 1fr; }
+      .stats { gap: 32px; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-logo">Rippl<span>.</span></div>
+    <button class="nav-btn" onclick="document.querySelector('.waitlist-form').scrollIntoView({behavior:'smooth'})">Join Waitlist</button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Coming Soon — India's First Content Rewards Platform
+    </div>
+
+    <h1>
+      Clip. Post.<br/>
+      <span class="highlight">Earn ₹ in India.</span>
+    </h1>
+
+    <p>
+      No more payment barriers. No more losing money on international platforms.
+      Rippl pays Indian clippers directly in ₹ via UPI — for every view you generate.
+    </p>
+
+    <!-- WAITLIST FORM -->
+    <form class="waitlist-form" id="waitlistForm" onsubmit="handleSubmit(event)">
+      <div class="form-row">
+        <input class="form-input" type="text" placeholder="Your name" required />
+        <input class="form-input" type="tel" placeholder="Phone number" required />
+      </div>
+      <input class="form-input" type="email" placeholder="Email address" required />
+      <select class="form-select" required>
+        <option value="" disabled selected>I am a...</option>
+        <option value="clipper">Clipper — I want to earn</option>
+        <option value="creator">Creator — I want clippers</option>
+      </select>
+      <button type="submit" class="submit-btn">Join the Waitlist — It's Free</button>
+    </form>
+
+    <!-- SUCCESS STATE -->
+    <div class="success-box" id="successBox">
+      <div class="success-icon">🌊</div>
+      <h3>You're on the waitlist!</h3>
+      <p>You are <span class="waitlist-number" id="waitlistNum">#247</span> in line.</p>
+      <p>Share Rippl with friends to move up faster.</p>
+      <button class="btn-primary" onclick="shareRippl()">Share Rippl</button>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats">
+    <div class="stat-item">
+      <div class="stat-value">₹3</div>
+      <div class="stat-label">Per 1K views</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">UPI</div>
+      <div class="stat-label">Instant payouts</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">0%</div>
+      <div class="stat-label">Signup fee</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">₹2K</div>
+      <div class="stat-label">Min. withdrawal</div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <div class="section-label">Why Rippl</div>
+    <h2 class="section-title">Built for Indian Clippers</h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">₹</div>
+        <h3>Indian Payments</h3>
+        <p>Get paid directly in ₹ via UPI, no international transfer fees, no currency conversion losses.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎬</div>
+        <h3>Join Campaigns</h3>
+        <p>Browse campaigns from top Indian creators and brands. Pick what you enjoy clipping.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3>Earn Per View</h3>
+        <p>Every view on your clip earns you money. Watch your dashboard grow in real time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Instant Withdrawal</h3>
+        <p>Hit ₹2000 and cash out instantly to your UPI. No waiting, no delays, no drama.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how-it-works">
+    <div class="how-inner">
+      <div class="section-label">How it works</div>
+      <h2 class="section-title">Three steps to your first ₹</h2>
+      <div class="steps-grid">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h4>Sign up free</h4>
+          <p>Create your Rippl account in under 2 minutes. No fees, no credit card.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h4>Join a campaign</h4>
+          <p>Browse campaigns from creators you love. Pick one and start clipping.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h4>Earn ₹</h4>
+          <p>Submit your clips and earn for every view. Withdraw to UPI anytime.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Rippl<span>.</span></div>
+    <p>India's first content rewards platform — getrippl.co</p>
+    <p style="margin-top:8px; font-size:12px;">© 2026 Rippl. All rights reserved.</p>
+  </footer>
+
+  <script>
+    let count = 200 + Math.floor(Math.random() * 100);
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      count++;
+      document.getElementById('waitlistNum').textContent = '#' + count;
+      document.getElementById('waitlistForm').style.display = 'none';
+      document.getElementById('successBox').style.display = 'block';
+    }
+
+    function shareRippl() {
+      const text = "I just joined the waitlist for Rippl — India's first content rewards platform where clippers get paid in ₹! Join here: https://getrippl.co";
+      if (navigator.share) {
+        navigator.share({ title: 'Rippl', text: text, url: 'https://getrippl.co' });
+      } else {
+        navigator.clipboard.writeText(text);
+        alert('Link copied! Share it with your friends.');
+      }
+    }
+  </script>
+
+</body>
+</html>

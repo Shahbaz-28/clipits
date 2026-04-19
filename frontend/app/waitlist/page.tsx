@@ -237,7 +237,7 @@ export default function WaitlistPage() {
                 role="note"
               >
                 <span className="max-w-[min(100%,20rem)] sm:max-w-none">
-                  Quick updates and community chat
+                  For Campaign and Quick updates
                 </span>
                 <span className="hidden shrink-0 text-rippl-gray sm:inline" aria-hidden>
                   —
